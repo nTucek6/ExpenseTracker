@@ -7,5 +7,14 @@ enum class ExpenseEnum {
     SHOPPING,       // Clothes, electronics
     BILLS,          // Utilities, rent
     HEALTH,         // Gym, medicine
-    OTHER
+    OTHER;
+    fun getDisplayName(): String = when (this) {
+        FOOD -> "Food"
+        TRANSPORT -> "Transport"
+        ENTERTAINMENT -> "Entertainment"
+        SHOPPING -> "Shopping"
+        BILLS -> "Bills"
+        HEALTH -> "Health"
+        OTHER -> "Other"
+    }
 }

@@ -25,4 +25,6 @@ interface MonthlySummaryDao {
 
     @Query("SELECT COUNT(*) FROM monthly_summary WHERE year = :year AND month = :month")
     suspend fun budgetExists(year: Int, month: Int): Int
+
+
 }

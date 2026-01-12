@@ -7,9 +7,11 @@ import java.util.Date
 
 @Entity(tableName = "expenses")
 data class Expense (
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val amount : Double,
     val category : ExpenseEnum,
-    val createdAt : Long
+    val description: String? = null,
+    val createdAt : Long = System.currentTimeMillis()
 
 )

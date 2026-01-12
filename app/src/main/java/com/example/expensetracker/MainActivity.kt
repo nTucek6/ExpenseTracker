@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         viewModel = ViewModelProvider(this)[MonthlySummaryViewModel::class.java]
 
-        // Auto budget
         lifecycleScope.launch {
             viewModel.createDefaultSummary()
         }
@@ -54,7 +53,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .findFragmentById(R.id.fragment_container) as NavHostFragment
         val navController = navHostFragment.navController
 
-        findViewById<BottomNavigationView>(R.id.bottom_navigation)
-            .setupWithNavController(navController)
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.setupWithNavController(navController)
+
+        bottomNav.setOnItemSelectedListener { item ->
+            val wasHandled = navController.popBackStack(item.itemId, inclusive = false)
+            if (!wasHandled) {
+                navController.navigate(item.itemId)
+            }
+            true
+        }
+
     }
 }

@@ -4,10 +4,18 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/dashboardFragment">
 
+    <!-- Navigation fragments -->
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.example.expensetracker.ui.fragments.DashboardFragment"
-        android:label="Dashboard" />
+        android:label="Dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_new_expense"
+            app:destination="@id/addNewExpenseFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="false"/>
+    </fragment>
+
 
     <!-- Expenses -->
     <fragment
@@ -20,5 +28,11 @@
         android:id="@+id/settingsFragment"
         android:name="com.example.expensetracker.ui.fragments.SettingsFragment"
         android:label="Settings" />
+    <!-- Navigation fragments -->
+
+    <fragment
+        android:id="@+id/addNewExpenseFragment"
+        android:name="com.example.expensetracker.ui.fragments.AddExpenseFragment"
+        android:label="Add new expense" />
 
 </navigation>
