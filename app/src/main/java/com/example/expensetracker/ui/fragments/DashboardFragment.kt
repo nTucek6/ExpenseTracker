@@ -8,11 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.expensetracker.R
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
+import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
+    private val expenseViewModel: ExpenseViewModel by viewModels()
 
-    //private lateinit var viewModel: ExpenseViewModel
-    private val viewModel: ExpenseViewModel by viewModels()
+    private val summaryViewModel: MonthlySummaryViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,12 +23,19 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.allExpenses.observe(viewLifecycleOwner) { expense ->
+        expenseViewModel.allExpenses.observe(viewLifecycleOwner) { expense ->
             // Update RecyclerView
         }
 
         val topText = view.findViewById<TextView>(R.id.topText)
-        topText.text = topText.text.toString() + ", Nikola"
+        //topText.text = topText.text.toString() + ", Nikola"
+
+        summaryViewModel.getCurrentMonthBudget.observe(viewLifecycleOwner) {
+            sum ->
+            topText.text = ("Year: "+sum.year.toString() + " Month: " + sum.month.toString() + " Amount:" + sum.money)
+        }
+
+
     }
 
   /*  private fun setupInsertButton() {

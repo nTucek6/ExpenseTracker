@@ -2,14 +2,11 @@ package com.example.expensetracker.data.viewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.expensetracker.data.dao.ExpenseDao
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.Expense
 import kotlinx.coroutines.launch
 
-//class ExpenseViewModel(private val expenseDao: ExpenseDao) : ViewModel() {
 class ExpenseViewModel(application: Application) : AndroidViewModel(application) {
     private val expenseDao = ExpenseTrackerDatabase.getDatabase(application).expenseDao()
     val allExpenses = expenseDao.getAllExpenses();

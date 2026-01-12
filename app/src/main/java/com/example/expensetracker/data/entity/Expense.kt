@@ -8,8 +8,8 @@ import java.util.Date
 @Entity(tableName = "expenses")
 data class Expense (
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val amount : Float,
+    val amount : Double,
     val category : ExpenseEnum,
-    val createdAt : Date
+    val createdAt : Long
 
 )
