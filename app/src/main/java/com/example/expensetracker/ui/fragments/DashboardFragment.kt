@@ -1,18 +1,12 @@
 package com.example.expensetracker.ui.fragments
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.content.ContentProviderCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,19 +17,16 @@ import com.example.expensetracker.data.enums.MonthEnum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.ui.adapters.ExpenseAdapter
-import com.example.expensetracker.ui.adapters.toDateString
+import com.example.expensetracker.utils.DialogUtils
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.text.SimpleDateFormat
-import java.time.Month
-import java.util.Date
-import java.util.Locale
-import kotlin.math.exp
 
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private val expenseViewModel: ExpenseViewModel by viewModels()
 
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
+
+    private var money: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,11 +51,13 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         }
 
         summaryViewModel.getCurrentMonthBudget.observe(viewLifecycleOwner) { sum ->
-            dateText.text =
-                (MonthEnum.fromNumber(sum.month).displayName + " " + sum.year.toString())
+            //dateText.text = (MonthEnum.fromNumber(sum.month).displayName + " " + sum.year.toString())
 
-            //spentAmountText.text = sum.spent.toString() + "€"
-            //remainingText.text = (sum.money - sum.spent).toString() + "€"
+            dateText.text = String.format(
+                getString(R.string.dashboard_date_format),
+                MonthEnum.fromNumber(sum.month).displayName,
+                sum.year.toString()
+            )
 
             spentAmountText.text = String.format(getString(R.string.price_format), sum.spent)
 
@@ -74,6 +67,10 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                 progressBar.progress = ((remaining / sum.money) * 100).toInt().coerceIn(0, 100)
             } else {
                 progressBar.progress = 0
+            }
+
+            if (sum.money >= 0) {
+                money = sum.money
             }
 
         }
@@ -87,45 +84,39 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             expenseAdapter.submitList(expenses)
         }
 
+        view.findViewById<MaterialCardView>(R.id.mcv_editLimit).setOnClickListener {
+            showEditLimitDialog()
+        }
+
         view.findViewById<ExtendedFloatingActionButton>(R.id.newExpenseBtn).setOnClickListener {
-            //findNavController().navigate(R.id.action_dashboard_to_new_expense)
-            val navigate =DashboardFragmentDirections.actionDashboardToNewExpense(null)
+            val navigate = DashboardFragmentDirections.actionDashboardToNewExpense(null)
             findNavController().navigate(navigate)
         }
     }
 
-    private fun showExpenseDialog(expense: Expense) {
-        AlertDialog.Builder(context)
-            .setTitle("Expense Details")
-            .setMessage(
-                """
-            Category: ${expense.category.displayName}
-            Description: ${expense.description ?: "None"}
-            Amount: ${String.format("%.2f€", expense.amount)}
-            Date: ${expense.createdAt.toDateString()}
-        """.trimIndent()
-            )
-            .setPositiveButton("Close") { _, _ -> }
-            .setNegativeButton("Delete") { _, _ ->
-                confirmDeleteExpense(expense)
-            }
-            .setNeutralButton("Edit") { _, _ ->
-                val action = DashboardFragmentDirections.actionDashboardToNewExpense(expense)  // expense: Expense?
+    private fun showExpenseDialog(
+        expense: Expense
+    ) {
+        DialogUtils.showExpenseDialog(
+            context = requireContext(),
+            expense = expense,
+            onDelete = {
+                DialogUtils.showDeleteConfirmation(
+                    context = requireContext(),
+                    onConfirm = { expenseViewModel.delete(expense) })
+            },
+            onEdit = {
+                val action = DashboardFragmentDirections.actionDashboardToNewExpense(expense)
                 findNavController().navigate(action)
-                //findNavController().navigate(R.id.action_dashboard_to_new_expense)
-            }
-            .show()
+            })
     }
 
-    private fun confirmDeleteExpense(expense: Expense) {
-        AlertDialog.Builder(context)
-            .setTitle("Confirm Delete")
-            .setMessage("Delete this expense? This can't be undone.")
-            .setPositiveButton("Delete") { _, _ ->
-                expenseViewModel.delete(expense)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+    private fun showEditLimitDialog() {
+        DialogUtils.showEditLimitDialog(
+            context = requireContext(),
+            money = money,
+            onConfirm = { editLimit ->
+                summaryViewModel.updateLatestMonth(editLimit)
+            })
     }
-
 }

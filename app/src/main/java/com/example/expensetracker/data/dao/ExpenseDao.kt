@@ -20,8 +20,13 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses Order By createdAt DESC")
     fun getAllExpenses(): LiveData<List<Expense>>
 
-    @Query("SELECT * FROM expenses ORDER BY createdAt DESC")
-    fun getAllExpensesPaging(): PagingSource<Int, Expense>
+
+    @Query("""
+    SELECT * FROM expenses 
+    WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%') 
+    ORDER BY createdAt DESC
+""")
+    fun getExpensesPaging(query: String? = null): PagingSource<Int, Expense>
 
     @Query("SELECT * FROM expenses ORDER BY createdAt DESC LIMIT 5")
     fun getRecentExpenses(): LiveData<List<Expense>>

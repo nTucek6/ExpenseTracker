@@ -54,4 +54,16 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    fun updateLatestMonth(limit: Double) {
+        viewModelScope.launch {
+            val now = Calendar.getInstance()
+            val year = now.get(Calendar.YEAR)
+            val month = now.get(Calendar.MONTH) + 1
+
+            monthlySummaryDao.update(MonthlySummary(year = year, month = month, money = limit))
+        }
+
+    }
+
+
 }

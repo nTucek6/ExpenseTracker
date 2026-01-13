@@ -3,4 +3,5 @@
     <style name="Theme.ExpenseTracker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Modern Material Design 3 support -->
     </style>
+
 </resources>

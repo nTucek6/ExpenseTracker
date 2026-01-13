@@ -15,7 +15,17 @@
     <string name="monthly_budget">Monthly Budget</string>
     <string name="recent_expenses">Recent Expenses</string>
     <string name="remaining">Remaining</string>
+    <string name="dashboard_date_format">%s %s</string>
+
 
     <string name="price_format">%.2f€</string>
+    <string name="input_limit">Input limit</string>
+    <string name="search_hint">Search</string>
+
+    <!-- Expense details dialog strings -->
+    <string name="category_info_format">Category: %s</string>
+    <string name="description_info_format">Description: %s</string>
+    <string name="amount_info_format">Amount: %.2f</string>
+    <string name="date_time_info_format">Date: %s</string>
 
 </resources>

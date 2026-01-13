@@ -3,10 +3,8 @@ package com.example.expensetracker.data.entity
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.versionedparcelable.ParcelField
 import com.example.expensetracker.data.enums.ExpenseEnum
 import kotlinx.android.parcel.Parcelize
-import java.util.Date
 
 @Parcelize
 @Entity(tableName = "expenses")

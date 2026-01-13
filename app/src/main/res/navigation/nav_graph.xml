@@ -22,7 +22,15 @@
     <fragment
         android:id="@+id/expensesFragment"
         android:name="com.example.expensetracker.ui.fragments.ExpensesFragment"
-        android:label="Expenses" />
+        android:label="Expenses" >
+        <action
+            android:id="@+id/action_expenses_to_edit_expense"
+            app:destination="@id/addNewExpenseFragment"
+            app:popUpTo="@id/expensesFragment"
+            app:popUpToInclusive="false">
+        </action>
+
+    </fragment>
 
     <!-- Settings -->
     <fragment
