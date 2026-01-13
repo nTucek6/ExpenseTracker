@@ -13,7 +13,8 @@
             android:id="@+id/action_dashboard_to_new_expense"
             app:destination="@id/addNewExpenseFragment"
             app:popUpTo="@id/dashboardFragment"
-            app:popUpToInclusive="false"/>
+            app:popUpToInclusive="false">
+        </action>
     </fragment>
 
 
@@ -30,9 +31,16 @@
         android:label="Settings" />
     <!-- Navigation fragments -->
 
+    <!-- Update fragment -->
     <fragment
         android:id="@+id/addNewExpenseFragment"
         android:name="com.example.expensetracker.ui.fragments.AddExpenseFragment"
-        android:label="Add new expense" />
+        android:label="Add new expense">
+        <argument
+            android:name="expense"
+            app:argType="com.example.expensetracker.data.entity.Expense"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 
 </navigation>

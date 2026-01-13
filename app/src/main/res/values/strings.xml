@@ -7,6 +7,7 @@
     <!-- Dashboard strings -->
     <string name="hello">Hello</string>
     <string name="new_expense">New expense</string>
+    <string name="edit_expense">Edit expense</string>
     <string name="amount">Amount</string>
     <string name="save_expense">Save expense</string>
     <string name="description">Description</string>
@@ -14,5 +15,7 @@
     <string name="monthly_budget">Monthly Budget</string>
     <string name="recent_expenses">Recent Expenses</string>
     <string name="remaining">Remaining</string>
+
+    <string name="price_format">%.2f€</string>
 
 </resources>

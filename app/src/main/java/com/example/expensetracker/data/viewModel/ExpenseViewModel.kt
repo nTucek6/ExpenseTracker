@@ -24,10 +24,9 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             expenseDao.insert(Expense(amount = amount,description = description,category = category))
         }
     }
-
-    fun update(expense: Expense) {
+    fun update(id: Int, amount: Double, description: String?, category: ExpenseEnum, createdAt : Long) {
         viewModelScope.launch {
-            expenseDao.update(expense)
+            expenseDao.update(Expense(id = id, amount = amount,description = description,category = category, createdAt = createdAt))
         }
     }
 

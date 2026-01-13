@@ -1,10 +1,14 @@
 package com.example.expensetracker.data.entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.versionedparcelable.ParcelField
 import com.example.expensetracker.data.enums.ExpenseEnum
+import kotlinx.android.parcel.Parcelize
 import java.util.Date
 
+@Parcelize
 @Entity(tableName = "expenses")
 data class Expense (
     @PrimaryKey(autoGenerate = true)
@@ -14,4 +18,4 @@ data class Expense (
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis()
 
-)
+) : Parcelable
