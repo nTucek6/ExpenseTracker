@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,7 +9,14 @@ plugins {
     id("com.google.devtools.ksp") version "2.0.20-1.0.25"
     id("androidx.navigation.safeargs.kotlin")
 
+    id("com.google.gms.google-services")
+
 }
+
+val localProperties = Properties().apply {
+    rootProject.file("local.properties").inputStream().use { load(it) }
+}
+val googleServerClientKey = localProperties["GOOGLE_SERVER_CLIENT_KEY"] as? String
 
 android {
     namespace = "com.example.expensetracker"
@@ -23,6 +32,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildFeatures {
+            buildConfig = true
+        }
+        buildConfigField("String", "GOOGLE_SERVER_CLIENT_KEY", "\"${googleServerClientKey ?: ""}\"")
     }
 
     buildTypes {
@@ -78,6 +92,18 @@ dependencies {
     implementation(libs.room.paging)
     implementation(libs.paging.runtime)
 
+
+    // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
+
+    // Add the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-auth")
+
+    // Also add the dependencies for the Credential Manager libraries and specify their versions
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
 
 }

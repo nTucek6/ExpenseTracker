@@ -2,6 +2,7 @@ package com.example.expensetracker.ui.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -67,15 +68,14 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             val remaining = (sum.money - sum.spent)
             remainingText.text = String.format(getString(R.string.price_format), remaining)
             if (sum.money > 0 && remaining > 0) {
-                progressBar.progress = ((remaining / sum.money) * 100).toInt().coerceIn(0, 100)
+                val progress = ((remaining / sum.money) * 100).toInt().coerceIn(0, 100);
+                progressBar.progress = 100 - progress
             } else {
                 progressBar.progress = 0
             }
-
             if (sum.money >= 0) {
                 money = sum.money
             }
-
         }
 
         val expenseAdapter = ExpenseAdapter { expense -> showExpenseDialog(expense) }
