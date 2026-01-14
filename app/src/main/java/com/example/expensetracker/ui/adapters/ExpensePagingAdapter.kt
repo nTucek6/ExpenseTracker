@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.databinding.ItemExpenseBinding
 import com.example.expensetracker.utils.toDateString
@@ -34,7 +35,11 @@ class ExpensePagingAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val expense = getItem(position)
         if (expense != null) {
-            viewHolder.binding.tvAmount.text = expense.amount.toString() + "€"
+            viewHolder.binding.tvAmount.text = String.format(
+                viewHolder.itemView.context.getString(R.string.price_format),
+                expense.amount
+            )
+
             viewHolder.binding.tvCategory.text = expense.category.displayName
             viewHolder.binding.tvDate.text = expense.createdAt.toDateString()
             viewHolder.binding.cardView.setOnClickListener { onItemClick(expense) }

@@ -2,9 +2,11 @@ package com.example.expensetracker.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.databinding.ItemExpenseBinding
 import com.example.expensetracker.utils.isToday
@@ -35,8 +37,10 @@ class ExpenseAdapter(private val onItemClick: (Expense) -> Unit) :
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val expense = getItem(position)
 
-        viewHolder.binding.tvAmount.text = expense.amount.toString() + "€"
-        //viewHolder.binding.tvAmount.text = String.format(requireContext().getString(R.string.price_format), yourDoubleValue)
+        viewHolder.binding.tvAmount.text = String.format(
+            viewHolder.itemView.context.getString(R.string.price_format),
+            expense.amount
+        )
         viewHolder.binding.tvCategory.text = expense.category.displayName
 
         if (expense.createdAt.isToday()) {

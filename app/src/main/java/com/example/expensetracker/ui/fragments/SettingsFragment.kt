@@ -18,20 +18,22 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         super.onViewCreated(view, savedInstanceState)
         val googleAuthClient = GoogleAuthClient(requireContext())
 
-        singInBtn = view.findViewById<MaterialButton>(R.id.btn_login_out)
+        singInBtn = view.findViewById(R.id.btn_login_out)
 
         lifecycleScope.launch {
             googleAuthClient.isSignedIn.collect { isSignedInState ->
                 singInBtn.text = if (isSignedInState) "Sign Out" else "Sign in With Google"
                 singInBtn.setOnClickListener {
                     lifecycleScope.launch {
-                        if (isSignedInState) {
-                            toggleButtonDisable()
-                            googleAuthClient.signOut()
-                            toggleButtonDisable()
-                        } else {
-                            toggleButtonDisable()
-                            googleAuthClient.signIn()
+                        toggleButtonDisable()
+                        try {
+                            if (isSignedInState) {
+                                googleAuthClient.signOut()
+
+                            } else {
+                                googleAuthClient.signIn()
+                            }
+                        } finally {
                             toggleButtonDisable()
                         }
                     }
@@ -39,6 +41,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             }
         }
     }
+
     private fun toggleButtonDisable() {
         singInBtn.isEnabled = !singInBtn.isEnabled
     }
