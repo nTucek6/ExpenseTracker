@@ -38,25 +38,25 @@ object DialogUtils {
             expense.createdAt.toDateTimeString()
         )
         MaterialAlertDialogBuilder(context)
-            .setTitle("Expense Details")
+            .setTitle(context.getString(R.string.expense_details))
             .setView(dialog)
-            .setNegativeButton("Close", null)
-            .setNeutralButton("Delete") { _, _ -> onDelete() }
-            .setPositiveButton("Edit") { _, _ -> onEdit(expense) }
+            .setNegativeButton(context.getString(R.string.close), null)
+            .setNeutralButton(context.getString(R.string.delete)) { _, _ -> onDelete() }
+            .setPositiveButton(context.getString(R.string.edit)) { _, _ -> onEdit(expense) }
             .show()
     }
 
     fun showDeleteConfirmation(
         context: Context,
         onConfirm: () -> Unit,
-        title: String? = "Confirm Delete",
-        message: String? = "Delete this item? This can't be undone.",
+        title: String? = context.getString(R.string.confirm_delete),
+        message: String? = context.getString(R.string.delete_message),
     ) {
         AlertDialog.Builder(context)
             .setTitle(title)
             .setMessage(message)
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Delete") { _, _ -> onConfirm() }
+            .setNegativeButton(context.getString(R.string.cancel), null)
+            .setPositiveButton(context.getString(R.string.delete)) { _, _ -> onConfirm() }
             .show()
     }
 
@@ -71,10 +71,10 @@ object DialogUtils {
         val tlEditLimit = dialog.findViewById<TextInputLayout>(R.id.til_edit_limit)
         tlEditLimit.editText?.setText(money.toString())
         MaterialAlertDialogBuilder(context)
-            .setTitle("Edit limit")
+            .setTitle(context.getString(R.string.edit_limit))
             .setView(dialog)
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Update") { _, _ ->
+            .setNegativeButton(context.getString(R.string.cancel), null)
+            .setPositiveButton(context.getString(R.string.update)) { _, _ ->
                 val editLimit = tlEditLimit.editText?.text.toString().toDoubleOrNull()
                 if (editLimit != null && editLimit >= 0) {
                     onConfirm(editLimit)

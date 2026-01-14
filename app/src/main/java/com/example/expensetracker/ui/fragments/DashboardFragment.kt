@@ -44,18 +44,21 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         val spentAmountText = view.findViewById<TextView>(R.id.tvSpentAmount)
         val remainingText = view.findViewById<TextView>(R.id.tvRemainingAmount)
 
-        topText.text = GreetingsEnum.now().displayName;
+        //topText.text = GreetingsEnum.now().displayName
+
+        val greetingText = GreetingsEnum.now().displayName.let { resId ->
+            requireContext().getString(resId)
+        }
+        topText.text = greetingText
 
         expenseViewModel.totalSpent.observe(viewLifecycleOwner) { total ->
-            totalSpentText.text = total.toString() + "€"
+            totalSpentText.text = String.format(getString(R.string.price_format), total)
         }
 
         summaryViewModel.getCurrentMonthBudget.observe(viewLifecycleOwner) { sum ->
-            //dateText.text = (MonthEnum.fromNumber(sum.month).displayName + " " + sum.year.toString())
-
             dateText.text = String.format(
                 getString(R.string.dashboard_date_format),
-                MonthEnum.fromNumber(sum.month).displayName,
+                MonthEnum.fromNumber(1).displayName.let { requireContext().getString(it) },//MonthEnum.fromNumber(sum.month).displayName,
                 sum.year.toString()
             )
 

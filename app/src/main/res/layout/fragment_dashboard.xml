@@ -41,7 +41,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total spent:"
+                android:text="@string/total_spent"
                 android:textFontWeight="@integer/material_motion_duration_long_1"
                 android:textSize="16sp" />
 
@@ -49,7 +49,7 @@
                 android:id="@+id/tv_total_spent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="2dp"
+                android:paddingStart="2dp"
                 android:textFontWeight="@integer/material_motion_duration_long_1"
                 android:textSize="26sp" />
 

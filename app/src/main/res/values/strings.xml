@@ -1,11 +1,14 @@
 <resources>
-    <string name="app_name">ExpenseTracker</string>
+    <string name="app_name">Expense Tracker</string>
     <string name="dashboard">Dashboard</string>
     <string name="expenses">Expenses</string>
     <string name="settings">Settings</string>
 
     <!-- Dashboard strings -->
-    <string name="hello">Hello</string>
+    <string name="morning">Good Morning</string>
+    <string name="afternoon">Good Afternoon</string>
+    <string name="evening">Good Evening</string>
+    <string name="night">Night</string>
     <string name="new_expense">New expense</string>
     <string name="edit_expense">Edit expense</string>
     <string name="amount">Amount</string>
@@ -15,17 +18,40 @@
     <string name="monthly_budget">Monthly Budget</string>
     <string name="recent_expenses">Recent Expenses</string>
     <string name="remaining">Remaining</string>
-    <string name="dashboard_date_format">%s %s</string>
+    <string name="dashboard_date_format" translatable="false">%s %s</string>
 
 
-    <string name="price_format">%.2f€</string>
+    <string name="price_format" translatable="false">%.2f€</string>
     <string name="input_limit">Input limit</string>
     <string name="search_hint">Search</string>
 
     <!-- Expense details dialog strings -->
+    <string name="expense_details">Expense Details</string>
     <string name="category_info_format">Category: %s</string>
     <string name="description_info_format">Description: %s</string>
     <string name="amount_info_format">Amount: %.2f</string>
     <string name="date_time_info_format">Date: %s</string>
+    <string name="total_spent">Total spent:</string>
+
+    <string name="january">January</string>
+    <string name="february">February</string>
+    <string name="march">March</string>
+    <string name="april">April</string>
+    <string name="may">May</string>
+    <string name="june">June</string>
+    <string name="july">July</string>
+    <string name="august">August</string>
+    <string name="september">September</string>
+    <string name="october">October</string>
+    <string name="november">November</string>
+    <string name="december">December</string>
+    <string name="close">Close</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="confirm_delete">Confirm Delete</string>
+    <string name="delete_message">Delete this item? This can\'t be undone.</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit_limit">Edit Limit</string>
+    <string name="update">Update</string>
 
 </resources>

@@ -1,12 +1,14 @@
 package com.example.expensetracker.data.enums
 
+import androidx.annotation.StringRes
+import com.example.expensetracker.R
 import java.util.Calendar
 
-enum class GreetingsEnum(val displayName: String) {
-    MORNING("Good Morning"),
-    AFTERNOON("Good Afternoon"),
-    EVENING("Good Evening"),
-    NIGHT("Night");
+enum class GreetingsEnum(@StringRes val displayName: Int) {
+    MORNING(R.string.morning),
+    AFTERNOON(R.string.afternoon),
+    EVENING(R.string.evening),
+    NIGHT(R.string.night);
 
     companion object {
         fun now(): GreetingsEnum {
