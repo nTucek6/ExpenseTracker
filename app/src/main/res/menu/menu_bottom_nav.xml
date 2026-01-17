@@ -10,6 +10,10 @@
         android:icon="@drawable/invoice"
         android:title="@string/expenses" />
     <item
+        android:id="@+id/summaryFragment"
+        android:icon="@drawable/summary_kpi"
+        android:title="@string/expenses_summary" />
+    <item
         android:id="@+id/settingsFragment"
         android:icon="@drawable/settings"
         android:title="@string/settings" />

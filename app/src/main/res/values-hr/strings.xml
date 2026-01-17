@@ -3,6 +3,7 @@
     <string name="app_name">Expense Tracker</string>
     <string name="dashboard">Nadzorna ploča</string>
     <string name="expenses">Troškovi</string>
+    <string name="expenses_summary">Sažetak</string>
     <string name="settings">Postavke</string>
     <string name="night">Noć</string>
     <string name="new_expense">Novi trošak</string>
@@ -19,12 +20,14 @@
     <string name="expense_details">Detalji troška</string>
     <string name="category_info_format">Kategorija: %s</string>
     <string name="description_info_format">Opis: %s</string>
-    <string name="amount_info_format">Iznos: %.2f</string>
+    <string name="amount_info_format">Iznos: %.2f€</string>
     <string name="date_time_info_format">Datum: %s</string>
+    <string name="exit_text">Ponovo dodirni za izlaz</string>
     <string name="morning">Dobro jutro</string>
     <string name="afternoon">Dobar dan</string>
     <string name="evening">Dobra večer</string>
     <string name="total_spent">Ukupan trošak:</string>
+    <string name="spent_info_format">Trošak: %.2f€</string>
     <string name="january">Siječanj</string>
     <string name="february">Velječa</string>
     <string name="march">Ožujak</string>
@@ -45,4 +48,6 @@
     <string name="cancel">Prekid radnje</string>
     <string name="edit_limit">Uredite ograničenje</string>
     <string name="update">Ažuriraj</string>
+    <string name="limit_info_format">Ograničenje: %.2f€</string>
+    <string name="remaining_info_format">Preostalo: %.2f€</string>
 </resources>

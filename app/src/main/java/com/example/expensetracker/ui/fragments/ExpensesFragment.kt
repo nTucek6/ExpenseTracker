@@ -1,5 +1,6 @@
 package com.example.expensetracker.ui.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
@@ -26,12 +27,11 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
     private val expenseViewModel: ExpenseViewModel by viewModels()
 
-    private val summaryViewModel: MonthlySummaryViewModel by viewModels()
-
     private lateinit var expenseAdapter: ExpensePagingAdapter
-    private lateinit var searchView: SearchView
-    private var allExpenses: List<Expense> = emptyList()
+    //private lateinit var searchView: SearchView
+    //private var allExpenses: List<Expense> = emptyList()
 
+    @SuppressLint("RestrictedApi", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val searchView = view.findViewById<SearchView>(R.id.search_view)
@@ -39,7 +39,6 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
         rootLayout.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
-                // Hide keyboard and collapse SearchView
                 hideKeyboard(searchView)
                 searchView.apply {
                     setQuery("", false)

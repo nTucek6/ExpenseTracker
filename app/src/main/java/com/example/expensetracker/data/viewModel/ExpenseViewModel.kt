@@ -74,16 +74,4 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             expenseDao.delete(expense)
         }
     }
-
-    /*fun setSearchQuery(): Flow<PagingData<Expense>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = 5,
-                enablePlaceholders = false
-            ),
-            pagingSourceFactory = { expenseDao.getExpensesPaging() }
-        ).flow
-            .cachedIn(viewModelScope)
-    }*/
-
 }
