@@ -27,16 +27,16 @@ interface MonthlySummaryDao {
 
     @Query("""
     SELECT * FROM BudgetWithSpent 
-    WHERE (:query IS NULL OR year LIKE '%' || :query || '%' OR month LIKE '%' || :query || '%') 
+    WHERE (:queryYear IS 0 OR :queryYear == year) AND (:queryMonth is 0 OR :queryMonth == month)
     ORDER BY year and month DESC
 """)
-    fun getMonthBudgetPaging(query: String? = null): PagingSource<Int, BudgetWithSpent>
+    fun getMonthBudgetPaging(queryYear: Int? = 0, queryMonth: Int? = 0): PagingSource<Int, BudgetWithSpent>
 
     @Query("SELECT COUNT(*) FROM monthly_summary WHERE year = :year AND month = :month")
     suspend fun budgetExists(year: Int, month: Int): Int
 
     @Query("Select DISTINCT m.year from monthly_summary m Order By m.year Desc")
-    fun findAllExistingYears() : LiveData<List<Int>>
+    suspend fun findAllExistingYears() : List<Int>
 
 
 }

@@ -32,13 +32,11 @@
 
     </fragment>
 
+    <!-- Summary -->
     <fragment
         android:id="@+id/summaryFragment"
         android:name="com.example.expensetracker.ui.fragments.SummaryFragment"
-        android:label="Summary">
-    </fragment>
-
-
+        android:label="Summary" />
 
     <!-- Settings -->
     <fragment

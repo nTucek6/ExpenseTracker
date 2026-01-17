@@ -15,13 +15,11 @@ enum class MonthEnum(val order: Int, @StringRes val displayName: Int) {
         fun fromNumber(monthNumber: Int): MonthEnum = MonthEnum.entries[monthNumber - 1]
 
         fun createMonthItems(context: Context): List<MonthItem> =
-            listOf(MonthItem(0, "All")) + entries.map {
+            listOf(MonthItem(0, context.getString(R.string.all).trim())) + entries.map {
                 MonthItem(
                     it.order,
-                    context.getString(it.displayName).substring(0, 3)
+                    context.getString(it.displayName).substring(0, 3).trim()
                 )
             }
     }
-
-
 }

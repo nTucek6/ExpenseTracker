@@ -62,5 +62,6 @@
     <string name="cancel">Cancel</string>
     <string name="edit_limit">Edit Limit</string>
     <string name="update">Update</string>
+    <string name="all">All</string>
 
 </resources>

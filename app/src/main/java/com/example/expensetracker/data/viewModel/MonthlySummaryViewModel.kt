@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LOG_TAG
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -17,6 +18,8 @@ import com.example.expensetracker.data.model.BudgetWithSpent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -27,10 +30,10 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         ExpenseTrackerDatabase.getDatabase(application).monthlySummaryDao()
 
     val getCurrentMonthBudget = monthlySummaryDao.getCurrentMonthBudget()
+    suspend fun findAllExistingYears(): List<Int> = monthlySummaryDao.findAllExistingYears()
 
-    val findAllExistingYears= monthlySummaryDao.findAllExistingYears()
-
-    private val _query = MutableStateFlow("")
+    private val _queryYear = MutableStateFlow(0)
+    private val _queryMonth = MutableStateFlow(0)
 
     fun getBudget(year: Int, month: Int): LiveData<MonthlySummary?> {
         return monthlySummaryDao.getBudget(year, month)
@@ -55,7 +58,6 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
             val month = now.get(Calendar.MONTH) + 1
 
             val data = monthlySummaryDao.budgetExists(year, month)
-            Log.d("Logger", "Start")
             if (data == 0) {
                 val defaultBudget = MonthlySummary(
                     year = year,
@@ -78,13 +80,18 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val summaryPaging: Flow<PagingData<BudgetWithSpent>> = _query
-        .flatMapLatest { query ->
-            Pager(
-                config = PagingConfig(pageSize = 15,  prefetchDistance = 5, enablePlaceholders = false),
-                pagingSourceFactory = { monthlySummaryDao.getMonthBudgetPaging(query) }
-            ).flow.cachedIn(viewModelScope)
-        }
+    val summaryPaging: Flow<PagingData<BudgetWithSpent>> = combine(_queryYear, _queryMonth) { year, month ->
+        year to month
+    }.flatMapLatest { (year, month) ->
+        Pager(
+            config = PagingConfig(pageSize = 15,  prefetchDistance = 5, enablePlaceholders = false),
+            pagingSourceFactory = { monthlySummaryDao.getMonthBudgetPaging(year, month)}).flow.cachedIn(viewModelScope) }
 
+    fun updateYearQuery(newQuery: Int) {
+        _queryYear.value = newQuery
+    }
 
+    fun updateMonthQuery(newQuery: Int) {
+        _queryMonth.value = newQuery
+    }
 }
