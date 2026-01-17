@@ -3,6 +3,7 @@ package com.example.expensetracker.utils
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
@@ -26,4 +27,8 @@ fun Long.isToday(): Boolean {
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
     return timestampDate == today
+}
+
+fun Long.toLocalDate(): LocalDateTime {
+    return LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.systemDefault())
 }

@@ -2,6 +2,8 @@ package com.example.expensetracker.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -9,6 +11,8 @@ import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.databinding.ItemExpenseBinding
 import com.example.expensetracker.utils.toDateString
+import com.example.expensetracker.utils.toLocalDate
+import java.time.LocalDateTime
 
 class ExpensePagingAdapter(
     private val onItemClick: (Expense) -> Unit
@@ -17,6 +21,7 @@ class ExpensePagingAdapter(
         override fun areItemsTheSame(old: Expense, new: Expense) = old.id == new.id
         override fun areContentsTheSame(old: Expense, new: Expense) = old == new
     }) {
+
     class ViewHolder(val binding: ItemExpenseBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -35,14 +40,40 @@ class ExpensePagingAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val expense = getItem(position)
         if (expense != null) {
+            val createdAt = expense.createdAt
+            val tvDisplayGroup = viewHolder.binding.tvDisplayGroup
+            val tvDateDisplay = viewHolder.binding.tvDateDisplay
+            val tvSpentDisplay = viewHolder.binding.tvSpentDisplay
+
+            val showHeader = position == 0 ||
+                    !isSameDay(getItem(position - 1)?.createdAt ?: 0, createdAt)
+
+            tvDisplayGroup.isVisible = showHeader
+            if (showHeader) {
+                tvDateDisplay.text = expense.createdAt.toDateString()
+                /*tvSpentDisplay.text = String.format(
+                    viewHolder.itemView.context.getString(R.string.spent_info_format),
+                    currentTotal
+                )*/
+            }
+
             viewHolder.binding.tvAmount.text = String.format(
                 viewHolder.itemView.context.getString(R.string.price_format),
                 expense.amount
             )
-
             viewHolder.binding.tvCategory.text = expense.category.displayName
             viewHolder.binding.tvDate.text = expense.createdAt.toDateString()
             viewHolder.binding.cardView.setOnClickListener { onItemClick(expense) }
         }
+    }
+
+
+
+    private fun isSameDay(date1: Long, date2: Long): Boolean {
+        val d1 = date1.toLocalDate()
+        val d2 = date2.toLocalDate()
+        return d1.year == d2.year &&
+                d1.month == d2.month &&
+                d1.dayOfMonth == d2.dayOfMonth
     }
 }
