@@ -13,6 +13,7 @@ room = "2.8.4"
 lifecycle = "2.10.0"
 pagingCommon = "3.3.6"
 paging = "3.3.0"
+firebaseDatabase = "22.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ androidx-paging-common = { group = "androidx.paging", name = "paging-common", ve
 room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
 
 paging-runtime = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "paging" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

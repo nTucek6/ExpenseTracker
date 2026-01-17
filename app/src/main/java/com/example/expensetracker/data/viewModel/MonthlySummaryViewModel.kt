@@ -30,6 +30,8 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         ExpenseTrackerDatabase.getDatabase(application).monthlySummaryDao()
 
     val getCurrentMonthBudget = monthlySummaryDao.getCurrentMonthBudget()
+    val getAllMonthBudget = monthlySummaryDao.getAllMonthBudget()
+
     suspend fun findAllExistingYears(): List<Int> = monthlySummaryDao.findAllExistingYears()
 
     private val _queryYear = MutableStateFlow(0)
@@ -80,12 +82,23 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val summaryPaging: Flow<PagingData<BudgetWithSpent>> = combine(_queryYear, _queryMonth) { year, month ->
-        year to month
-    }.flatMapLatest { (year, month) ->
-        Pager(
-            config = PagingConfig(pageSize = 15,  prefetchDistance = 5, enablePlaceholders = false),
-            pagingSourceFactory = { monthlySummaryDao.getMonthBudgetPaging(year, month)}).flow.cachedIn(viewModelScope) }
+    val summaryPaging: Flow<PagingData<BudgetWithSpent>> =
+        combine(_queryYear, _queryMonth) { year, month ->
+            year to month
+        }.flatMapLatest { (year, month) ->
+            Pager(
+                config = PagingConfig(
+                    pageSize = 15,
+                    prefetchDistance = 5,
+                    enablePlaceholders = false
+                ),
+                pagingSourceFactory = {
+                    monthlySummaryDao.getMonthBudgetPaging(
+                        year,
+                        month
+                    )
+                }).flow.cachedIn(viewModelScope)
+        }
 
     fun updateYearQuery(newQuery: Int) {
         _queryYear.value = newQuery

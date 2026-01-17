@@ -12,6 +12,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 
 class GoogleAuthClient(private val context: Context) {
-
 
 
     private val tag = "GoogleAuthClient: "
@@ -35,7 +35,7 @@ class GoogleAuthClient(private val context: Context) {
     }
 
     fun isSingedIn(): Boolean {
-        if(firebaseAuth.currentUser != null){
+        if (firebaseAuth.currentUser != null) {
             Log.d(tag, "already singed in!")
             return true
         }
@@ -48,7 +48,7 @@ class GoogleAuthClient(private val context: Context) {
         }
         try {
             val result = buildCredentialRequest()
-            val handleResult : Boolean = handleSignIn(result)
+            val handleResult: Boolean = handleSignIn(result)
             updateSignInState(handleResult)
             return handleResult
         } catch (e: Exception) {
@@ -105,10 +105,19 @@ class GoogleAuthClient(private val context: Context) {
     }
 
     suspend fun signOut() {
-    credentialManager.clearCredentialState(
-        ClearCredentialStateRequest())
+        credentialManager.clearCredentialState(
+            ClearCredentialStateRequest()
+        )
         firebaseAuth.signOut()
         updateSignInState(false)
     }
+
+    fun getUser(): FirebaseUser? {
+        if (isSingedIn()) {
+            return firebaseAuth.currentUser
+        }
+        return null
+    }
+
 
 }

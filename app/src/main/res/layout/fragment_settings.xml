@@ -21,7 +21,23 @@
             android:layout_height="wrap_content"
             />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_sync_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="Sync data"
+            />
+
     </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/loadingSpinner"
+        style="@style/Widget.MaterialComponents.LinearProgressIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:visibility="gone" />
 
 
 

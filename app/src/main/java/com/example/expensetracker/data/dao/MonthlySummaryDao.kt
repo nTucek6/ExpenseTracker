@@ -25,6 +25,9 @@ interface MonthlySummaryDao {
     @Query("SELECT * FROM BudgetWithSpent")
     fun getCurrentMonthBudget(): LiveData<BudgetWithSpent>
 
+    @Query("SELECT * FROM monthly_summary")
+    fun getAllMonthBudget(): LiveData<List<MonthlySummary>>
+
     @Query("""
     SELECT * FROM BudgetWithSpent 
     WHERE (:queryYear IS 0 OR :queryYear == year) AND (:queryMonth is 0 OR :queryMonth == month)
