@@ -1,5 +1,6 @@
 package com.example.expensetracker.ui.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -34,6 +35,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
 
+    @SuppressLint("UnsafeRepeatOnLifecycleDetector")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val googleAuthClient = GoogleAuthClient(requireContext())
@@ -95,6 +97,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 }
             }
         }
+
+       /* lifecycleScope.launch {
+           // expenseViewModel.syncFirebaseToRoom()
+            //summaryViewModel.syncFirebaseToRoom()
+        } */
+
     }
     private fun toggleButtonDisable() {
         singInBtn.isEnabled = !singInBtn.isEnabled

@@ -9,18 +9,29 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.databinding.ItemExpenseBinding
 import com.example.expensetracker.utils.toDateString
 import com.example.expensetracker.utils.toLocalDate
 import java.time.LocalDateTime
 
-class ExpensePagingAdapter(
+/*class ExpensePagingAdapter(
     private val onItemClick: (Expense) -> Unit
 ) : PagingDataAdapter<Expense, ExpensePagingAdapter.ViewHolder>(
     object : DiffUtil.ItemCallback<Expense>() {
         override fun areItemsTheSame(old: Expense, new: Expense) = old.id == new.id
         override fun areContentsTheSame(old: Expense, new: Expense) = old == new
     }) {
+ */
+class ExpensePagingAdapter(
+    private val onItemClick: (ExpenseWithGroupSum) -> Unit
+) : PagingDataAdapter<ExpenseWithGroupSum, ExpensePagingAdapter.ViewHolder>(
+    object : DiffUtil.ItemCallback<ExpenseWithGroupSum>() {
+        override fun areItemsTheSame(old: ExpenseWithGroupSum, new: ExpenseWithGroupSum) = old.id == new.id
+        override fun areContentsTheSame(old: ExpenseWithGroupSum, new: ExpenseWithGroupSum) = old == new
+    }) {
+
+
 
     class ViewHolder(val binding: ItemExpenseBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -51,10 +62,10 @@ class ExpensePagingAdapter(
             tvDisplayGroup.isVisible = showHeader
             if (showHeader) {
                 tvDateDisplay.text = expense.createdAt.toDateString()
-                /*tvSpentDisplay.text = String.format(
+                tvSpentDisplay.text = String.format(
                     viewHolder.itemView.context.getString(R.string.spent_info_format),
-                    currentTotal
-                )*/
+                    expense.dailySum
+                )
             }
 
             viewHolder.binding.tvAmount.text = String.format(
@@ -66,8 +77,6 @@ class ExpensePagingAdapter(
             viewHolder.binding.cardView.setOnClickListener { onItemClick(expense) }
         }
     }
-
-
 
     private fun isSameDay(date1: Long, date2: Long): Boolean {
         val d1 = date1.toLocalDate()

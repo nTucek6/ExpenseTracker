@@ -10,8 +10,9 @@ import com.example.expensetracker.data.dao.MonthlySummaryDao
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
 import com.example.expensetracker.data.model.BudgetWithSpent
+import com.example.expensetracker.data.model.ExpenseWithGroupSum
 
-@Database(entities = [Expense::class, MonthlySummary::class], [BudgetWithSpent::class] ,version = 1, exportSchema = false)
+@Database(entities = [Expense::class, MonthlySummary::class], [BudgetWithSpent::class, ExpenseWithGroupSum::class] ,version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao

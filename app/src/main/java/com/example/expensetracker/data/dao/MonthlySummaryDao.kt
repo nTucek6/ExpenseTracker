@@ -16,6 +16,9 @@ interface MonthlySummaryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(budget: MonthlySummary)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(budget: List<MonthlySummary>)
+
     @Update
     suspend fun update(budget: MonthlySummary)
 

@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.ui.adapters.ExpensePagingAdapter
@@ -28,8 +29,6 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     private val expenseViewModel: ExpenseViewModel by viewModels()
 
     private lateinit var expenseAdapter: ExpensePagingAdapter
-    //private lateinit var searchView: SearchView
-    //private var allExpenses: List<Expense> = emptyList()
 
     @SuppressLint("RestrictedApi", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,6 +68,11 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
             }
         })
 
+       /* viewLifecycleOwner.lifecycleScope.launch {
+            expenseViewModel.expensesPaging.collectLatest { pagingData ->
+                expenseAdapter.submitData(pagingData)
+            }
+        } */
         viewLifecycleOwner.lifecycleScope.launch {
             expenseViewModel.expensesPaging.collectLatest { pagingData ->
                 expenseAdapter.submitData(pagingData)
@@ -77,6 +81,29 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
     }
 
     private fun showExpenseDialog(
+        expenseSum: ExpenseWithGroupSum
+    ) {
+        lifecycleScope.launch {
+            val data = expenseViewModel.getExpenseById(expenseSum.id)
+
+            data.let { expense ->
+                DialogUtils.showExpenseDialog(
+                    context = requireContext(),
+                    expense = expense,
+                    onDelete = {
+                        DialogUtils.showDeleteConfirmation(
+                            context = requireContext(),
+                            onConfirm = { expenseViewModel.delete(expense) })
+                    },
+                    onEdit = {
+                        val action = ExpensesFragmentDirections.actionExpensesToEditExpense(expense)
+                        findNavController().navigate(action)
+                    })
+            }
+        }
+    }
+
+   /* private fun showExpenseDialog(
         expense: Expense
     ) {
         DialogUtils.showExpenseDialog(
@@ -91,5 +118,5 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 val action = ExpensesFragmentDirections.actionExpensesToEditExpense(expense)
                 findNavController().navigate(action)
             })
-    }
+    } */
 }

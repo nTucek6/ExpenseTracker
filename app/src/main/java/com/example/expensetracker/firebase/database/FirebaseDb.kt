@@ -7,8 +7,14 @@ import com.example.expensetracker.firebase.database.model.FirebaseExpense
 import com.example.expensetracker.firebase.database.model.FirebaseMonthlySummary
 import com.example.expensetracker.firebase.database.model.FirebaseUsers
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 
@@ -16,10 +22,6 @@ class FirebaseDb {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val usersRef: DatabaseReference = database.getReference("users")
-
-    /*fun saveData(user: FirebaseUser, expense: List<Expense>, summary: List<MonthlySummary>) {
-        usersRef.setValue(Users(user.uid, user.email, expense, summary))
-    }*/
 
     fun syncData(user: FirebaseUser, expense: List<FirebaseExpense>, summary: List<FirebaseMonthlySummary>) {
             val userData = FirebaseUsers(user.uid, user.email, expense, summary)
@@ -39,5 +41,14 @@ class FirebaseDb {
         }
     }
 
-
+    suspend fun getUserExpensesOnce(uid: String): List<Expense> {
+        val expensesRef = database.getReference("users").child(uid).child("expenses")
+        val snapshot = expensesRef.get().await()
+        return snapshot.children.mapNotNull { it.getValue(FirebaseExpense::class.java)?.toExpense() }
+    }
+    suspend fun getUserSummaryOnce(uid: String): List<MonthlySummary>{
+        val summaryRef = database.getReference("users").child(uid).child("summary")
+        val snapshot = summaryRef.get().await()
+        return snapshot.children.mapNotNull { it.getValue(FirebaseMonthlySummary::class.java)?.toMonthlySummary() }
+    }
 }

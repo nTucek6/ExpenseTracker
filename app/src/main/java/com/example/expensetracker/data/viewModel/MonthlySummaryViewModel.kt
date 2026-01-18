@@ -15,6 +15,8 @@ import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
 import com.example.expensetracker.data.model.BudgetWithSpent
+import com.example.expensetracker.firebase.database.FirebaseDb
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,8 +31,12 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     private val monthlySummaryDao =
         ExpenseTrackerDatabase.getDatabase(application).monthlySummaryDao()
 
+    private val firebaseDb = FirebaseDb()
+
     val getCurrentMonthBudget = monthlySummaryDao.getCurrentMonthBudget()
     val getAllMonthBudget = monthlySummaryDao.getAllMonthBudget()
+
+    private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
     suspend fun findAllExistingYears(): List<Int> = monthlySummaryDao.findAllExistingYears()
 
@@ -107,4 +113,17 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     fun updateMonthQuery(newQuery: Int) {
         _queryMonth.value = newQuery
     }
+
+    fun syncFirebaseToRoom() {
+        viewModelScope.launch {
+            try {
+                val firebaseExpenses = firebaseDb.getUserSummaryOnce(userId)
+                monthlySummaryDao.insertAll(firebaseExpenses)
+                Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
+            } catch (e: Exception) {
+                Log.e("Sync", "Failed", e)
+            }
+        }
+    }
+
 }
