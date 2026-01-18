@@ -31,18 +31,6 @@ interface ExpenseDao {
     fun getAllExpenses(): LiveData<List<Expense>>
 
 
- /*   @Query("""
-    SELECT * FROM expenses 
-    WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%') 
-    ORDER BY createdAt DESC
-""")
-    fun getExpensesPaging(query: String? = null): PagingSource<Int, Expense> */
-
-    /*@Query("""
-    SELECT * FROM ExpenseWithGroupSum 
-    WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%') 
-    ORDER BY createdAt DESC
-""")*/
     @Query("""
     SELECT *, 
            SUM(amount) OVER (

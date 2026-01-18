@@ -1,8 +1,6 @@
 package com.example.expensetracker.firebase.database.model
 
-import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
-import com.example.expensetracker.data.enums.ExpenseEnum
 import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties

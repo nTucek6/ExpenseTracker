@@ -3,26 +3,15 @@ package com.example.expensetracker.ui.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.R
-import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.databinding.ItemExpenseBinding
 import com.example.expensetracker.utils.toDateString
 import com.example.expensetracker.utils.toLocalDate
-import java.time.LocalDateTime
 
-/*class ExpensePagingAdapter(
-    private val onItemClick: (Expense) -> Unit
-) : PagingDataAdapter<Expense, ExpensePagingAdapter.ViewHolder>(
-    object : DiffUtil.ItemCallback<Expense>() {
-        override fun areItemsTheSame(old: Expense, new: Expense) = old.id == new.id
-        override fun areContentsTheSame(old: Expense, new: Expense) = old == new
-    }) {
- */
 class ExpensePagingAdapter(
     private val onItemClick: (ExpenseWithGroupSum) -> Unit
 ) : PagingDataAdapter<ExpenseWithGroupSum, ExpensePagingAdapter.ViewHolder>(

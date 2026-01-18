@@ -8,19 +8,16 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.ExpenseEnum
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.firebase.database.FirebaseDb
-import com.example.expensetracker.utils.toDateString
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ExpenseViewModel(application: Application) : AndroidViewModel(application) {

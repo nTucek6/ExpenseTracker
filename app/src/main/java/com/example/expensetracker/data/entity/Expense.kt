@@ -6,7 +6,6 @@ import androidx.room.PrimaryKey
 import com.example.expensetracker.data.enums.ExpenseEnum
 import kotlinx.parcelize.Parcelize
 
-
 @Parcelize
 @Entity(tableName = "expenses")
 data class Expense (

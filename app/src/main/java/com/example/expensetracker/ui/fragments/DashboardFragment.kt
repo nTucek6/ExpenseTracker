@@ -2,7 +2,6 @@ package com.example.expensetracker.ui.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -29,10 +28,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
     private var money: Double = 0.0
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     @SuppressLint("SetTextI18n", "CheckResult")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -44,8 +39,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
         val spentAmountText = view.findViewById<TextView>(R.id.tvSpentAmount)
         val remainingText = view.findViewById<TextView>(R.id.tvRemainingAmount)
-
-        //topText.text = GreetingsEnum.now().displayName
 
         val greetingText = GreetingsEnum.now().displayName.let { resId ->
             requireContext().getString(resId)

@@ -1,18 +1,13 @@
 package com.example.expensetracker
 
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.widget.Toast
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -24,7 +19,6 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import kotlinx.coroutines.launch
-import com.google.android.material.snackbar.Snackbar
 
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -99,8 +93,4 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             Toast.makeText(this, getString(R.string.exit_text), Toast.LENGTH_SHORT).show()
         }
     }
-
-
-
-
 }

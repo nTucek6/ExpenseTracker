@@ -9,7 +9,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -35,7 +34,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     lateinit var singInBtn: MaterialButton
     lateinit var syncDataBtn: MaterialButton
     lateinit var downloadDataBtn: MaterialButton
-    var firebaseDb =  FirebaseDb()
+    var firebaseDb = FirebaseDb()
 
     private val expenseViewModel: ExpenseViewModel by viewModels()
 
@@ -104,22 +103,27 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                networkViewModel.isOnline.collect { online ->
+                networkViewModel.isOnlineDebounced.collect { online ->
                     singInBtn.isEnabled = online
                     syncDataBtn.isEnabled = online
                     downloadDataBtn.isEnabled = online
-                    Toast.makeText(requireContext(),getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
+                    if (!online) {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.no_internet),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
-
     }
 
     fun syncDataDialog(user: FirebaseUser) {
         DialogUtils.showInfoConfirmation(
             context = requireContext(),
             onConfirm = {
-                lifecycleScope.launch{
+                lifecycleScope.launch {
                     syncData(user)
                 }
             },
@@ -139,11 +143,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             message = requireContext().getString(R.string.download_data_message)
         )
     }
+
     private fun toggleButtonDisable() {
         singInBtn.isEnabled = !singInBtn.isEnabled
     }
 
-    suspend fun syncData(user: FirebaseUser){
+    suspend fun syncData(user: FirebaseUser) {
         val expenseList = expenseViewModel.allExpenses
             .asFlow()
             .filter { it.isNotEmpty() }
@@ -157,6 +162,4 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         val firebaseSummaries = summaryList.toFirebaseMonthlySummary()
         firebaseDb.syncData(user, firebaseExpenses, firebaseSummaries)
     }
-
 }
-
