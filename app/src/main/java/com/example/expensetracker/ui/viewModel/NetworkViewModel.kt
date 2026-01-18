@@ -16,7 +16,7 @@ class NetworkViewModel(application: Application) : AndroidViewModel(application)
     val isOnline: StateFlow<Boolean> = _isOnline.asStateFlow()
 
     @OptIn(FlowPreview::class)
-    val isOnlineDebounced = isOnline.debounce(1000L)
+    val isOnlineDebounced = isOnline.debounce(500L)
 
     init {
         val cm = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

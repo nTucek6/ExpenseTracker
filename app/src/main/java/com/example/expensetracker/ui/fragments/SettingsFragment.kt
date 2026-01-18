@@ -103,10 +103,16 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                networkViewModel.isOnlineDebounced.collect { online ->
+                networkViewModel.isOnline.collect { online ->
                     singInBtn.isEnabled = online
                     syncDataBtn.isEnabled = online
                     downloadDataBtn.isEnabled = online
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                networkViewModel.isOnlineDebounced.collect { online ->
                     if (!online) {
                         Toast.makeText(
                             requireContext(),
