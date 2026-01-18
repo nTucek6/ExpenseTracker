@@ -11,6 +11,7 @@ import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.databinding.ItemExpenseBinding
 import com.example.expensetracker.utils.toDateString
 import com.example.expensetracker.utils.toLocalDate
+import com.example.expensetracker.utils.toTimeString
 
 class ExpensePagingAdapter(
     private val onItemClick: (ExpenseWithGroupSum) -> Unit
@@ -62,7 +63,7 @@ class ExpensePagingAdapter(
                 expense.amount
             )
             viewHolder.binding.tvCategory.text = expense.category.displayName
-            viewHolder.binding.tvDate.text = expense.createdAt.toDateString()
+            viewHolder.binding.tvDate.text = expense.createdAt.toTimeString()
             viewHolder.binding.cardView.setOnClickListener { onItemClick(expense) }
         }
     }
