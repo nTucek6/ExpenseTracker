@@ -6,7 +6,7 @@ import androidx.room.DatabaseView
 import com.example.expensetracker.data.enums.ExpenseEnum
 import kotlinx.parcelize.Parcelize
 
-@DatabaseView("""
+/*@DatabaseView("""
       SELECT *, 
            SUM(amount) OVER (
                PARTITION BY date(createdAt / 1000, 'unixepoch')
@@ -14,6 +14,9 @@ import kotlinx.parcelize.Parcelize
            ) AS dailySum
     FROM expenses 
     ORDER BY createdAt DESC
+""")*/
+@DatabaseView("""
+    SELECT * FROM expenses ORDER BY createdAt DESC
 """)
 data class ExpenseWithGroupSum(
     val id: Int = 0,

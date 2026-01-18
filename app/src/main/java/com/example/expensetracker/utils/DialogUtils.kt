@@ -60,6 +60,20 @@ object DialogUtils {
             .show()
     }
 
+    fun showInfoConfirmation(
+        context: Context,
+        onConfirm: () -> Unit,
+        title: String? = context.getString(R.string.confirm_delete),
+        message: String? = context.getString(R.string.delete_message),
+    ) {
+        AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setNegativeButton(context.getString(R.string.cancel), null)
+            .setPositiveButton(context.getString(R.string.continue_dialog)) { _, _ -> onConfirm() }
+            .show()
+    }
+
 
     fun showEditLimitDialog(
         context: Context,

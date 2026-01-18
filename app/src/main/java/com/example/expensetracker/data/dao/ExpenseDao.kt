@@ -38,9 +38,19 @@ interface ExpenseDao {
 """)
     fun getExpensesPaging(query: String? = null): PagingSource<Int, Expense> */
 
-    @Query("""
+    /*@Query("""
     SELECT * FROM ExpenseWithGroupSum 
     WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%') 
+    ORDER BY createdAt DESC
+""")*/
+    @Query("""
+    SELECT *, 
+           SUM(amount) OVER (
+               PARTITION BY date(createdAt / 1000, 'unixepoch')
+               ORDER BY createdAt
+           ) AS dailySum
+    FROM ExpenseWithGroupSum 
+    WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%')
     ORDER BY createdAt DESC
 """)
     fun getExpensesPaging(query: String? = null): PagingSource<Int, ExpenseWithGroupSum>

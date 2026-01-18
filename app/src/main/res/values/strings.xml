@@ -41,6 +41,14 @@
     <string name="remaining_info_format">Remaining: %.2f€</string>
     <string name="spent_info_format">Spent: %.2f€</string>
 
+    <!-- Settings strings -->
+    <string name="download_data">Download data?</string>
+    <string name="download_data_message">This action will download data from external database, continue?</string>
+    <string name="sync_data_title">Sync data?</string>
+    <string name="sync_data_message">This action will sync external data with yours?</string>
+    <string name="continue_dialog">Continue</string>
+    <string name="no_internet">No internet connection!</string>
+
 
     <string name="january">January</string>
     <string name="february">February</string>

@@ -28,6 +28,10 @@
     <string name="evening">Dobra večer</string>
     <string name="total_spent">Ukupan trošak:</string>
     <string name="spent_info_format">Trošak: %.2f€</string>
+    <string name="download_data_message">Ovom akcijom preuzimate podatke iz vanjskog repozitorija, nastavak?</string>
+    <string name="sync_data_message">Ova radnja će sinkronizirati vanjske podatke s vašim, nastavak?</string>
+    <string name="continue_dialog">Nastavak</string>
+    <string name="no_internet">Nema internetske veze!</string>
     <string name="january">Siječanj</string>
     <string name="february">Velječa</string>
     <string name="march">Ožujak</string>
@@ -51,4 +55,6 @@
     <string name="limit_info_format">Ograničenje: %.2f€</string>
     <string name="remaining_info_format">Preostalo: %.2f€</string>
     <string name="all">Sve</string>
+    <string name="download_data">Preuzimanje podatke</string>
+    <string name="sync_data_title">Sinkronizacija podataka?</string>
 </resources>
