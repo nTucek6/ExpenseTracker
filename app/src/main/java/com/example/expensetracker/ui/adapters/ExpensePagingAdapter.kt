@@ -1,5 +1,6 @@
 package com.example.expensetracker.ui.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -38,6 +39,7 @@ class ExpensePagingAdapter(
         return ViewHolder(view)
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val expense = getItem(position)
         if (expense != null) {
@@ -62,6 +64,7 @@ class ExpensePagingAdapter(
                 viewHolder.itemView.context.getString(R.string.price_format),
                 expense.amount
             )
+            viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.category.imageSvg))
             viewHolder.binding.tvCategory.text = expense.category.displayName
             viewHolder.binding.tvDate.text = expense.createdAt.toTimeString()
             viewHolder.binding.cardView.setOnClickListener { onItemClick(expense) }

@@ -1,5 +1,6 @@
 package com.example.expensetracker.ui.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -33,6 +34,7 @@ class ExpenseAdapter(private val onItemClick: (Expense) -> Unit) :
         return ViewHolder(view)
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val expense = getItem(position)
 
@@ -40,6 +42,7 @@ class ExpenseAdapter(private val onItemClick: (Expense) -> Unit) :
             viewHolder.itemView.context.getString(R.string.price_format),
             expense.amount
         )
+        viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.category.imageSvg))
         viewHolder.binding.tvCategory.text = expense.category.displayName
 
         if (expense.createdAt.isToday()) {

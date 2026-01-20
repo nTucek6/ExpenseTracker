@@ -48,12 +48,28 @@
             android:orientation="horizontal"
             android:padding="16dp"
             >
-            <TextView
-                android:id="@+id/tvCategory"
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                tools:text="Food" />
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:id="@+id/iv_category"
+                    android:layout_width="24dp"
+                    android:layout_height="match_parent"
+                    app:tint="?attr/colorOnSurface"
+                    android:layout_marginEnd="5dp"
+                    />
+
+                <TextView
+                    android:id="@+id/tvCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Food" />
+            </LinearLayout>
+
 
             <TextView
                 android:id="@+id/tvAmount"
