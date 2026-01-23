@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.asFlow
@@ -37,13 +38,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     lateinit var singInBtn: MaterialButton
     lateinit var syncDataBtn: MaterialButton
     lateinit var downloadDataBtn: MaterialButton
-    var firebaseDb = FirebaseDb()
 
     private val expenseViewModel: ExpenseViewModel by viewModels()
 
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
 
-    private val networkViewModel: NetworkViewModel by viewModels()
+    private val networkViewModel: NetworkViewModel by activityViewModels()
 
     @SuppressLint("UnsafeRepeatOnLifecycleDetector", "ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -123,9 +123,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     singInBtn.isEnabled = online
                     syncDataBtn.isEnabled = online
                     downloadDataBtn.isEnabled = online
+                    swAutoSync.isEnabled = online
                 }
             }
         }
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 networkViewModel.isOnlineDebounced.collect { online ->
@@ -140,30 +142,32 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             }
         }
 
-        swAutoSync.setOnCheckedChangeListener { _, isChecked ->
+        swAutoSync.setOnCheckedChangeListener { button, isChecked ->
+            if (!button.isPressed) return@setOnCheckedChangeListener
             SharedPreferencesUtils.saveAutoSync(
                 requireContext(),
                 isChecked
             )
+            Log.d("CheckAutoSync", isChecked.toString())
             if (isChecked) {
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     googleAuthClient.getUser()?.let { user ->
-                        lifecycleScope.launch {
-                            syncData(user)
-                        }
+                        Log.d("CheckAutoSync", user.email.toString())
+                        //lifecycleScope.launch {
+                            FirebaseDb.syncData(user, expenseViewModel, summaryViewModel)
+                       // }
                     }
                 }
             }
         }
     }
 
-
     fun syncDataDialog(user: FirebaseUser) {
         DialogUtils.showInfoConfirmation(
             context = requireContext(),
             onConfirm = {
                 lifecycleScope.launch {
-                    syncData(user)
+                    FirebaseDb.syncData(user, expenseViewModel, summaryViewModel)
                 }
             },
             title = requireContext().getString(R.string.sync_data_title),
@@ -187,7 +191,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         singInBtn.isEnabled = !singInBtn.isEnabled
     }
 
-    suspend fun syncData(user: FirebaseUser) {
+    /*suspend fun syncData(user: FirebaseUser) {
         val expenseList = expenseViewModel.allExpenses
             .asFlow()
             .filter { it.isNotEmpty() }
@@ -200,5 +204,5 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         val firebaseExpenses = expenseList.toFirebaseExpenses()
         val firebaseSummaries = summaryList.toFirebaseMonthlySummary()
         firebaseDb.syncData(user, firebaseExpenses, firebaseSummaries)
-    }
+    } */
 }

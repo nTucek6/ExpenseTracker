@@ -1,8 +1,16 @@
 package com.example.expensetracker.firebase.database
 
+import android.content.Context
 import android.util.Log
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.asFlow
+import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
+import com.example.expensetracker.data.viewModel.ExpenseViewModel
+import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
+import com.example.expensetracker.firebase.database.mappers.toFirebaseExpenses
+import com.example.expensetracker.firebase.database.mappers.toFirebaseMonthlySummary
 import com.example.expensetracker.firebase.database.model.FirebaseExpense
 import com.example.expensetracker.firebase.database.model.FirebaseMonthlySummary
 import com.example.expensetracker.firebase.database.model.FirebaseUsers
@@ -12,19 +20,48 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import kotlin.getValue
 
 
-class FirebaseDb {
+object FirebaseDb {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val usersRef: DatabaseReference = database.getReference("users")
 
-    fun syncData(
+    /* fun syncData(
+         user: FirebaseUser,
+         expense: List<FirebaseExpense>,
+         summary: List<FirebaseMonthlySummary>
+     ) {
+
+         val expenseMap = expense.associate { "${it.id}" to it }
+         val userData = FirebaseUsers(user.uid, user.email, expenseMap, summary)
+         usersRef.child(user.uid).setValue(userData)
+             .addOnSuccessListener { Log.d("FirebaseCheck", "User data saved") }
+             .addOnFailureListener { e -> Log.e("FirebaseCheck", "Save failed", e) }
+     } */
+
+    suspend fun syncData(
         user: FirebaseUser,
-        expense: List<FirebaseExpense>,
-        summary: List<FirebaseMonthlySummary>
+        expenseViewModel: ExpenseViewModel,
+        summaryViewModel: MonthlySummaryViewModel
     ) {
+        val expenseList = expenseViewModel.allExpenses
+            .asFlow()
+            .filter { it.isNotEmpty() }
+            .first()
+        val summaryList = summaryViewModel.getAllMonthBudget
+            .asFlow()
+            .filter { it.isNotEmpty() }
+            .first()
+
+
+        val expense = expenseList.toFirebaseExpenses()
+        val summary = summaryList.toFirebaseMonthlySummary()
 
         val expenseMap = expense.associate { "${it.id}" to it }
         val userData = FirebaseUsers(user.uid, user.email, expenseMap, summary)
@@ -32,6 +69,7 @@ class FirebaseDb {
             .addOnSuccessListener { Log.d("FirebaseCheck", "User data saved") }
             .addOnFailureListener { e -> Log.e("FirebaseCheck", "Save failed", e) }
     }
+
 
     suspend fun checkUserExist(uid: String): Boolean {
         val userUidRef = usersRef.child(uid)
@@ -60,9 +98,9 @@ class FirebaseDb {
         }
     }
 
-     fun updateOrCreateExpense(userUid: String?, expense: Expense) {
-         val key = expense.id.toString()
-         usersRef.child("$userUid/expenses/$key").setValue(expense)
+    fun updateOrCreateExpense(userUid: String?, expense: Expense) {
+        val key = expense.id.toString()
+        usersRef.child("$userUid/expenses/$key").setValue(expense)
     }
 
     fun deleteExpense(userUid: String, expenseId: Int) {

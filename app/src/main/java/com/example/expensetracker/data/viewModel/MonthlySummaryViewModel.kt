@@ -31,7 +31,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     private val monthlySummaryDao =
         ExpenseTrackerDatabase.getDatabase(application).monthlySummaryDao()
 
-    private val firebaseDb = FirebaseDb()
+    //private val firebaseDb = FirebaseDb()
 
     val getCurrentMonthBudget = monthlySummaryDao.getCurrentMonthBudget()
     val getAllMonthBudget = monthlySummaryDao.getAllMonthBudget()
@@ -117,7 +117,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     fun syncFirebaseToRoom() {
         viewModelScope.launch {
             try {
-                val firebaseExpenses = firebaseDb.getUserSummaryOnce(userId)
+                val firebaseExpenses = FirebaseDb.getUserSummaryOnce(userId)
                 monthlySummaryDao.insertAll(firebaseExpenses)
                 Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
             } catch (e: Exception) {

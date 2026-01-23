@@ -22,7 +22,6 @@ import kotlinx.coroutines.tasks.await
 
 class GoogleAuthClient(private val context: Context) {
 
-
     private val tag = "GoogleAuthClient: "
     private val credentialManager = CredentialManager.create(context)
     private val firebaseAuth = FirebaseAuth.getInstance()
@@ -118,6 +117,4 @@ class GoogleAuthClient(private val context: Context) {
         }
         return null
     }
-
-
 }

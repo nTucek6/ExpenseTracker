@@ -30,7 +30,6 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses Order By createdAt DESC")
     fun getAllExpenses(): LiveData<List<Expense>>
 
-
     @Query("""
     SELECT *, 
            SUM(amount) OVER (

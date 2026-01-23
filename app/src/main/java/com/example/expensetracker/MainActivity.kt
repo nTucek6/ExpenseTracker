@@ -7,18 +7,29 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.fragment.NavHostFragment
+import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
+import com.example.expensetracker.firebase.database.FirebaseDb
+import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
+import com.example.expensetracker.ui.viewModel.NetworkViewModel
+import com.example.expensetracker.utils.SharedPreferencesUtils
 import kotlinx.coroutines.launch
+import kotlin.getValue
 
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -26,7 +37,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var backPressTime: Long = 0
     private val DOUBLE_PRESS_INTERVAL = 2000L
 
-    private lateinit var viewModel: MonthlySummaryViewModel
+    private val expenseViewModel: ExpenseViewModel by viewModels()
+    private val summaryViewModel: MonthlySummaryViewModel by viewModels()
+    private val networkViewModel: NetworkViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +47,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         setUpBackHandler()
 
-        viewModel = ViewModelProvider(this)[MonthlySummaryViewModel::class.java]
+        val googleAuthClient = GoogleAuthClient(this)
 
         lifecycleScope.launch {
-            viewModel.createDefaultSummary()
+            summaryViewModel.createDefaultSummary()
         }
 
 
@@ -62,6 +75,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             true
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                networkViewModel.isOnlineDebounced.collect { online ->
+                    if (online) {
+                        val autoSync = SharedPreferencesUtils.getAutoSync(this@MainActivity)
+                        val isSignedIn = googleAuthClient.isSignedIn.value
+                        if (isSignedIn && autoSync) {
+                            val user = googleAuthClient.getUser()
+                            if (user != null) {
+                                FirebaseDb.syncData(user, expenseViewModel, summaryViewModel)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun setUpBackHandler() {

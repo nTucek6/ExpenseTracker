@@ -8,21 +8,17 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.ExpenseEnum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
-import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
-import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.launch
 import kotlin.getValue
 
 class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
@@ -30,9 +26,7 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
     private val args: AddExpenseFragmentArgs by navArgs()
     private val expense: Expense? get() = args.expense
 
-    var firebaseDb = FirebaseDb()
-
-    private val expenseViewModel: ExpenseViewModel by viewModels()
+    private val expenseViewModel: ExpenseViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

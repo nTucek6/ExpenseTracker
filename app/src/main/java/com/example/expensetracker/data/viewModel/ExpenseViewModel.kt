@@ -3,9 +3,7 @@ package com.example.expensetracker.data.viewModel
 import android.app.Application
 import android.content.Context
 import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -19,7 +17,6 @@ import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -31,7 +28,7 @@ import kotlinx.coroutines.withContext
 class ExpenseViewModel(application: Application) : AndroidViewModel(application) {
     private val expenseDao = ExpenseTrackerDatabase.getDatabase(application).expenseDao()
 
-    private val firebaseDb = FirebaseDb()
+    //private val firebaseDb = FirebaseDb()
 
     val context = getApplication<Application>()
     val googleAuthClient = GoogleAuthClient(context.applicationContext)
@@ -47,7 +44,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
     fun syncFirebaseToRoom() {
         viewModelScope.launch {
             try {
-                val firebaseExpenses = firebaseDb.getUserExpensesOnce(userId)
+                val firebaseExpenses = FirebaseDb.getUserExpensesOnce(userId)
                 expenseDao.insertAll(firebaseExpenses)
                 Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
             } catch (e: Exception) {
@@ -150,7 +147,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            firebaseDb.updateOrCreateExpense(userUid, updatedExpense)
+            FirebaseDb.updateOrCreateExpense(userUid, updatedExpense)
         }
     }
 
@@ -160,7 +157,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            firebaseDb.deleteExpense(userUid, expenseId)
+            FirebaseDb.deleteExpense(userUid, expenseId)
         }
 
 

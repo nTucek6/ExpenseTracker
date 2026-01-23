@@ -7,6 +7,7 @@ import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -24,7 +25,7 @@ import kotlin.getValue
 
 class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
 
-    private val expenseViewModel: ExpenseViewModel by viewModels()
+    private val expenseViewModel: ExpenseViewModel by activityViewModels()
 
     private lateinit var expenseAdapter: ExpensePagingAdapter
 

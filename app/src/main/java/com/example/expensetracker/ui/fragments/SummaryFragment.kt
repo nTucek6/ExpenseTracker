@@ -6,6 +6,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,7 +22,7 @@ import kotlin.getValue
 
 class SummaryFragment : Fragment(R.layout.fragment_summary) {
 
-    private val summaryViewModel: MonthlySummaryViewModel by viewModels()
+    private val summaryViewModel: MonthlySummaryViewModel by activityViewModels()
     private lateinit var summaryAdapter: SummaryPagingAdapter
     private lateinit var yearAdapter: ArrayAdapter<MonthItem>
     private lateinit var monthAdapter: ArrayAdapter<MonthItem>
