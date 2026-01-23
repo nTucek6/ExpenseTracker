@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -21,7 +22,9 @@ import com.example.expensetracker.firebase.database.mappers.toFirebaseMonthlySum
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.DialogUtils
+import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
@@ -42,10 +45,17 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private val networkViewModel: NetworkViewModel by viewModels()
 
-    @SuppressLint("UnsafeRepeatOnLifecycleDetector")
+    @SuppressLint("UnsafeRepeatOnLifecycleDetector", "ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val googleAuthClient = GoogleAuthClient(requireContext())
+
+        val autoSync = SharedPreferencesUtils.getAutoSync(requireContext())
+
+
+        val tvSingInStatus = view.findViewById<TextView>(R.id.tv_sign_in_status)
+        val tvSingInInfo = view.findViewById<TextView>(R.id.tv_sign_in_info)
+        val swAutoSync = view.findViewById<SwitchMaterial>(R.id.sw_auto_sync)
 
         singInBtn = view.findViewById(R.id.btn_login_out)
         syncDataBtn = view.findViewById(R.id.btn_sync_data)
@@ -54,6 +64,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 googleAuthClient.isSignedIn.collectLatest { isSignedIn ->
+                    val user = googleAuthClient.getUser()
+                    swAutoSync.isChecked = autoSync
+                    tvSingInStatus.text =
+                        if (isSignedIn) "${user?.displayName} (${user?.email})" else "Not signed in"
+                    tvSingInInfo.text =
+                        if (isSignedIn) "Connected with Google" else "Sign in with Google to sync data"
                     singInBtn.text = if (isSignedIn) "Sign Out" else "Sign in With Google"
                     syncDataBtn.isVisible = isSignedIn
                     downloadDataBtn.isVisible = isSignedIn
@@ -123,7 +139,24 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 }
             }
         }
+
+        swAutoSync.setOnCheckedChangeListener { _, isChecked ->
+            SharedPreferencesUtils.saveAutoSync(
+                requireContext(),
+                isChecked
+            )
+            if (isChecked) {
+                lifecycleScope.launch {
+                    googleAuthClient.getUser()?.let { user ->
+                        lifecycleScope.launch {
+                            syncData(user)
+                        }
+                    }
+                }
+            }
+        }
     }
+
 
     fun syncDataDialog(user: FirebaseUser) {
         DialogUtils.showInfoConfirmation(

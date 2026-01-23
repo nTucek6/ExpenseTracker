@@ -18,9 +18,9 @@ interface ExpenseDao {
     suspend fun findById(id:Int): Expense
 
     @Insert
-    suspend fun insert(expense: Expense)
+    suspend fun insert(expense: Expense): Long
     @Update
-    suspend fun update(expense: Expense)
+    suspend fun update(expense: Expense) : Int
     @Delete
     suspend fun delete(expense: Expense)
 

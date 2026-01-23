@@ -72,4 +72,10 @@
     <string name="update">Update</string>
     <string name="all">All</string>
 
+
+    <!-- SharedPreference strings -->
+    <string name="pref_settings" translatable="false">pref_settings</string>
+    <string name="saved_auto_sync" translatable="false">saved_auto_sync</string>
+
+
 </resources>

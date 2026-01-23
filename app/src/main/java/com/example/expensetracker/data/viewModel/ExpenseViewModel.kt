@@ -1,8 +1,11 @@
 package com.example.expensetracker.data.viewModel
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -13,17 +16,25 @@ import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.ExpenseEnum
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.firebase.database.FirebaseDb
+import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
+import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ExpenseViewModel(application: Application) : AndroidViewModel(application) {
     private val expenseDao = ExpenseTrackerDatabase.getDatabase(application).expenseDao()
 
     private val firebaseDb = FirebaseDb()
+
+    val context = getApplication<Application>()
+    val googleAuthClient = GoogleAuthClient(context.applicationContext)
 
     val allExpenses = expenseDao.getAllExpenses()
     val totalSpent = expenseDao.getTotalSpent()
@@ -47,20 +58,24 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     private val _query = MutableStateFlow("")
 
-  /*  @OptIn(ExperimentalCoroutinesApi::class)
-    val expensesPaging: Flow<PagingData<Expense>> = _query
-        .flatMapLatest { query ->
-            Pager(
-                config = PagingConfig(pageSize = 15,  prefetchDistance = 5, enablePlaceholders = false),
-                pagingSourceFactory = { expenseDao.getExpensesPaging(query) }
-            ).flow.cachedIn(viewModelScope)
-        } */
+    /*  @OptIn(ExperimentalCoroutinesApi::class)
+      val expensesPaging: Flow<PagingData<Expense>> = _query
+          .flatMapLatest { query ->
+              Pager(
+                  config = PagingConfig(pageSize = 15,  prefetchDistance = 5, enablePlaceholders = false),
+                  pagingSourceFactory = { expenseDao.getExpensesPaging(query) }
+              ).flow.cachedIn(viewModelScope)
+          } */
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val expensesPaging: Flow<PagingData<ExpenseWithGroupSum>> = _query
         .flatMapLatest { query ->
             Pager(
-                config = PagingConfig(pageSize = 15,  prefetchDistance = 5, enablePlaceholders = false),
+                config = PagingConfig(
+                    pageSize = 15,
+                    prefetchDistance = 5,
+                    enablePlaceholders = false
+                ),
                 pagingSourceFactory = { expenseDao.getExpensesPaging(query) }
             ).flow.cachedIn(viewModelScope)
         }
@@ -70,15 +85,19 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun insert(amount: Double, description: String?, category: ExpenseEnum) {
+        val newExpense = Expense(
+            amount = amount,
+            description = description,
+            category = category,
+        )
+
         viewModelScope.launch {
-            expenseDao.insert(
-                Expense(
-                    amount = amount,
-                    description = description,
-                    category = category
-                )
-            )
+            withContext(NonCancellable) {
+                val id = expenseDao.insert(newExpense)
+                firebaseSync(newExpense.copy(id = id.toInt()))
+            }
         }
+
     }
 
     fun update(
@@ -88,21 +107,34 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         category: ExpenseEnum,
         createdAt: Long
     ) {
+
+        val updatedExpense = Expense(
+            id = id,
+            amount = amount,
+            description = description,
+            category = category,
+            createdAt = createdAt
+        )
+
         viewModelScope.launch {
-            expenseDao.update(
-                Expense(
-                    id = id,
-                    amount = amount,
-                    description = description,
-                    category = category,
-                    createdAt = createdAt
-                )
-            )
+            withContext(NonCancellable) {
+                try {
+                    expenseDao.update(updatedExpense)
+                    firebaseSync(updatedExpense)
+                } catch (e: Exception) {
+                    Log.e("ExpenseUpdate", "Update failed", e)
+                }
+            }
         }
+
     }
+
     fun delete(expense: Expense) {
         viewModelScope.launch {
-            expenseDao.delete(expense)
+            withContext(NonCancellable) {
+                expenseDao.delete(expense)
+                deleteExpense(expense.id)
+            }
         }
     }
 
@@ -111,4 +143,28 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             expenseDao.deleteById(id)
         }
     }
+
+    private fun firebaseSync(updatedExpense: Expense){
+        val isSignedIn = googleAuthClient.isSignedIn.value
+        val userUid = googleAuthClient.getUser()?.uid
+        val isSyncOn: Boolean =
+            SharedPreferencesUtils.getAutoSync(context.applicationContext)
+        if (isSyncOn && isSignedIn && userUid != null) {
+            firebaseDb.updateOrCreateExpense(userUid, updatedExpense)
+        }
+    }
+
+    private fun deleteExpense(expenseId: Int){
+        val isSignedIn = googleAuthClient.isSignedIn.value
+        val userUid = googleAuthClient.getUser()?.uid
+        val isSyncOn: Boolean =
+            SharedPreferencesUtils.getAutoSync(context.applicationContext)
+        if (isSyncOn && isSignedIn && userUid != null) {
+            firebaseDb.deleteExpense(userUid, expenseId)
+        }
+
+
+    }
+
+
 }
