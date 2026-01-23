@@ -50,7 +50,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         super.onViewCreated(view, savedInstanceState)
         val googleAuthClient = GoogleAuthClient(requireContext())
 
-        val autoSync = SharedPreferencesUtils.getAutoSync(requireContext())
+
 
 
         val tvSingInStatus = view.findViewById<TextView>(R.id.tv_sign_in_status)
@@ -64,6 +64,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 googleAuthClient.isSignedIn.collectLatest { isSignedIn ->
+                    val autoSync = SharedPreferencesUtils.getAutoSync(requireContext())
                     val user = googleAuthClient.getUser()
                     swAutoSync.isChecked = autoSync
                     tvSingInStatus.text =
@@ -73,12 +74,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     singInBtn.text = if (isSignedIn) "Sign Out" else "Sign in With Google"
                     syncDataBtn.isVisible = isSignedIn
                     downloadDataBtn.isVisible = isSignedIn
+                    swAutoSync.isVisible = isSignedIn
                 }
             }
         }
 
         singInBtn.setOnClickListener {
-            lifecycleScope.launch {
+             lifecycleScope.launch {
                 toggleButtonDisable()
                 try {
                     val isSignedIn = googleAuthClient.isSignedIn.value
@@ -86,6 +88,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                         googleAuthClient.signOut()
                     } else {
                         googleAuthClient.signIn()
+
+                        val autoSync = SharedPreferencesUtils.getAutoSync(requireContext())
+                        val user = googleAuthClient.getUser()
+                        if (autoSync && user != null){
+                            FirebaseDb.syncData(user, expenseViewModel, summaryViewModel)
+                        }
+
                     }
                 } finally {
                     toggleButtonDisable()
