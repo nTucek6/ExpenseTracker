@@ -30,19 +30,41 @@
             app:popUpToInclusive="false">
         </action>
 
+        <action
+            android:id="@+id/action_expenses_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="true" />
+
     </fragment>
 
     <!-- Summary -->
     <fragment
         android:id="@+id/summaryFragment"
         android:name="com.example.expensetracker.ui.fragments.SummaryFragment"
-        android:label="Summary" />
+        android:label="Summary">
+
+        <action
+            android:id="@+id/action_summary_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="true" />
+
+    </fragment>
 
     <!-- Settings -->
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.expensetracker.ui.fragments.SettingsFragment"
-        android:label="Settings" />
+        android:label="Settings" >
+
+        <action
+            android:id="@+id/action_settings_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="true" />
+
+    </fragment>
     <!-- Navigation fragments -->
 
     <!-- Update fragment -->

@@ -2,10 +2,12 @@ package com.example.expensetracker
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +20,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import androidx.navigation.ui.setupWithNavController
@@ -37,6 +40,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var backPressTime: Long = 0
     private val DOUBLE_PRESS_INTERVAL = 2000L
 
+    private lateinit var navHostFragment: NavHostFragment
     private val expenseViewModel: ExpenseViewModel by viewModels()
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
     private val networkViewModel: NetworkViewModel by viewModels()
@@ -45,7 +49,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        setUpBackHandler()
+
 
         val googleAuthClient = GoogleAuthClient(this)
 
@@ -60,20 +64,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             insets
         }
 
-        val navHostFragment = supportFragmentManager
+         navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fragment_container) as NavHostFragment
         val navController = navHostFragment.navController
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNav.setupWithNavController(navController)
 
-        bottomNav.setOnItemSelectedListener { item ->
+       /* bottomNav.setOnItemSelectedListener { item ->
             val wasHandled = navController.popBackStack(item.itemId, inclusive = false)
             if (!wasHandled) {
                 navController.navigate(item.itemId)
             }
             true
-        }
+        } */
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -91,12 +95,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         }
+
+
+        setUpBackHandler()
     }
 
-    fun setUpBackHandler() {
+  /*  fun setUpBackHandler() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val callback = OnBackInvokedCallback {
                 exitStrategy()
+                //handleBackPress()
             }
             getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
                 OnBackInvokedDispatcher.PRIORITY_DEFAULT,
@@ -107,9 +115,35 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             val callback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     exitStrategy()
+                    //handleBackPress()
                 }
             }
             onBackPressedDispatcher.addCallback(this, callback)
+        }
+    } */
+
+    private fun setUpBackHandler() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT
+            ) { handleSmartBack() }
+        } else {
+            onBackPressedDispatcher.addCallback(this) {
+                handleSmartBack()
+            }
+        }
+    }
+
+
+    private fun handleSmartBack() {
+        val navController = navHostFragment.navController
+
+        if (navController.currentDestination?.id == R.id.dashboardFragment) {
+            exitStrategy()
+        } else {
+            navController.navigate(R.id.dashboardFragment) {
+                popUpTo(R.id.dashboardFragment) { inclusive = true }
+            }
         }
     }
 
