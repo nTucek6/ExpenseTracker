@@ -24,7 +24,11 @@ interface MonthlySummaryDao {
     @Query("SELECT * FROM monthly_summary WHERE year = :year AND month = :month")
     fun getBudget(year: Int, month: Int): LiveData<MonthlySummary?>
 
-    @Query("SELECT * FROM BudgetWithSpent")
+    @Query("""
+    SELECT * FROM BudgetWithSpent 
+    ORDER BY year DESC, month DESC 
+    LIMIT 1
+""")
     fun getCurrentMonthBudget(): LiveData<BudgetWithSpent>
 
     @Query("SELECT * FROM monthly_summary")
@@ -33,7 +37,7 @@ interface MonthlySummaryDao {
     @Query("""
     SELECT * FROM BudgetWithSpent 
     WHERE (:queryYear IS 0 OR :queryYear == year) AND (:queryMonth is 0 OR :queryMonth == month)
-    ORDER BY year and month DESC
+    ORDER BY year DESC, month DESC
 """)
     fun getMonthBudgetPaging(queryYear: Int? = 0, queryMonth: Int? = 0): PagingSource<Int, BudgetWithSpent>
 

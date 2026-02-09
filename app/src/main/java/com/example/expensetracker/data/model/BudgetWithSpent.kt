@@ -2,7 +2,6 @@ package com.example.expensetracker.data.model
 
 import androidx.room.DatabaseView
 
-
 @DatabaseView("""
     SELECT 
         b.year,
@@ -13,9 +12,7 @@ import androidx.room.DatabaseView
     LEFT JOIN expenses e ON 
         b.year = CAST(strftime('%Y', datetime(e.createdAt/1000, 'unixepoch')) AS INT)
         AND b.month = CAST(strftime('%m', datetime(e.createdAt/1000, 'unixepoch')) AS INT)
-    WHERE b.year = CAST(strftime('%Y', 'now', 'localtime') AS INT)
-      AND b.month = CAST(strftime('%m', 'now', 'localtime') AS INT)
-    LIMIT 1
+    GROUP BY b.year, b.month
 """)
 data class BudgetWithSpent(
     val year: Int,

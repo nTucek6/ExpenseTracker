@@ -13,7 +13,9 @@
         android:theme="@style/Theme.ExpenseTracker"
         android:enableOnBackInvokedCallback="true"
         tools:ignore="MissingClass"
-        tools:targetApi="33">
+        tools:targetApi="33"
+        android:localeConfig="@xml/locales_config">
+        >
         <activity
             android:name=".MainActivity"
             android:exported="true"

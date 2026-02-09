@@ -57,4 +57,6 @@
     <string name="all">Sve</string>
     <string name="download_data">Preuzimanje podatke</string>
     <string name="sync_data_title">Sinkronizacija podataka?</string>
+    <string name="english">Engleski</string>
+    <string name="croatian">Hrvatski</string>
 </resources>

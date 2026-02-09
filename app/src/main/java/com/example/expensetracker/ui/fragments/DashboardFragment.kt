@@ -51,6 +51,10 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         }
 
         summaryViewModel.getCurrentMonthBudget.observe(viewLifecycleOwner) { sum ->
+            if (sum == null) {
+                return@observe
+            }
+
             dateText.text = String.format(
                 getString(R.string.dashboard_date_format),
                 MonthEnum.fromNumber(1).displayName.let { requireContext().getString(it) },//MonthEnum.fromNumber(sum.month).displayName,

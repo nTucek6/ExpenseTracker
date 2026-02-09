@@ -4,8 +4,11 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -15,6 +18,7 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.expensetracker.R
+import com.example.expensetracker.data.enums.LanguageISOEnum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.firebase.database.FirebaseDb
@@ -56,6 +60,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         val tvSingInStatus = view.findViewById<TextView>(R.id.tv_sign_in_status)
         val tvSingInInfo = view.findViewById<TextView>(R.id.tv_sign_in_info)
         val swAutoSync = view.findViewById<SwitchMaterial>(R.id.sw_auto_sync)
+        val btnLanguage = view.findViewById<Button>(R.id.btn_language)
 
         singInBtn = view.findViewById(R.id.btn_login_out)
         syncDataBtn = view.findViewById(R.id.btn_sync_data)
@@ -169,6 +174,19 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 }
             }
         }
+
+        btnLanguage.setOnClickListener {
+            val currentLocale = AppCompatDelegate.getApplicationLocales().get(0)
+
+            if(currentLocale?.language == LanguageISOEnum.EN.code){
+                changeLanguage(LanguageISOEnum.CRO.code)
+            }else{
+                changeLanguage(LanguageISOEnum.EN.code)
+            }
+
+
+
+        }
     }
 
     fun syncDataDialog(user: FirebaseUser) {
@@ -200,18 +218,9 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         singInBtn.isEnabled = !singInBtn.isEnabled
     }
 
-    /*suspend fun syncData(user: FirebaseUser) {
-        val expenseList = expenseViewModel.allExpenses
-            .asFlow()
-            .filter { it.isNotEmpty() }
-            .first()
-        val summaryList = summaryViewModel.getAllMonthBudget
-            .asFlow()
-            .filter { it.isNotEmpty() }
-            .first()
+    private fun changeLanguage(languageCode: String) {
+        val appLocale = LocaleListCompat.forLanguageTags(languageCode)
+        AppCompatDelegate.setApplicationLocales(appLocale)
+    }
 
-        val firebaseExpenses = expenseList.toFirebaseExpenses()
-        val firebaseSummaries = summaryList.toFirebaseMonthlySummary()
-        firebaseDb.syncData(user, firebaseExpenses, firebaseSummaries)
-    } */
 }

@@ -84,7 +84,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
     fun insert(amount: Double, description: String?, category: ExpenseEnum) {
         val newExpense = Expense(
             amount = amount,
-            description = description,
+            description = description?.trim(),
             category = category,
         )
 
@@ -108,7 +108,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         val updatedExpense = Expense(
             id = id,
             amount = amount,
-            description = description,
+            description = description?.trim(),
             category = category,
             createdAt = createdAt
         )
