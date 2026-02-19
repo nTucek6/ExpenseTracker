@@ -1,5 +1,6 @@
 package com.example.expensetracker
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -31,6 +33,7 @@ import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.SharedPreferencesUtils
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -45,10 +48,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
     private val networkViewModel: NetworkViewModel by viewModels()
 
+    private var isBackPress = false
+
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
 
 
         val googleAuthClient = GoogleAuthClient(this)
@@ -64,20 +69,45 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             insets
         }
 
-         navHostFragment = supportFragmentManager
+        navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fragment_container) as NavHostFragment
-        val navController = navHostFragment.navController
-
+        //val navController = navHostFragment.navController
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.setupWithNavController(navController)
+        //bottomNav.setupWithNavController(navController)
 
-       /* bottomNav.setOnItemSelectedListener { item ->
-            val wasHandled = navController.popBackStack(item.itemId, inclusive = false)
-            if (!wasHandled) {
+        var isUpdatingBottomNav = false
+
+        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
+            val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
+            val itemId = when (destination.id) {
+                R.id.dashboardFragment -> R.id.dashboardFragment
+                R.id.expensesFragment -> R.id.expensesFragment
+                R.id.summaryFragment -> R.id.summaryFragment
+                R.id.settingsFragment -> R.id.settingsFragment
+                else -> return@addOnDestinationChangedListener
+            }
+
+            if (bottomNav.selectedItemId != itemId) {
+                isUpdatingBottomNav = true
+                bottomNav.selectedItemId = itemId
+                isUpdatingBottomNav = false
+            }
+        }
+
+        bottomNav.setOnItemSelectedListener { item ->
+            if (isUpdatingBottomNav) return@setOnItemSelectedListener true
+
+            val navController = navHostFragment.navController
+
+            navController.popBackStack(R.id.dashboardFragment, false)
+
+            if (item.itemId != R.id.dashboardFragment) {
                 navController.navigate(item.itemId)
             }
             true
-        } */
+        }
+
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -88,45 +118,28 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         if (isSignedIn && autoSync) {
                             val user = googleAuthClient.getUser()
                             if (user != null) {
-                                FirebaseDb.syncData(user, expenseViewModel, summaryViewModel)
+                                FirebaseDb.syncRecentUpdates(user,expenseViewModel)
                             }
                         }
+                    } else{
+                        val cache = expenseViewModel.allCachesCrud.first()
+                        Log.d("CacheData", cache.toString())
+                        //expenseViewModel.deleteFromCacheCrud()
                     }
                 }
             }
         }
 
-
         setUpBackHandler()
     }
-
-  /*  fun setUpBackHandler() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val callback = OnBackInvokedCallback {
-                exitStrategy()
-                //handleBackPress()
-            }
-            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-                callback
-            )
-        } else {
-            // Legacy: AndroidX OnBackPressedDispatcher
-            val callback = object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    exitStrategy()
-                    //handleBackPress()
-                }
-            }
-            onBackPressedDispatcher.addCallback(this, callback)
-        }
-    } */
 
     private fun setUpBackHandler() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             onBackInvokedDispatcher.registerOnBackInvokedCallback(
                 OnBackInvokedDispatcher.PRIORITY_DEFAULT
-            ) { handleSmartBack() }
+            ) {
+                handleSmartBack()
+            }
         } else {
             onBackPressedDispatcher.addCallback(this) {
                 handleSmartBack()
@@ -134,16 +147,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-
     private fun handleSmartBack() {
         val navController = navHostFragment.navController
 
         if (navController.currentDestination?.id == R.id.dashboardFragment) {
             exitStrategy()
-        } else {
-            navController.navigate(R.id.dashboardFragment) {
-                popUpTo(R.id.dashboardFragment) { inclusive = true }
-            }
         }
     }
 

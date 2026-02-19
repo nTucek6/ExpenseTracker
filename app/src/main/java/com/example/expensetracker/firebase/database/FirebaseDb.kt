@@ -7,6 +7,7 @@ import androidx.lifecycle.asFlow
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
+import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.firebase.database.mappers.toFirebaseExpenses
@@ -32,42 +33,48 @@ object FirebaseDb {
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val usersRef: DatabaseReference = database.getReference("users")
 
-    /* fun syncData(
-         user: FirebaseUser,
-         expense: List<FirebaseExpense>,
-         summary: List<FirebaseMonthlySummary>
-     ) {
-
-         val expenseMap = expense.associate { "${it.id}" to it }
-         val userData = FirebaseUsers(user.uid, user.email, expenseMap, summary)
-         usersRef.child(user.uid).setValue(userData)
-             .addOnSuccessListener { Log.d("FirebaseCheck", "User data saved") }
-             .addOnFailureListener { e -> Log.e("FirebaseCheck", "Save failed", e) }
-     } */
-
     suspend fun syncData(
         user: FirebaseUser,
         expenseViewModel: ExpenseViewModel,
         summaryViewModel: MonthlySummaryViewModel
     ) {
-        val expenseList = expenseViewModel.allExpenses
-            .asFlow()
-            .filter { it.isNotEmpty() }
-            .first()
-        val summaryList = summaryViewModel.getAllMonthBudget
-            .asFlow()
-            .filter { it.isNotEmpty() }
-            .first()
+         val expenseList = expenseViewModel.allExpenses
+              .asFlow()
+              .filter { it.isNotEmpty() }
+              .first()
+          val summaryList = summaryViewModel.getAllMonthBudget
+              .asFlow()
+              .filter { it.isNotEmpty() }
+              .first()
 
 
-        val expense = expenseList.toFirebaseExpenses()
-        val summary = summaryList.toFirebaseMonthlySummary()
+          val expense = expenseList.toFirebaseExpenses()
+          val summary = summaryList.toFirebaseMonthlySummary()
 
-        val expenseMap = expense.associate { "${it.id}" to it }
-        val userData = FirebaseUsers(user.uid, user.email, expenseMap, summary)
-        usersRef.child(user.uid).setValue(userData)
-            .addOnSuccessListener { Log.d("FirebaseCheck", "User data saved") }
-            .addOnFailureListener { e -> Log.e("FirebaseCheck", "Save failed", e) }
+          val expenseMap = expense.associate { "${it.id}" to it }
+          val userData = FirebaseUsers(user.uid, user.email, expenseMap, summary)
+          usersRef.child(user.uid).setValue(userData)
+              .addOnSuccessListener { Log.d("FirebaseCheck", "User data saved") }
+              .addOnFailureListener { e -> Log.e("FirebaseCheck", "Save failed", e) }
+
+    }
+
+    suspend fun syncRecentUpdates(
+        user: FirebaseUser,
+        expenseViewModel: ExpenseViewModel
+    ) {
+        val cache = expenseViewModel.allCachesCrud.first()
+
+        for (c in cache) {
+            if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
+                val expense = expenseViewModel.getExpenseById(c.expenseId)
+                updateOrCreateExpense(user.uid, expense)
+
+            } else if (c.action == CrudActionEnum.DELETE) {
+                deleteExpense(user.uid, c.expenseId)
+            }
+        }
+        expenseViewModel.deleteFromCacheCrud()
     }
 
 
@@ -101,6 +108,12 @@ object FirebaseDb {
     fun updateOrCreateExpense(userUid: String?, expense: Expense) {
         val key = expense.id.toString()
         usersRef.child("$userUid/expenses/$key").setValue(expense)
+            .addOnSuccessListener {
+                Log.d("FirebaseData", "created /expenses/$key")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseData", "Create/Update failed", e)
+            }
     }
 
     fun deleteExpense(userUid: String, expenseId: Int) {

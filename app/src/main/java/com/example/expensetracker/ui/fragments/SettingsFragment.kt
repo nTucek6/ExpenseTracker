@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.expensetracker.R
@@ -22,8 +21,6 @@ import com.example.expensetracker.data.enums.LanguageISOEnum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.firebase.database.FirebaseDb
-import com.example.expensetracker.firebase.database.mappers.toFirebaseExpenses
-import com.example.expensetracker.firebase.database.mappers.toFirebaseMonthlySummary
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.DialogUtils
@@ -32,8 +29,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -53,8 +48,6 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val googleAuthClient = GoogleAuthClient(requireContext())
-
-
 
 
         val tvSingInStatus = view.findViewById<TextView>(R.id.tv_sign_in_status)
@@ -85,18 +78,19 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
 
         singInBtn.setOnClickListener {
-             lifecycleScope.launch {
+            lifecycleScope.launch {
                 toggleButtonDisable()
                 try {
                     val isSignedIn = googleAuthClient.isSignedIn.value
                     if (isSignedIn) {
                         googleAuthClient.signOut()
+                        expenseViewModel.deleteFromCacheCrud()
                     } else {
                         googleAuthClient.signIn()
 
                         val autoSync = SharedPreferencesUtils.getAutoSync(requireContext())
                         val user = googleAuthClient.getUser()
-                        if (autoSync && user != null){
+                        if (autoSync && user != null) {
                             FirebaseDb.syncData(user, expenseViewModel, summaryViewModel)
                         }
 
@@ -168,8 +162,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     googleAuthClient.getUser()?.let { user ->
                         Log.d("CheckAutoSync", user.email.toString())
                         //lifecycleScope.launch {
-                            FirebaseDb.syncData(user, expenseViewModel, summaryViewModel)
-                       // }
+                        FirebaseDb.syncData(user, expenseViewModel, summaryViewModel)
+                        // }
                     }
                 }
             }
@@ -178,12 +172,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         btnLanguage.setOnClickListener {
             val currentLocale = AppCompatDelegate.getApplicationLocales().get(0)
 
-            if(currentLocale?.language == LanguageISOEnum.EN.code){
+            if (currentLocale?.language == LanguageISOEnum.EN.code) {
                 changeLanguage(LanguageISOEnum.CRO.code)
-            }else{
+            } else {
                 changeLanguage(LanguageISOEnum.EN.code)
             }
-
 
 
         }
