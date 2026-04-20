@@ -7,7 +7,6 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,7 +14,7 @@ import com.example.expensetracker.R
 import com.example.expensetracker.data.enums.MonthEnum
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.ui.adapters.SummaryPagingAdapter
-import com.example.expensetracker.ui.models.MonthItem
+import com.example.expensetracker.ui.models.DropdownItem
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -24,8 +23,8 @@ class SummaryFragment : Fragment(R.layout.fragment_summary) {
 
     private val summaryViewModel: MonthlySummaryViewModel by activityViewModels()
     private lateinit var summaryAdapter: SummaryPagingAdapter
-    private lateinit var yearAdapter: ArrayAdapter<MonthItem>
-    private lateinit var monthAdapter: ArrayAdapter<MonthItem>
+    private lateinit var yearAdapter: ArrayAdapter<DropdownItem>
+    private lateinit var monthAdapter: ArrayAdapter<DropdownItem>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -35,8 +34,8 @@ class SummaryFragment : Fragment(R.layout.fragment_summary) {
 
         lifecycleScope.launch {
             val years = summaryViewModel.findAllExistingYears()
-            val displayYears = listOf(MonthItem(0, getString(R.string.all))) + years.map {
-                MonthItem(
+            val displayYears = listOf(DropdownItem(0, getString(R.string.all))) + years.map {
+                DropdownItem(
                     it,
                     it.toString()
                 )
@@ -49,7 +48,7 @@ class SummaryFragment : Fragment(R.layout.fragment_summary) {
 
         autoCompleteYear.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                val selectedYear = parent.getItemAtPosition(position) as MonthItem
+                val selectedYear = parent.getItemAtPosition(position) as DropdownItem
                 summaryViewModel.updateYearQuery(selectedYear.value)
                 yearAdapter.filter.filter(null)
                 autoCompleteYear.dismissDropDown()
@@ -64,7 +63,7 @@ class SummaryFragment : Fragment(R.layout.fragment_summary) {
 
         autoCompleteMonth.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                val selectedMonth = parent.getItemAtPosition(position) as MonthItem
+                val selectedMonth = parent.getItemAtPosition(position) as DropdownItem
                 summaryViewModel.updateMonthQuery(selectedMonth.value)
                 monthAdapter.filter.filter(null)
                 autoCompleteMonth.dismissDropDown()

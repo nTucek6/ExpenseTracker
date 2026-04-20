@@ -57,7 +57,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
             dateText.text = String.format(
                 getString(R.string.dashboard_date_format),
-                MonthEnum.fromNumber(1).displayName.let { requireContext().getString(it) },//MonthEnum.fromNumber(sum.month).displayName,
+                MonthEnum.fromNumber(sum.month).displayName.let { requireContext().getString(it) },//MonthEnum.fromNumber(sum.month).displayName,
                 sum.year.toString()
             )
 
@@ -68,8 +68,10 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             if (sum.money > 0 && remaining > 0) {
                 val progress = ((remaining / sum.money) * 100).toInt().coerceIn(0, 100);
                 progressBar.progress = 100 - progress
-            } else {
+            } else if(sum.money == 0.0) {
                 progressBar.progress = 0
+            } else{
+                progressBar.progress = 100
             }
             if (sum.money >= 0) {
                 money = sum.money

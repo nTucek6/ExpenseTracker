@@ -1,6 +1,6 @@
 package com.example.expensetracker.ui.models
 
-data class MonthItem(
+data class DropdownItem(
     val value: Int,
     val name: String,
 ) {
