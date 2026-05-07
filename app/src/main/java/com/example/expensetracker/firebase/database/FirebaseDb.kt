@@ -92,9 +92,22 @@ object FirebaseDb {
     suspend fun getUserExpensesOnce(uid: String): List<Expense> {
         val expensesRef = database.getReference("users").child(uid).child("expenses")
         val snapshot = expensesRef.get().await()
-        return snapshot.children.mapNotNull {
+       /* return snapshot.children.mapNotNull {
+            Log.d("FirebaseError", it.toString())
             it.getValue(FirebaseExpense::class.java)?.toExpense()
+        } */
+        return snapshot.children.mapNotNull { snap ->
+            val map = snap.value as? Map<*, *> ?: return@mapNotNull null
+
+            val id = map["id"]?.toString() ?: ""
+            val amount = (map["amount"] as? Number)?.toDouble() ?: 0.0
+            val category = map["category"]?.toString() ?: ""
+            val description = map["description"]?.toString()
+            val createdAt = (map["createdAt"] as? Number)?.toLong() ?: 0L
+
+            FirebaseExpense(id, amount, category, description, createdAt).toExpense()
         }
+
     }
 
     suspend fun getUserSummaryOnce(uid: String): List<MonthlySummary> {
