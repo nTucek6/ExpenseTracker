@@ -16,6 +16,8 @@ paging = "3.3.0"
 firebaseDatabase = "22.0.1"
 preference = "1.2.1"
 
+ksp = "2.0.21-1.0.26"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -51,3 +53,5 @@ androidx-preference-ktx = { group = "androidx.preference", name = "preference-kt
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+androidx-room = { id = "androidx.room", version.ref = "room" }
