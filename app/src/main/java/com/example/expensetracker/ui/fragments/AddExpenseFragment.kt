@@ -11,20 +11,17 @@ import android.widget.TimePicker
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.ExpenseEnum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
-import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.utils.toMillisDate
 import com.example.expensetracker.utils.todayCalendarToMillis
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import java.util.Calendar
-import java.util.Date
 import kotlin.getValue
 
 class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
@@ -36,8 +33,6 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val googleAuthClient = GoogleAuthClient(requireContext())
 
         val tvTitle: TextView = view.findViewById(R.id.tv_title)
         val spinnerCategory: Spinner = view.findViewById(R.id.spinner_category)
