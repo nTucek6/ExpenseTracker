@@ -20,6 +20,7 @@ import com.example.expensetracker.data.enums.ExpenseEnum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.utils.toMillisDate
+import com.example.expensetracker.utils.todayCalendarToMillis
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import java.util.Calendar
@@ -46,6 +47,10 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
 
         val datePicker: DatePicker = view.findViewById(R.id.datePicker)
         val timePicker: TimePicker = view.findViewById(R.id.timePicker)
+
+        timePicker.setIs24HourView(android.text.format.DateFormat.is24HourFormat(requireContext()))
+
+        datePicker.maxDate = Calendar.getInstance().todayCalendarToMillis()
 
         val adapter = ArrayAdapter(
             requireContext(),

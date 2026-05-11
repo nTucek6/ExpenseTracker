@@ -52,6 +52,13 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <Spinner
+            android:id="@+id/spinner_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
+
+
         <DatePicker
             android:id="@+id/datePicker"
             android:layout_width="match_parent"
@@ -66,13 +73,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:timePickerMode="spinner" />
-
-
-        <Spinner
-            android:id="@+id/spinner_category"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_expense_btn"
