@@ -4,13 +4,20 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 
     id("kotlin-parcelize")
-    id("com.google.devtools.ksp") version "2.0.20-1.0.25"
+    //id("com.google.devtools.ksp") version "2.0.20-1.0.25"
     id("androidx.navigation.safeargs.kotlin")
 
     id("com.google.gms.google-services")
 
+
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 val localProperties = Properties().apply {
@@ -60,7 +67,6 @@ android {
         viewBinding = true
     }
 }
-
 
 dependencies {
     implementation(libs.androidx.core.ktx)
