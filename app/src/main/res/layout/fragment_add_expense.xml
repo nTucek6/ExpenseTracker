@@ -1,75 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="24dp">
+    android:layout_height="match_parent">
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/new_expense"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/input_amount"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/amount"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title"
-        tools:ignore="MissingConstraints"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/new_expense"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/input_amount"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:maxLines="1" />
+            android:layout_marginTop="32dp"
+            android:hint="@string/amount">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:maxLines="1" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/input_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/description"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@+id/input_amount"
-        tools:ignore="MissingConstraints"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputEditText
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/input_description"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:maxLines="3" />
+            android:layout_marginTop="32dp"
+            android:hint="@string/description">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="3" />
 
-    <Spinner
-        android:id="@+id/spinner_category"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_description" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-   <com.google.android.material.button.MaterialButton
-       android:id="@+id/save_expense_btn"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:layout_marginTop="32dp"
-       android:text="@string/save_expense"
-       app:layout_constraintTop_toBottomOf="@id/spinner_category"/>
+        <DatePicker
+            android:id="@+id/datePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:calendarViewShown="false"
+            android:datePickerMode="spinner" />
+
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:timePickerMode="spinner" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Spinner
+            android:id="@+id/spinner_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/save_expense_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/save_expense" />
+
+    </LinearLayout>
+
+</ScrollView>

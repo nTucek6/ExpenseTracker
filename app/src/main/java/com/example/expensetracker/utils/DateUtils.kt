@@ -1,10 +1,13 @@
 package com.example.expensetracker.utils
 
+import android.widget.DatePicker
+import android.widget.TimePicker
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -31,4 +34,16 @@ fun Long.isToday(): Boolean {
 
 fun Long.toLocalDate(): LocalDateTime {
     return LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.systemDefault())
+}
+
+fun DatePicker.toMillisDate(time: TimePicker): Long{
+    val calendar = Calendar.getInstance()
+    calendar.set(
+        this.year,
+        this.month,
+        this.dayOfMonth,
+        time.hour, time.minute, 0
+    )
+    calendar.set(Calendar.MILLISECOND, 0)
+    return calendar.timeInMillis
 }

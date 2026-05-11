@@ -90,11 +90,12 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         _query.value = newQuery
     }
 
-    fun insert(amount: Double, description: String?, category: ExpenseEnum) {
+    fun insert(amount: Double, description: String?, category: ExpenseEnum, createdAt: Long) {
         val newExpense = Expense(
             amount = amount,
             description = description?.trim(),
             category = category,
+            createdAt = createdAt
         )
 
         viewModelScope.launch {
