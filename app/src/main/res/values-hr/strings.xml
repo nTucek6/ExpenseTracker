@@ -59,4 +59,11 @@
     <string name="sync_data_title">Sinkronizacija podataka?</string>
     <string name="english">Engleski</string>
     <string name="croatian">Hrvatski</string>
+    <string name="FOOD">Hrana</string>
+    <string name="TRANSPORT">Prijevoz</string>
+    <string name="ENTERTAINMENT">Zabava</string>
+    <string name="SHOPPING">Kupovina</string>
+    <string name="BILLS">Računi</string>
+    <string name="HEALTH">Zdravlje</string>
+    <string name="OTHER">Ostalo</string>
 </resources>

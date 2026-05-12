@@ -82,7 +82,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = expenseAdapter
 
-        expenseViewModel.recentExpenses.observe(viewLifecycleOwner) { expenses ->
+        expenseViewModel.recentExpensesWithCategory.observe(viewLifecycleOwner) { expenses ->
             expenseAdapter.submitList(expenses)
         }
 

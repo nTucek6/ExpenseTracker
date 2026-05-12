@@ -45,6 +45,8 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
     val totalSpent = expenseDao.getTotalSpent()
     val recentExpenses = expenseDao.getRecentExpenses()
 
+    val recentExpensesWithCategory = expenseDao.getRecentExpensesWithCategory()
+
     val allCachesCrud = cacheDao.getAllCrud()
 
     suspend fun getExpenseById(id: Int): Expense = expenseDao.findById(id)
@@ -81,11 +83,11 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         _query.value = newQuery
     }
 
-    fun insert(amount: Double, description: String?, category: ExpenseEnum, createdAt: Long) {
+    fun insert(amount: Double, description: String?, category: Int, createdAt: Long) {
         val newExpense = Expense(
             amount = amount,
             description = description?.trim(),
-            category = category,
+            categoryId = category,
             createdAt = createdAt
         )
         viewModelScope.launch {
@@ -111,14 +113,14 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         id: Int,
         amount: Double,
         description: String?,
-        category: ExpenseEnum,
+        categoryId: Int,
         createdAt: Long
     ) {
         val updatedExpense = Expense(
             id = id,
             amount = amount,
             description = description?.trim(),
-            category = category,
+            categoryId = categoryId,
             createdAt = createdAt
         )
         viewModelScope.launch {

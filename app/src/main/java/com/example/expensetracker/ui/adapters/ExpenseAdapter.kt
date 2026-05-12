@@ -8,18 +8,19 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
-import com.example.expensetracker.databinding.ItemExpenseBinding
+import com.example.expensetracker.data.model.ExpenseWithCategory
+//import com.example.expensetracker.databinding.ItemExpenseBinding
 import com.example.expensetracker.utils.isToday
 import com.example.expensetracker.utils.toDateString
 import com.example.expensetracker.utils.toTimeString
 
 class ExpenseAdapter(private val onItemClick: (Expense) -> Unit) :
-    ListAdapter<Expense, ExpenseAdapter.ViewHolder>(
+    ListAdapter<ExpenseWithCategory, ExpenseAdapter.ViewHolder>(
         object : DiffUtil.ItemCallback<Expense>() {
-            override fun areItemsTheSame(old: Expense, new: Expense) = old.id == new.id
-            override fun areContentsTheSame(old: Expense, new: Expense) = old == new
+            override fun areItemsTheSame(old: Expense, new: ExpenseWithCategory) = old.id == new.id
+            override fun areContentsTheSame(old: Expense, new: ExpenseWithCategory) = old == new
         }) {
-    class ViewHolder(val binding: ItemExpenseBinding) :
+    class ViewHolder(val binding: ItemExpenseWithCategoryBinding) :
         RecyclerView.ViewHolder(binding.root)
 
 
@@ -42,8 +43,9 @@ class ExpenseAdapter(private val onItemClick: (Expense) -> Unit) :
             viewHolder.itemView.context.getString(R.string.price_format),
             expense.amount
         )
-        viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.category.imageSvg))
-        viewHolder.binding.tvCategory.text = expense.category.displayName
+
+        //viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.category.imageSvg))
+        //viewHolder.binding.tvCategory.text =  viewHolder.itemView.context.getString(expense.category.displayName)
 
         if (expense.createdAt.isToday()) {
             viewHolder.binding.tvDate.text = expense.createdAt.toTimeString()

@@ -9,6 +9,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 
 @Dao
@@ -31,19 +32,25 @@ interface ExpenseDao {
     fun getAllExpenses(): LiveData<List<Expense>>
 
     @Query("""
-    SELECT *, 
+    SELECT ExpenseWithGroupSum.*,
+            categories.displayName AS categoryName,
            SUM(amount) OVER (
                PARTITION BY date(createdAt / 1000, 'unixepoch')
                ORDER BY createdAt
            ) AS dailySum
+           
     FROM ExpenseWithGroupSum 
-    WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%')
+    LEFT JOIN categories ON ExpenseWithGroupSum.categoryId = categories.id
+    WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR categoryName LIKE '%' || :query || '%')
     ORDER BY createdAt DESC
 """)
     fun getExpensesPaging(query: String? = null): PagingSource<Int, ExpenseWithGroupSum>
 
     @Query("SELECT * FROM expenses ORDER BY createdAt DESC LIMIT 5")
     fun getRecentExpenses(): LiveData<List<Expense>>
+
+    @Query("SELECT expenses.*, categories.displayName AS categoryName FROM expenses LEFT JOIN categories ON expenses.categoryId = categories.id ORDER BY createdAt DESC LIMIT 5")
+    fun getRecentExpensesWithCategory(): LiveData<List<ExpenseWithCategory>>
 
     @Query("Select COALESCE(sum(amount), 0) from expenses")
     fun getTotalSpent(): LiveData<Double>

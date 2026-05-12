@@ -65,7 +65,7 @@ class ExpensePagingAdapter(
                 expense.amount
             )
             viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.category.imageSvg))
-            viewHolder.binding.tvCategory.text = expense.category.displayName
+            viewHolder.binding.tvCategory.text =  viewHolder.itemView.context.getString(expense.category.displayName)
             viewHolder.binding.tvDate.text = expense.createdAt.toTimeString()
             viewHolder.binding.cardView.setOnClickListener { onItemClick(expense) }
         }

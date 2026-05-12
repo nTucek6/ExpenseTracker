@@ -38,7 +38,6 @@ object FirebaseDb {
             .filter { it.isNotEmpty() }
             .first()
 
-
         val expense = expenseList.toFirebaseExpenses()
         val summary = summaryList.toFirebaseMonthlySummary()
 
