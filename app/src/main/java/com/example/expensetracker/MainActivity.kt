@@ -121,11 +121,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                                 FirebaseDb.syncRecentUpdates(user,expenseViewModel, summaryViewModel)
                             }
                         }
-                    } else{
+                    } /*else{
                         val cache = expenseViewModel.allCachesCrud.first()
                         Log.d("CacheData", cache.toString())
                         //expenseViewModel.deleteFromCacheCrud()
-                    }
+                    } */
                 }
             }
         }

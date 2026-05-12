@@ -11,14 +11,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.expensetracker.data.dao.CacheCrudDao
 import com.example.expensetracker.data.dao.ExpenseDao
 import com.example.expensetracker.data.dao.MonthlySummaryDao
+import com.example.expensetracker.data.dao.SummaryCacheCrudDao
 import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
+import com.example.expensetracker.data.entity.SummaryCacheCrud
 import com.example.expensetracker.data.model.BudgetWithSpent
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 
-@Database(entities = [Expense::class, MonthlySummary::class, CacheCrud::class, Categories::class],
+@Database(entities = [Expense::class, MonthlySummary::class, CacheCrud::class, SummaryCacheCrud::class,Categories::class],
     [BudgetWithSpent::class, ExpenseWithGroupSum::class] ,version = 3, exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -27,6 +29,8 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun monthlySummaryDao(): MonthlySummaryDao
 
     abstract fun cacheCrudDao(): CacheCrudDao
+
+    abstract fun summaryCacheCrudDao(): SummaryCacheCrudDao
     companion object {
         @Volatile
         private var INSTANCE: ExpenseTrackerDatabase? = null

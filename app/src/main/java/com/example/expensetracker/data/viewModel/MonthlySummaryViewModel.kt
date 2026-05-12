@@ -15,6 +15,7 @@ import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
+import com.example.expensetracker.data.entity.SummaryCacheCrud
 import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.BudgetWithSpent
 import com.example.expensetracker.firebase.database.FirebaseDb
@@ -39,7 +40,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
     private val monthlySummaryDao =
         ExpenseTrackerDatabase.getDatabase(application).monthlySummaryDao()
-    private val cacheDao = ExpenseTrackerDatabase.getDatabase(application).cacheCrudDao()
+    private val cacheDao = ExpenseTrackerDatabase.getDatabase(application).summaryCacheCrudDao()
 
     val context = getApplication<Application>()
     val googleAuthClient = GoogleAuthClient(context.applicationContext)
@@ -47,6 +48,8 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
     val getCurrentMonthBudget = monthlySummaryDao.getCurrentMonthBudget()
     val getAllMonthBudget = monthlySummaryDao.getAllMonthBudget()
+
+    val allCachesCrud = cacheDao.getAllSummaryCrud()
 
     private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
@@ -115,17 +118,14 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
                         firebaseSync(limit, "${year}-${month}")
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient,context)) {
                     cacheDao.insert(
-                        CacheCrud(
-                            expenseId = 0,
-                            summaryYear = year,
-                            summaryMonth = month,
-                            action = CrudActionEnum.UPDATE_MONTHLY
+                        SummaryCacheCrud(
+                            year = year,
+                            month = month,
+                            action = CrudActionEnum.UPDATE
                         )
                     )
                 }
-
             }
-
         }
     }
 
@@ -165,6 +165,12 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
             } catch (e: Exception) {
                 Log.e("Sync", "Failed", e)
             }
+        }
+    }
+
+    fun deleteFromCacheCrud() {
+        viewModelScope.launch {
+            cacheDao.deleteAll()
         }
     }
 

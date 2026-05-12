@@ -4,5 +4,4 @@ enum class CrudActionEnum {
     INSERT,
     UPDATE,
     DELETE,
-    UPDATE_MONTHLY
 }
