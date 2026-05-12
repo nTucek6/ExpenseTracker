@@ -32,15 +32,12 @@ interface ExpenseDao {
     fun getAllExpenses(): LiveData<List<Expense>>
 
     @Query("""
-    SELECT ExpenseWithGroupSum.*,
-            categories.displayName AS categoryName,
+    SELECT *,
            SUM(amount) OVER (
                PARTITION BY date(createdAt / 1000, 'unixepoch')
                ORDER BY createdAt
            ) AS dailySum
-           
-    FROM ExpenseWithGroupSum 
-    LEFT JOIN categories ON ExpenseWithGroupSum.categoryId = categories.id
+    FROM ExpenseWithGroupSum
     WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR categoryName LIKE '%' || :query || '%')
     ORDER BY createdAt DESC
 """)
@@ -49,7 +46,7 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses ORDER BY createdAt DESC LIMIT 5")
     fun getRecentExpenses(): LiveData<List<Expense>>
 
-    @Query("SELECT expenses.*, categories.displayName AS categoryName FROM expenses LEFT JOIN categories ON expenses.categoryId = categories.id ORDER BY createdAt DESC LIMIT 5")
+    @Query("SELECT * FROM ExpenseWithCategory ORDER BY createdAt DESC LIMIT 5")
     fun getRecentExpensesWithCategory(): LiveData<List<ExpenseWithCategory>>
 
     @Query("Select COALESCE(sum(amount), 0) from expenses")

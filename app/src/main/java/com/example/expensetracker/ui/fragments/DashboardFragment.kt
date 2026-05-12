@@ -77,7 +77,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             }
         }
 
-        val expenseAdapter = ExpenseAdapter { expense -> showExpenseDialog(expense) }
+        val expenseAdapter = ExpenseAdapter { expense, category -> showExpenseDialog(expense, category) }
         val recyclerView: RecyclerView = view.findViewById(R.id.rv_recent_expenses)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = expenseAdapter
@@ -97,11 +97,13 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
 
     private fun showExpenseDialog(
-        expense: Expense
+        expense: Expense,
+        category: String,
     ) {
         DialogUtils.showExpenseDialog(
             context = requireContext(),
             expense = expense,
+            category= category,
             onDelete = {
                 DialogUtils.showDeleteConfirmation(
                     context = requireContext(),

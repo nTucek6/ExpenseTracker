@@ -3,7 +3,6 @@ package com.example.expensetracker.data.entity
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.expensetracker.data.enums.ExpenseEnum
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

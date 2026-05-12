@@ -12,5 +12,4 @@ enum class ExpenseEnum(@StringRes val displayName: Int, val imageSvg: Int) {
     BILLS(R.string.BILLS, R.drawable.bills),
     HEALTH(R.string.HEALTH, R.drawable.health),
     OTHER(R.string.OTHER, R.drawable.info);
-
 }

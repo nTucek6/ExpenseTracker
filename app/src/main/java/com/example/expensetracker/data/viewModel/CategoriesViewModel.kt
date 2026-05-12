@@ -11,6 +11,8 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
     private val categoriesDao = ExpenseTrackerDatabase.getDatabase(application).categoriesDao()
 
+    val allCategories = categoriesDao.getAllCategories()
+
     fun insert(displayName: String, imageSvg: Int?) {
         val category = Categories(
             displayName = displayName,

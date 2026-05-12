@@ -15,6 +15,7 @@ object DialogUtils {
     fun showExpenseDialog(
         context: Context,
         expense: Expense,
+        category: String,
         onDelete: () -> Unit,
         onEdit: (Expense) -> Unit
     ) {
@@ -23,7 +24,8 @@ object DialogUtils {
 
         dialog.findViewById<TextView>(R.id.tv_category).text = String.format(
             context.getString(R.string.category_info_format),
-            expense.category.displayName
+            //expense.category.displayName
+            category
         )
         dialog.findViewById<TextView>(R.id.tv_description).text = String.format(
             context.getString(R.string.description_info_format),

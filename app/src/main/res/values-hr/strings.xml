@@ -17,6 +17,7 @@
     <string name="remaining">Preostalo</string>
     <string name="input_limit">Unesite ograničenje</string>
     <string name="search_hint">Pretraži</string>
+    <string name="category_hint">Kategorija</string>
     <string name="expense_details">Detalji troška</string>
     <string name="category_info_format">Kategorija: %s</string>
     <string name="description_info_format">Opis: %s</string>

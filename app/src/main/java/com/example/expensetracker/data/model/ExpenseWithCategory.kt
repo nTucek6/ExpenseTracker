@@ -1,20 +1,19 @@
 package com.example.expensetracker.data.model
 
 import androidx.room.DatabaseView
-import com.example.expensetracker.data.enums.ExpenseEnum
-
 
 @DatabaseView("""
-    SELECT e.id, e.amount, e.description, e.categoryId, c.displayName AS categoryName
+    SELECT e.*, c.displayName AS categoryName, c.imageSvg AS imageSvg
     FROM expenses e
-    INNER JOIN categories c ON e.categoryId = c.id
+    LEFT JOIN categories c ON e.categoryId = c.id
     ORDER BY e.id DESC
 """)
 data class ExpenseWithCategory(
     val id: Int = 0,
     val amount : Double,
-    val category : ExpenseEnum,
+    val categoryId : Int,
+    val categoryName: String,
+    val imageSvg: String,
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis(),
-    val dailySum: Double
 )
