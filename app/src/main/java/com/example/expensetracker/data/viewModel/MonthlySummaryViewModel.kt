@@ -12,18 +12,27 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
+import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
+import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.BudgetWithSpent
 import com.example.expensetracker.firebase.database.FirebaseDb
+import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
+import com.example.expensetracker.ui.viewModel.NetworkViewModel
+import com.example.expensetracker.utils.SharedPreferencesUtils
+import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 class MonthlySummaryViewModel(application: Application) : AndroidViewModel(application) {
@@ -31,7 +40,9 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     private val monthlySummaryDao =
         ExpenseTrackerDatabase.getDatabase(application).monthlySummaryDao()
 
-    //private val firebaseDb = FirebaseDb()
+    val context = getApplication<Application>()
+    val googleAuthClient = GoogleAuthClient(context.applicationContext)
+    val networkViewModel = NetworkViewModel(context)
 
     val getCurrentMonthBudget = monthlySummaryDao.getCurrentMonthBudget()
     val getAllMonthBudget = monthlySummaryDao.getAllMonthBudget()
@@ -77,13 +88,33 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    private fun firebaseSync(limit: Double, key: String){
+        val isSignedIn = googleAuthClient.isSignedIn.value
+        val userUid = googleAuthClient.getUser()?.uid
+        val isSyncOn: Boolean =
+            SharedPreferencesUtils.getAutoSync(context.applicationContext)
+        if (isSyncOn && isSignedIn && userUid != null) {
+            FirebaseDb.updateMonthlyLimit(userUid, limit, key)
+        }
+    }
+
     fun updateLatestMonth(limit: Double) {
         viewModelScope.launch {
-            val now = Calendar.getInstance()
-            val year = now.get(Calendar.YEAR)
-            val month = now.get(Calendar.MONTH) + 1
+            withContext(NonCancellable) {
+                val now = Calendar.getInstance()
+                val year = now.get(Calendar.YEAR)
+                val month = now.get(Calendar.MONTH) + 1
 
-            monthlySummaryDao.update(MonthlySummary(year = year, month = month, money = limit))
+                monthlySummaryDao.update(MonthlySummary(year = year, month = month, money = limit))
+
+                val online = networkViewModel.isOnline.first()
+                if (online) {
+                        firebaseSync(limit, "${year}-${month}")
+                } else if (ViewModelUtils.checkOfflineSync(googleAuthClient,context)) {
+                }
+
+            }
+
         }
     }
 

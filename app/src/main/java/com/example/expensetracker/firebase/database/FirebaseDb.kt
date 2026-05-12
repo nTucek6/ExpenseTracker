@@ -1,10 +1,7 @@
 package com.example.expensetracker.firebase.database
 
-import android.content.Context
 import android.util.Log
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.asFlow
-import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
 import com.example.expensetracker.data.enums.CrudActionEnum
@@ -16,17 +13,11 @@ import com.example.expensetracker.firebase.database.model.FirebaseExpense
 import com.example.expensetracker.firebase.database.model.FirebaseMonthlySummary
 import com.example.expensetracker.firebase.database.model.FirebaseUsers
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
-import kotlin.getValue
-
 
 object FirebaseDb {
 
@@ -38,24 +29,26 @@ object FirebaseDb {
         expenseViewModel: ExpenseViewModel,
         summaryViewModel: MonthlySummaryViewModel
     ) {
-         val expenseList = expenseViewModel.allExpenses
-              .asFlow()
-              .filter { it.isNotEmpty() }
-              .first()
-          val summaryList = summaryViewModel.getAllMonthBudget
-              .asFlow()
-              .filter { it.isNotEmpty() }
-              .first()
+        val expenseList = expenseViewModel.allExpenses
+            .asFlow()
+            .filter { it.isNotEmpty() }
+            .first()
+        val summaryList = summaryViewModel.getAllMonthBudget
+            .asFlow()
+            .filter { it.isNotEmpty() }
+            .first()
 
 
-          val expense = expenseList.toFirebaseExpenses()
-          val summary = summaryList.toFirebaseMonthlySummary()
+        val expense = expenseList.toFirebaseExpenses()
+        val summary = summaryList.toFirebaseMonthlySummary()
 
-          val expenseMap = expense.associate { "${it.id}" to it }
-          val userData = FirebaseUsers(user.uid, user.email, expenseMap, summary)
-          usersRef.child(user.uid).setValue(userData)
-              .addOnSuccessListener { Log.d("FirebaseCheck", "User data saved") }
-              .addOnFailureListener { e -> Log.e("FirebaseCheck", "Save failed", e) }
+        val expenseMap = expense.associate { it.id to it }
+        val summaryMap = summary.associate { "${it.year}-${it.month}" to it }
+        val userData = FirebaseUsers(user.uid, user.email, expenseMap, summaryMap)
+
+        usersRef.child(user.uid).setValue(userData)
+            .addOnSuccessListener { Log.d("FirebaseCheck", "User data saved") }
+            .addOnFailureListener { e -> Log.e("FirebaseCheck", "Save failed", e) }
 
     }
 
@@ -92,10 +85,10 @@ object FirebaseDb {
     suspend fun getUserExpensesOnce(uid: String): List<Expense> {
         val expensesRef = database.getReference("users").child(uid).child("expenses")
         val snapshot = expensesRef.get().await()
-       /* return snapshot.children.mapNotNull {
-            Log.d("FirebaseError", it.toString())
-            it.getValue(FirebaseExpense::class.java)?.toExpense()
-        } */
+        /* return snapshot.children.mapNotNull {
+             Log.d("FirebaseError", it.toString())
+             it.getValue(FirebaseExpense::class.java)?.toExpense()
+         } */
         return snapshot.children.mapNotNull { snap ->
             val map = snap.value as? Map<*, *> ?: return@mapNotNull null
 
@@ -137,6 +130,16 @@ object FirebaseDb {
             }
             .addOnFailureListener { e ->
                 Log.e("Firebase", "Delete failed", e)
+            }
+    }
+
+    fun updateMonthlyLimit(userUid: String?, limit: Double, key: String) {
+        usersRef.child("$userUid/summary/$key/money").setValue(limit)
+            .addOnSuccessListener {
+                Log.d("FirebaseData", "created /expenses/$key")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseData", "Create/Update failed", e)
             }
     }
 

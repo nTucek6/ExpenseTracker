@@ -19,6 +19,7 @@ import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.SharedPreferencesUtils
+import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
@@ -64,15 +65,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     private val _query = MutableStateFlow("")
 
-    /*  @OptIn(ExperimentalCoroutinesApi::class)
-      val expensesPaging: Flow<PagingData<Expense>> = _query
-          .flatMapLatest { query ->
-              Pager(
-                  config = PagingConfig(pageSize = 15,  prefetchDistance = 5, enablePlaceholders = false),
-                  pagingSourceFactory = { expenseDao.getExpensesPaging(query) }
-              ).flow.cachedIn(viewModelScope)
-          } */
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val expensesPaging: Flow<PagingData<ExpenseWithGroupSum>> = _query
         .flatMapLatest { query ->
@@ -85,7 +77,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                 pagingSourceFactory = { expenseDao.getExpensesPaging(query) }
             ).flow.cachedIn(viewModelScope)
         }
-
     fun updateQuery(newQuery: String) {
         _query.value = newQuery
     }
@@ -97,7 +88,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             category = category,
             createdAt = createdAt
         )
-
         viewModelScope.launch {
             withContext(NonCancellable) {
                 val id = expenseDao.insert(newExpense)
@@ -106,7 +96,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
                 if (online) {
                     firebaseSync(newExpense.copy(id = id.toInt()))
-                } else if (checkOfflineSync()) {
+                } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         CacheCrud(
                             expenseId = id.toInt(),
@@ -116,9 +106,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                 }
             }
         }
-
     }
-
     fun update(
         id: Int,
         amount: Double,
@@ -126,7 +114,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         category: ExpenseEnum,
         createdAt: Long
     ) {
-
         val updatedExpense = Expense(
             id = id,
             amount = amount,
@@ -134,7 +121,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             category = category,
             createdAt = createdAt
         )
-
         viewModelScope.launch {
             withContext(NonCancellable) {
                 try {
@@ -142,7 +128,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                     val online = networkViewModel.isOnline.first()
                     if (online) {
                         firebaseSync(updatedExpense)
-                    } else if (checkOfflineSync()) {
+                    } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                         cacheDao.insert(
                             CacheCrud(
                                 expenseId = updatedExpense.id,
@@ -156,7 +142,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-
     fun delete(expense: Expense) {
         viewModelScope.launch {
             withContext(NonCancellable) {
@@ -165,7 +150,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                 val online = networkViewModel.isOnline.first()
                 if (online) {
                     deleteExpense(expense.id)
-                } else if (checkOfflineSync()) {
+                } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         CacheCrud(
                             expenseId = expense.id,
@@ -176,13 +161,11 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-
     fun deleteFromCacheCrud() {
         viewModelScope.launch {
             cacheDao.deleteAll()
         }
     }
-
     private fun firebaseSync(updatedExpense: Expense) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
@@ -192,7 +175,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             FirebaseDb.updateOrCreateExpense(userUid, updatedExpense)
         }
     }
-
     private fun deleteExpense(expenseId: Int) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
@@ -202,12 +184,4 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             FirebaseDb.deleteExpense(userUid, expenseId)
         }
     }
-
-    private fun checkOfflineSync(): Boolean {
-        val autoSync = SharedPreferencesUtils.getAutoSync(context)
-        val login = googleAuthClient.isSingedIn()
-
-        return autoSync && login
-    }
-
 }

@@ -8,7 +8,8 @@ data class FirebaseUsers(
     val email: String? = null,
     //val expenses: List<FirebaseExpense>? = null,
     val expenses: Map<String, FirebaseExpense>,
-    val summary: List<FirebaseMonthlySummary>? = null
+    //val summary: List<FirebaseMonthlySummary>? = null
+    val summary: Map<String, FirebaseMonthlySummary>,
 )
 
 
