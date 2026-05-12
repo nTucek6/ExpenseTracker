@@ -19,7 +19,7 @@ import com.example.expensetracker.data.model.BudgetWithSpent
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 
 @Database(entities = [Expense::class, MonthlySummary::class, CacheCrud::class, Categories::class],
-    [BudgetWithSpent::class, ExpenseWithGroupSum::class] ,version = 2, exportSchema = false,
+    [BudgetWithSpent::class, ExpenseWithGroupSum::class] ,version = 3, exportSchema = false,
 )
 @TypeConverters(Converters::class)
 abstract class ExpenseTrackerDatabase : RoomDatabase() {

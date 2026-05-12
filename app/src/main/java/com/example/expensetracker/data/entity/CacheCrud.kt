@@ -8,5 +8,7 @@ import com.example.expensetracker.data.enums.CrudActionEnum
 data class CacheCrud(
     @PrimaryKey
     val expenseId: Int,
+    val summaryYear: Int? = 0,
+    val summaryMonth: Int? = 0,
     val action: CrudActionEnum
 )

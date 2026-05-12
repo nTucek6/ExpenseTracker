@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         if (isSignedIn && autoSync) {
                             val user = googleAuthClient.getUser()
                             if (user != null) {
-                                FirebaseDb.syncRecentUpdates(user,expenseViewModel)
+                                FirebaseDb.syncRecentUpdates(user,expenseViewModel, summaryViewModel)
                             }
                         }
                     } else{

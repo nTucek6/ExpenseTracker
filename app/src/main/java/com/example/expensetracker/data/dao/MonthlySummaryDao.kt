@@ -7,11 +7,16 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
 import com.example.expensetracker.data.model.BudgetWithSpent
 
 @Dao
 interface MonthlySummaryDao {
+
+    @Query("SELECT * from monthly_summary where year = :year AND month = :month")
+    suspend fun findById(year:Int, month: Int): MonthlySummary
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(budget: MonthlySummary)
 

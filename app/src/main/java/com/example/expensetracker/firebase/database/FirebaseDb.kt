@@ -54,17 +54,23 @@ object FirebaseDb {
 
     suspend fun syncRecentUpdates(
         user: FirebaseUser,
-        expenseViewModel: ExpenseViewModel
+        expenseViewModel: ExpenseViewModel,
+        summaryViewModel: MonthlySummaryViewModel
     ) {
         val cache = expenseViewModel.allCachesCrud.first()
-
         for (c in cache) {
             if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
                 val expense = expenseViewModel.getExpenseById(c.expenseId)
                 updateOrCreateExpense(user.uid, expense)
-
             } else if (c.action == CrudActionEnum.DELETE) {
                 deleteExpense(user.uid, c.expenseId)
+            } else if (c.action == CrudActionEnum.UPDATE_MONTHLY) {
+                val year = c.summaryYear
+                val month = c.summaryMonth
+                if (year != null && month != null) {
+                    val monthlySummary = summaryViewModel.getSummaryById(year, month)
+                    updateMonthlyLimit(user.uid, monthlySummary.money, "${year}-${month}")
+                }
             }
         }
         expenseViewModel.deleteFromCacheCrud()

@@ -39,6 +39,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
     private val monthlySummaryDao =
         ExpenseTrackerDatabase.getDatabase(application).monthlySummaryDao()
+    private val cacheDao = ExpenseTrackerDatabase.getDatabase(application).cacheCrudDao()
 
     val context = getApplication<Application>()
     val googleAuthClient = GoogleAuthClient(context.applicationContext)
@@ -50,6 +51,8 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
     suspend fun findAllExistingYears(): List<Int> = monthlySummaryDao.findAllExistingYears()
+
+    suspend fun getSummaryById(year: Int, month: Int): MonthlySummary = monthlySummaryDao.findById(year,month)
 
     private val _queryYear = MutableStateFlow(0)
     private val _queryMonth = MutableStateFlow(0)
@@ -111,6 +114,14 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
                 if (online) {
                         firebaseSync(limit, "${year}-${month}")
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient,context)) {
+                    cacheDao.insert(
+                        CacheCrud(
+                            expenseId = 0,
+                            summaryYear = year,
+                            summaryMonth = month,
+                            action = CrudActionEnum.UPDATE_MONTHLY
+                        )
+                    )
                 }
 
             }
