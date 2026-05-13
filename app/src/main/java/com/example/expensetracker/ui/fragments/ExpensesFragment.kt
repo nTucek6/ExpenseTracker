@@ -83,6 +83,7 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                 DialogUtils.showExpenseDialog(
                     context = requireContext(),
                     expense = expense,
+                    category = expenseSum.categoryName,
                     onDelete = {
                         DialogUtils.showDeleteConfirmation(
                             context = requireContext(),

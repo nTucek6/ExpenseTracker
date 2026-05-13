@@ -8,7 +8,7 @@ import com.example.expensetracker.firebase.database.model.FirebaseMonthlySummary
 fun Expense.toFirebaseExpense() = FirebaseExpense(
     id = this.id.toString(),
     amount = this.amount,
-    category = this.category.displayName,
+    categoryId = this.categoryId,
     description = this.description,
     createdAt = this.createdAt
 )

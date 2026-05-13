@@ -48,20 +48,23 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
     private val networkViewModel: NetworkViewModel by viewModels()
 
-    private var isBackPress = false
-
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        /* first time run example code, not needed now
+        if (SharedPreferencesUtils.isFirstLaunch(this)) {
+            //code
+            SharedPreferencesUtils.disableFirstLaunch(this)
+        }
+        */
 
         val googleAuthClient = GoogleAuthClient(this)
 
         lifecycleScope.launch {
             summaryViewModel.createDefaultSummary()
         }
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.fragment_container)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

@@ -1,15 +1,15 @@
 package com.example.expensetracker.data.enums
 
 import android.content.Context
+import androidx.annotation.StringRes
 import com.example.expensetracker.R
 
-enum class ExpenseEnum(val displayName: String, val imageSvg: Int) {
-    FOOD("Food", R.drawable.food_dinner),
-    TRANSPORT("Transport", R.drawable.transport),
-    ENTERTAINMENT("Entertainment", R.drawable.entertainment),
-    SHOPPING("Shopping", R.drawable.shopping_cart),
-    BILLS("Bills", R.drawable.bills),
-    HEALTH("Health", R.drawable.health),
-    OTHER("Other", R.drawable.info);
-
+enum class ExpenseEnum(@StringRes val displayName: Int, val imageSvg: Int) {
+    FOOD(R.string.FOOD, R.drawable.food_dinner),
+    TRANSPORT(R.string.TRANSPORT, R.drawable.transport),
+    ENTERTAINMENT(R.string.ENTERTAINMENT, R.drawable.entertainment),
+    SHOPPING(R.string.SHOPPING, R.drawable.shopping_cart),
+    BILLS(R.string.BILLS, R.drawable.bills),
+    HEALTH(R.string.HEALTH, R.drawable.health),
+    OTHER(R.string.OTHER, R.drawable.info);
 }

@@ -13,7 +13,6 @@ import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.CrudActionEnum
-import com.example.expensetracker.data.enums.ExpenseEnum
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
@@ -25,7 +24,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -43,7 +41,10 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     val allExpenses = expenseDao.getAllExpenses()
     val totalSpent = expenseDao.getTotalSpent()
-    val recentExpenses = expenseDao.getRecentExpenses()
+
+    //val recentExpenses = expenseDao.getRecentExpenses()
+
+    val recentExpensesWithCategory = expenseDao.getRecentExpensesWithCategory()
 
     val allCachesCrud = cacheDao.getAllCrud()
 
@@ -81,11 +82,11 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         _query.value = newQuery
     }
 
-    fun insert(amount: Double, description: String?, category: ExpenseEnum, createdAt: Long) {
+    fun insert(amount: Double, description: String?, category: Int, createdAt: Long) {
         val newExpense = Expense(
             amount = amount,
             description = description?.trim(),
-            category = category,
+            categoryId = category,
             createdAt = createdAt
         )
         viewModelScope.launch {
@@ -111,14 +112,14 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         id: Int,
         amount: Double,
         description: String?,
-        category: ExpenseEnum,
+        categoryId: Int,
         createdAt: Long
     ) {
         val updatedExpense = Expense(
             id = id,
             amount = amount,
             description = description?.trim(),
-            category = category,
+            categoryId = categoryId,
             createdAt = createdAt
         )
         viewModelScope.launch {

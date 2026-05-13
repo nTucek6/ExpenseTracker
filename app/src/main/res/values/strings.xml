@@ -26,6 +26,7 @@
     <string name="price_format" translatable="false">%.2f€</string>
     <string name="input_limit">Input limit</string>
     <string name="search_hint">Search</string>
+    <string name="category_hint">Category</string>
 
     <!-- Expense details dialog strings -->
     <string name="expense_details">Expense Details</string>
@@ -49,7 +50,17 @@
     <string name="continue_dialog">Continue</string>
     <string name="no_internet">No internet connection!</string>
 
+    <!-- Categories enums -->
+    <string name="FOOD">Food</string>
+    <string name="TRANSPORT">Transport</string>
+    <string name="ENTERTAINMENT">Entertainment</string>
+    <string name="SHOPPING">Shopping</string>
+    <string name="BILLS">Bills</string>
+    <string name="HEALTH">Health</string>
+    <string name="OTHER">Other</string>
 
+
+    <!-- Month enums -->
     <string name="january">January</string>
     <string name="february">February</string>
     <string name="march">March</string>
@@ -74,8 +85,10 @@
 
 
     <!-- SharedPreference strings -->
+    <string name="app_prefs" translatable="false">app_prefs</string>
     <string name="pref_settings" translatable="false">pref_settings</string>
     <string name="saved_auto_sync" translatable="false">saved_auto_sync</string>
+    <string name="pref_is_first_launch" translatable="false">pref_is_first_launch</string>
 
     <!-- Languages -->
     <string name="english">English</string>

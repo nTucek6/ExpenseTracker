@@ -17,6 +17,7 @@
     <string name="remaining">Preostalo</string>
     <string name="input_limit">Unesite ograničenje</string>
     <string name="search_hint">Pretraži</string>
+    <string name="category_hint">Kategorija</string>
     <string name="expense_details">Detalji troška</string>
     <string name="category_info_format">Kategorija: %s</string>
     <string name="description_info_format">Opis: %s</string>
@@ -59,4 +60,11 @@
     <string name="sync_data_title">Sinkronizacija podataka?</string>
     <string name="english">Engleski</string>
     <string name="croatian">Hrvatski</string>
+    <string name="FOOD">Hrana</string>
+    <string name="TRANSPORT">Prijevoz</string>
+    <string name="ENTERTAINMENT">Zabava</string>
+    <string name="SHOPPING">Kupovina</string>
+    <string name="BILLS">Računi</string>
+    <string name="HEALTH">Zdravlje</string>
+    <string name="OTHER">Ostalo</string>
 </resources>
