@@ -22,11 +22,25 @@
         android:id="@+id/transactionFragment"
         android:name="com.example.expensetracker.ui.fragments.transactions.TransactionsFragment"
         android:label="Transactions">
+
+        <action
+            android:id="@+id/action_expenses_to_edit_expense"
+            app:destination="@id/addNewExpenseFragment"
+            app:popUpTo="@id/transactionFragment"
+            app:popUpToInclusive="false">
+        </action>
+
+        <action
+            android:id="@+id/action_expenses_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="false" />
+
     </fragment>
 
 
     <!-- Expenses -->
-    <fragment
+   <!-- <fragment
         android:id="@+id/expensesFragment"
         android:name="com.example.expensetracker.ui.fragments.ExpensesFragment"
         android:label="Expenses">
@@ -43,15 +57,15 @@
             app:popUpTo="@id/dashboardFragment"
             app:popUpToInclusive="false" />
 
-    </fragment>
+    </fragment> -->
 
     <!-- Summary -->
-    <fragment
+  <!--  <fragment
         android:id="@+id/summaryFragment"
         android:name="com.example.expensetracker.ui.fragments.SummaryFragment"
         android:label="Summary">
 
-    </fragment>
+    </fragment> -->
 
     <!-- Settings -->
     <fragment
