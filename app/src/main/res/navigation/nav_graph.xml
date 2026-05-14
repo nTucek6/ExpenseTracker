@@ -17,6 +17,13 @@
         </action>
     </fragment>
 
+    <!-- Transactions -->
+    <fragment
+        android:id="@+id/transactionFragment"
+        android:name="com.example.expensetracker.ui.fragments.transactions.TransactionsFragment"
+        android:label="Transactions">
+    </fragment>
+
 
     <!-- Expenses -->
     <fragment
