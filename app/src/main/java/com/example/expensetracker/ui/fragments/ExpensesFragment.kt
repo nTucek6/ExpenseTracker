@@ -16,6 +16,7 @@ import com.example.expensetracker.R
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.ui.adapters.ExpensePagingAdapter
+import com.example.expensetracker.ui.fragments.transactions.TransactionsFragmentDirections
 import com.example.expensetracker.utils.DialogUtils
 import com.google.android.material.internal.ViewUtils.hideKeyboard
 import kotlinx.coroutines.flow.collectLatest
@@ -90,7 +91,8 @@ class ExpensesFragment : Fragment(R.layout.fragment_expenses) {
                             onConfirm = { expenseViewModel.delete(expense) })
                     },
                     onEdit = {
-                        val action = ExpensesFragmentDirections.actionExpensesToEditExpense(expense)
+                        val action = TransactionsFragmentDirections.actionExpensesToEditExpense(expense)
+                        //val action = ExpensesFragmentDirections.actionExpensesToEditExpense(expense)
                         findNavController().navigate(action)
                     })
             }

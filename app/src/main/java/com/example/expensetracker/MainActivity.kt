@@ -85,8 +85,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
             val itemId = when (destination.id) {
                 R.id.dashboardFragment -> R.id.dashboardFragment
-                R.id.expensesFragment -> R.id.expensesFragment
-                R.id.summaryFragment -> R.id.summaryFragment
+                R.id.transactionFragment -> R.id.transactionFragment
+                //R.id.expensesFragment -> R.id.expensesFragment
+                //R.id.summaryFragment -> R.id.summaryFragment
                 R.id.settingsFragment -> R.id.settingsFragment
                 else -> return@addOnDestinationChangedListener
             }
