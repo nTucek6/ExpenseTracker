@@ -67,6 +67,13 @@
 
     </fragment> -->
 
+    <fragment
+        android:id="@+id/analyticsFragment"
+        android:name="com.example.expensetracker.ui.fragments.AnalyticsFragment"
+        android:label="Analytics">
+
+    </fragment>
+
     <!-- Settings -->
     <fragment
         android:id="@+id/settingsFragment"

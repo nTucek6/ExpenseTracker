@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Expense Tracker</string>
     <string name="dashboard">Dashboard</string>
+    <string name="transactions">Transactions</string>
     <string name="expenses">Expenses</string>
     <string name="expenses_summary">Summary</string>
+    <string name="analytics">Analytics</string>
     <string name="settings">Settings</string>
     <string name="exit_text">Tap again to exit</string>
 
@@ -83,7 +85,6 @@
     <string name="update">Update</string>
     <string name="all">All</string>
 
-
     <!-- SharedPreference strings -->
     <string name="app_prefs" translatable="false">app_prefs</string>
     <string name="pref_settings" translatable="false">pref_settings</string>
@@ -93,8 +94,5 @@
     <!-- Languages -->
     <string name="english">English</string>
     <string name="croatian">Croatian</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
 
 </resources>

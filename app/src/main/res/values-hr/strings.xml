@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Expense Tracker</string>
     <string name="dashboard">Nadzorna ploča</string>
+    <string name="transactions">Promet</string>
     <string name="expenses">Troškovi</string>
     <string name="expenses_summary">Sažetak</string>
     <string name="settings">Postavke</string>
@@ -67,4 +68,5 @@
     <string name="BILLS">Računi</string>
     <string name="HEALTH">Zdravlje</string>
     <string name="OTHER">Ostalo</string>
+    <string name="analytics">Analitika</string>
 </resources>

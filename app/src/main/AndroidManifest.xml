@@ -15,7 +15,6 @@
         tools:ignore="MissingClass"
         tools:targetApi="33"
         android:localeConfig="@xml/locales_config">
-        >
         <activity
             android:name=".MainActivity"
             android:exported="true"
