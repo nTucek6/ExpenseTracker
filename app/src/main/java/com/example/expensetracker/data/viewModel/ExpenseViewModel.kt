@@ -48,7 +48,8 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     val allCachesCrud = cacheDao.getAllCrud()
 
-    fun getDailyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getDailyBudgetSpent(dateFrom,dateTo)
+    suspend fun getDailyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getDailyBudgetSpent(dateFrom,dateTo)
+
 
     suspend fun getExpenseById(id: Int): Expense = expenseDao.findById(id)
 

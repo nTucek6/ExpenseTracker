@@ -100,8 +100,7 @@ object FirebaseDb {
 
             val id = map["id"]?.toString() ?: ""
             val amount = (map["amount"] as? Number)?.toDouble() ?: 0.0
-           // val category = map["category"]?.toString() ?: ""
-            val category = (map["category"] as? Number)?.toInt() ?: 0
+            val category = (map["categoryId"] as? Number)?.toInt() ?: 0
             val description = map["description"]?.toString()
             val createdAt = (map["createdAt"] as? Number)?.toLong() ?: 0L
 

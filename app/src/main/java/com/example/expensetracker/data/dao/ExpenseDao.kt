@@ -56,11 +56,11 @@ interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(expenses: List<Expense>)
 
-
-    @Query("""SELECT * FROM DailyBudgetSpent s
-        WHERE(:dateFrom IS NULL OR :dateFrom >= s.date) AND
-        (:dateTo IS NULL OR :dateTo <= s.date)
-    """)
-    fun getDailyBudgetSpent(dateFrom: Long?, dateTo:Long?): LiveData<List<DailyBudgetSpent>>
+    @Query("""
+    SELECT * FROM DailyBudgetSpent s
+    WHERE (:dateFrom IS 0 OR s.date >= :dateFrom)
+      AND (:dateTo IS 0 OR s.date <= :dateTo)
+""")
+    suspend fun getDailyBudgetSpent(dateFrom: Long?, dateTo:Long?): List<DailyBudgetSpent>
 
 }

@@ -66,7 +66,8 @@ class ExpensePagingAdapter(
             )
             //viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.category.imageSvg))
             //viewHolder.binding.tvCategory.text =  viewHolder.itemView.context.getString(expense.category.displayName)
-            if(expense.imageSvg != null)
+
+            if(expense.imageSvg != 0)
                 viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.imageSvg))
             //viewHolder.binding.tvCategory.text = viewHolder.itemView.context.getString(expense.imageSvg.toInt())
             viewHolder.binding.tvCategory.text = expense.categoryName

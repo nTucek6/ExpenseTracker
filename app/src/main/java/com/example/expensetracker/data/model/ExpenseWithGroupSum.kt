@@ -5,7 +5,7 @@ import androidx.room.DatabaseView
 @DatabaseView("""
     SELECT e.*, 
     COALESCE(c.displayName, 'No category') AS categoryName,
-    c.imageSvg AS imageSvg
+    COALESCE(c.imageSvg, 0) AS imageSvg
     FROM expenses e 
     LEFT JOIN categories c ON e.categoryId = c.id ORDER BY createdAt DESC
 """)
@@ -14,7 +14,7 @@ data class ExpenseWithGroupSum(
     val amount : Double,
     val categoryId : Int,
     val categoryName: String,
-    val imageSvg: Int?,
+    val imageSvg: Int,
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis(),
     val dailySum: Double
