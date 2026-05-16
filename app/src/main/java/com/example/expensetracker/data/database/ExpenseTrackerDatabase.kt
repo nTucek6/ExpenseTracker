@@ -1,15 +1,12 @@
 package com.example.expensetracker.data.database
 
 import android.content.Context
-import android.util.Log
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.expensetracker.R
 import com.example.expensetracker.data.dao.CacheCrudDao
 import com.example.expensetracker.data.dao.CategoriesDao
 import com.example.expensetracker.data.dao.ExpenseDao
@@ -22,6 +19,7 @@ import com.example.expensetracker.data.entity.MonthlySummary
 import com.example.expensetracker.data.entity.SummaryCacheCrud
 import com.example.expensetracker.data.enums.ExpenseEnum
 import com.example.expensetracker.data.model.BudgetWithSpent
+import com.example.expensetracker.data.model.DailyBudgetSpent
 import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +28,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [Expense::class, MonthlySummary::class, CacheCrud::class, SummaryCacheCrud::class, Categories::class],
-    [BudgetWithSpent::class, ExpenseWithGroupSum::class, ExpenseWithCategory::class], version = 3, exportSchema = false,
+    [BudgetWithSpent::class, ExpenseWithGroupSum::class, ExpenseWithCategory::class, DailyBudgetSpent::class], version = 3, exportSchema = false,
 )
 @TypeConverters(Converters::class)
 abstract class ExpenseTrackerDatabase : RoomDatabase() {

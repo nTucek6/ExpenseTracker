@@ -3,16 +3,18 @@ package com.example.expensetracker.data.model
 import androidx.room.DatabaseView
 
 @DatabaseView("""
-    SELECT e.*, c.displayName AS categoryName, c.imageSvg AS imageSvg
-FROM expenses e 
-LEFT JOIN categories c ON e.categoryId = c.id ORDER BY createdAt DESC
+    SELECT e.*, 
+    COALESCE(c.displayName, 'No category') AS categoryName,
+    c.imageSvg AS imageSvg
+    FROM expenses e 
+    LEFT JOIN categories c ON e.categoryId = c.id ORDER BY createdAt DESC
 """)
 data class ExpenseWithGroupSum(
     val id: Int = 0,
     val amount : Double,
     val categoryId : Int,
     val categoryName: String,
-    val imageSvg: String,
+    val imageSvg: Int?,
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis(),
     val dailySum: Double

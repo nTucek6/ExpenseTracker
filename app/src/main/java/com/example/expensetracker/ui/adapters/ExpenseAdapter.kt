@@ -47,7 +47,8 @@ class ExpenseAdapter(private val onItemClick: (Expense, String) -> Unit) :
             viewHolder.itemView.context.getString(R.string.price_format),
             expense.amount
         )
-        viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.imageSvg.toInt()))
+        if(expense.imageSvg != null)
+            viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.imageSvg))
         viewHolder.binding.tvCategory.text = expense.categoryName
 
         if (expense.createdAt.isToday()) {

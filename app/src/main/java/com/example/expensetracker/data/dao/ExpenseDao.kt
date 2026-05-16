@@ -11,6 +11,7 @@ import androidx.room.Update
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
+import com.example.expensetracker.data.model.DailyBudgetSpent
 
 @Dao
 interface ExpenseDao {
@@ -54,5 +55,12 @@ interface ExpenseDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(expenses: List<Expense>)
+
+
+    @Query("""SELECT * FROM DailyBudgetSpent s
+        WHERE(:dateFrom IS NULL OR :dateFrom >= s.date) AND
+        (:dateTo IS NULL OR :dateTo <= s.date)
+    """)
+    fun getDailyBudgetSpent(dateFrom: Long?, dateTo:Long?): LiveData<List<DailyBudgetSpent>>
 
 }
