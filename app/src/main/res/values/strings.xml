@@ -94,5 +94,7 @@
     <!-- Languages -->
     <string name="english">English</string>
     <string name="croatian">Croatian</string>
+    <string name="spending_trend">Spending trend</string>
+    <string name="category_breakdown">Category Breakdown</string>
 
 </resources>

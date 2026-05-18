@@ -69,4 +69,6 @@
     <string name="HEALTH">Zdravlje</string>
     <string name="OTHER">Ostalo</string>
     <string name="analytics">Analitika</string>
+    <string name="spending_trend">Trend potrošnje</string>
+    <string name="category_breakdown">Graf kategorija</string>
 </resources>
