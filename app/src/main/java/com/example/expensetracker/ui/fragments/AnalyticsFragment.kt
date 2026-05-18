@@ -21,7 +21,10 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.utils.ColorTemplate
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.time.LocalDate
@@ -45,10 +48,10 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val incTotalSpent: View = view.findViewById(R.id.incTotalSpent)
-        val incTotalIncome: View = view.findViewById(R.id.incTotalIncome)
-        val incBalance: View = view.findViewById(R.id.incBalance)
-        val incAvgDay: View = view.findViewById(R.id.incAvgDay)
+        val incTotalSpent: MaterialCardView = view.findViewById(R.id.incTotalSpent)
+        val incTotalIncome: MaterialCardView = view.findViewById(R.id.incTotalIncome)
+        val incBalance: MaterialCardView = view.findViewById(R.id.incBalance)
+        val incAvgDay: MaterialCardView = view.findViewById(R.id.incAvgDay)
 
         incTotalSpent.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_spent)
         incTotalIncome.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_spent)
@@ -127,6 +130,8 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
     private fun setPieChart() {
 
+        categorySpendingData = ArrayList()
+
         lifecycleScope.launch {
             /* val data =
                 expenseViewModel.getDailyBudgetSpent(firstDayOfMonthMillis,lastDayOfMonthMillis)
@@ -135,34 +140,22 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                 labels.add(item.date.toDateString())
             } */
 
-            categorySpendingData = listOf(
+            categorySpendingData = arrayListOf(
                 PieEntry(50f, "Food"),
                 PieEntry(50f, "Bills"),
                 PieEntry(50f, "Other")
-            ) as ArrayList<PieEntry>
+            )
 
-            if (spendingData.isNotEmpty()) {
-                val decimalFormat = DecimalFormat("0.00")
-                val pieDataSet = PieDataSet(categorySpendingData, "Data set")/*.apply {
-                    setDrawValues(true)
-                    valueTextSize = 10f
+            if (categorySpendingData.isNotEmpty()) {
+                val pieDataSet = PieDataSet(categorySpendingData, "Data set").apply {
+                    valueTextSize = 20f
                     valueTextColor = Color.WHITE
-                    valueFormatter = object : ValueFormatter() {
-                        override fun getPointLabel(entry: Entry?): String {
-                            return if (entry == null) "" else decimalFormat.format(entry.y)
-                        }
-                    }
-                } */
+                    valueFormatter = PercentFormatter(categorySpendingChart)
+                }
+                pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS, 255)
                 val pieData = PieData(pieDataSet)
 
                 categorySpendingChart.data = pieData
-                /* categorySpendingChart.xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    granularity = 1f
-                    valueFormatter = IndexAxisValueFormatter(labels)
-                    labelRotationAngle = -45f
-                    setDrawGridLines(false)
-                } */
 
                 categorySpendingChart.notifyDataSetChanged()
                 categorySpendingChart.invalidate()
