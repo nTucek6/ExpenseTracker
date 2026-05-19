@@ -11,7 +11,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.expensetracker.R
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
+import com.example.expensetracker.utils.ChartUtils
+import com.example.expensetracker.utils.firstOfMonthCalendarToMillis
+import com.example.expensetracker.utils.lastOfMonthCalendarToMillis
 import com.example.expensetracker.utils.toDateString
+import com.example.expensetracker.utils.todayCalendarToMillis
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.XAxis
@@ -32,6 +36,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
+import java.util.Calendar
 import kotlin.getValue
 
 class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
@@ -46,8 +51,14 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
     private lateinit var spendingData: ArrayList<Entry>
     private lateinit var categorySpendingData: ArrayList<PieEntry> //value, label su ulazne vrijednosti
 
+    var valueColor: Int = 0
+    var labelColor: Int = 0
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        valueColor = ContextCompat.getColor(requireContext(), R.color.chart_value_text)
+        labelColor = ContextCompat.getColor(requireContext(), R.color.chart_label_text)
 
         val incTotalSpent: MaterialCardView = view.findViewById(R.id.incTotalSpent)
         val incTotalIncome: MaterialCardView = view.findViewById(R.id.incTotalIncome)
@@ -69,44 +80,18 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         spendingData = ArrayList()
 
         val labels = mutableListOf<String>()
-        val zone = ZoneId.systemDefault()
-        val today = LocalDate.now()
-
-        val firstDayOfMonthMillis = today
-            .withDayOfMonth(1)
-            .atStartOfDay(zone)
-            .toInstant()
-            .toEpochMilli()
-
-        val lastDayOfMonthMillis = today
-            .with(TemporalAdjusters.lastDayOfMonth())
-            .atTime(LocalTime.MAX)
-            .atZone(zone)
-            .toInstant()
-            .toEpochMilli()
 
         lifecycleScope.launch {
             val data =
-                expenseViewModel.getDailyBudgetSpent(firstDayOfMonthMillis, lastDayOfMonthMillis)
+                expenseViewModel.getDailyBudgetSpent(Calendar.getInstance().firstOfMonthCalendarToMillis(),
+                    Calendar.getInstance().lastOfMonthCalendarToMillis())
             data.forEachIndexed { index, item ->
                 spendingData.add(Entry(index.toFloat(), item.amount.toFloat()))
                 labels.add(item.date.toDateString())
             }
 
             if (spendingData.isNotEmpty()) {
-                val decimalFormat = DecimalFormat("0.00")
-                val lineDataSet = LineDataSet(spendingData, "Data set").apply {
-                    setDrawValues(true)
-                    valueTextSize = 10f
-                    valueTextColor = Color.WHITE
-                    valueFormatter = object : ValueFormatter() {
-                        override fun getPointLabel(entry: Entry?): String {
-                            return if (entry == null) "" else decimalFormat.format(entry.y)
-                        }
-                    }
-                    setDrawCircles(true)
-                    setCircleColor(Color.WHITE)
-                }
+                val lineDataSet = ChartUtils.setLineChartDataSet(requireContext(), spendingData)
                 val lineData = LineData(lineDataSet)
 
                 spendingChart.data = lineData
@@ -115,8 +100,14 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                     granularity = 1f
                     valueFormatter = IndexAxisValueFormatter(labels)
                     labelRotationAngle = -45f
+                    textColor = labelColor
                     setDrawGridLines(false)
                 }
+
+                spendingChart.axisLeft.textColor = labelColor
+                spendingChart.axisRight.textColor = labelColor
+                spendingChart.legend.textColor = labelColor
+                spendingChart.description.textColor = labelColor
 
                 spendingChart.notifyDataSetChanged()
                 spendingChart.invalidate()
@@ -134,39 +125,36 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         categorySpendingData = ArrayList()
 
         lifecycleScope.launch {
+            categorySpendingData.clear()
+
             val data =
-                expenseViewModel.getSpentPerCategory(dateFrom = null, dateTo = null)
+                expenseViewModel.getSpentPerCategory(Calendar.getInstance().firstOfMonthCalendarToMillis(),
+                    Calendar.getInstance().lastOfMonthCalendarToMillis())
 
-            val sumCategoryValues = data.sumOf { it.amount }
-            data.forEachIndexed { index, item ->
-                val percent = (item.amount / sumCategoryValues) * 100
-                categorySpendingData.add(PieEntry(percent.toFloat(), item.category))
-            }
-            if (categorySpendingData.isNotEmpty()) {
+            categorySpendingData = ChartUtils.buildPieEntriesDynamic(requireContext(), data)
 
-                val valueColor = ContextCompat.getColor(requireContext(), R.color.chart_value_text)
-                val labelColor = ContextCompat.getColor(requireContext(), R.color.chart_label_text)
 
-                val pieDataSet = PieDataSet(categorySpendingData, "Data set").apply {
-                    valueTextSize = 20f
-                    valueTextColor = valueColor
-                    valueFormatter = PercentFormatter(categorySpendingChart)
-                }
-                pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS, 255)
-                val pieData = PieData(pieDataSet)
-                pieData.setValueTextColor(valueColor)
+             if (categorySpendingData.isNotEmpty()) {
 
-                categorySpendingChart.data = pieData
-                categorySpendingChart.setEntryLabelColor(labelColor)
-                categorySpendingChart.legend.textColor = labelColor
+                 categorySpendingChart.setUsePercentValues(true)
+                 val pieDataSet = ChartUtils.setPieDataSet(requireContext(),categorySpendingData)
+                 val pieData = PieData(pieDataSet)
+                 pieData.setValueTextColor(valueColor)
 
-                categorySpendingChart.notifyDataSetChanged()
-                categorySpendingChart.invalidate()
-            } else {
-                categorySpendingChart.clear()
-                categorySpendingChart.setNoDataText("No spending data for this period")
-                categorySpendingChart.invalidate()
-            }
+                 categorySpendingChart.data = pieData
+                 categorySpendingChart.setEntryLabelColor(labelColor)
+                 categorySpendingChart.legend.textColor = labelColor
+
+                 categorySpendingChart.notifyDataSetChanged()
+                 categorySpendingChart.invalidate()
+             } else {
+                 categorySpendingChart.clear()
+                 categorySpendingChart.setNoDataText("No spending data for this period")
+                 categorySpendingChart.invalidate()
+             }
+
         }
     }
+
+
 }
