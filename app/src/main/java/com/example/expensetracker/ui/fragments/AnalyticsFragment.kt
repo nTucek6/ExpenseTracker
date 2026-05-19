@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -133,29 +134,31 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         categorySpendingData = ArrayList()
 
         lifecycleScope.launch {
-            /* val data =
-                expenseViewModel.getDailyBudgetSpent(firstDayOfMonthMillis,lastDayOfMonthMillis)
+            val data =
+                expenseViewModel.getSpentPerCategory(dateFrom = null, dateTo = null)
+
+            val sumCategoryValues = data.sumOf { it.amount }
             data.forEachIndexed { index, item ->
-                spendingData.add(Entry(index.toFloat(), item.amount.toFloat()))
-                labels.add(item.date.toDateString())
-            } */
-
-            categorySpendingData = arrayListOf(
-                PieEntry(50f, "Food"),
-                PieEntry(50f, "Bills"),
-                PieEntry(50f, "Other")
-            )
-
+                val percent = (item.amount / sumCategoryValues) * 100
+                categorySpendingData.add(PieEntry(percent.toFloat(), item.category))
+            }
             if (categorySpendingData.isNotEmpty()) {
+
+                val valueColor = ContextCompat.getColor(requireContext(), R.color.chart_value_text)
+                val labelColor = ContextCompat.getColor(requireContext(), R.color.chart_label_text)
+
                 val pieDataSet = PieDataSet(categorySpendingData, "Data set").apply {
                     valueTextSize = 20f
-                    valueTextColor = Color.WHITE
+                    valueTextColor = valueColor
                     valueFormatter = PercentFormatter(categorySpendingChart)
                 }
                 pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS, 255)
                 val pieData = PieData(pieDataSet)
+                pieData.setValueTextColor(valueColor)
 
                 categorySpendingChart.data = pieData
+                categorySpendingChart.setEntryLabelColor(labelColor)
+                categorySpendingChart.legend.textColor = labelColor
 
                 categorySpendingChart.notifyDataSetChanged()
                 categorySpendingChart.invalidate()

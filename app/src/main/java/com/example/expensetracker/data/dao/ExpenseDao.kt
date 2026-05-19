@@ -12,6 +12,7 @@ import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.data.model.DailyBudgetSpent
+import com.example.expensetracker.data.model.SpentPerCategory
 
 @Dao
 interface ExpenseDao {
@@ -58,9 +59,22 @@ interface ExpenseDao {
 
     @Query("""
     SELECT * FROM DailyBudgetSpent s
-    WHERE (:dateFrom IS 0 OR s.date >= :dateFrom)
-      AND (:dateTo IS 0 OR s.date <= :dateTo)
+    WHERE (:dateFrom IS NULL OR s.date >= :dateFrom)
+      AND (:dateTo IS NULL OR s.date <= :dateTo)
 """)
     suspend fun getDailyBudgetSpent(dateFrom: Long?, dateTo:Long?): List<DailyBudgetSpent>
 
+    @Query("""
+        SELECT 
+            SUM(e.amount) AS amount,
+            e.categoryId AS categoryId,
+            c.displayName AS category
+        FROM expenses e
+        LEFT JOIN categories c ON e.categoryId = c.id
+        WHERE (:dateFrom IS NULL OR e.createdAt >= :dateFrom)
+        AND (:dateTo IS NULL OR e.createdAt <= :dateTo)
+        GROUP BY e.categoryId, c.displayName
+        ORDER BY amount DESC
+    """)
+    suspend fun getSpentPerCategory(dateFrom: Long?, dateTo:Long?): List<SpentPerCategory>
 }

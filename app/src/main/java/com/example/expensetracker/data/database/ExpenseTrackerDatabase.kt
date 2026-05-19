@@ -22,6 +22,7 @@ import com.example.expensetracker.data.model.BudgetWithSpent
 import com.example.expensetracker.data.model.DailyBudgetSpent
 import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
+import com.example.expensetracker.data.model.SpentPerCategory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

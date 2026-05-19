@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="chart_value_text">#FFFFFF</color>
+    <color name="chart_label_text">#FFFFFF</color>
+</resources>
