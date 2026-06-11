@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [Expense::class, MonthlySummary::class, CacheCrud::class, SummaryCacheCrud::class, Categories::class],
-    [BudgetWithSpent::class, ExpenseWithGroupSum::class, ExpenseWithCategory::class, DailyBudgetSpent::class], version = 3, exportSchema = false,
+    [BudgetWithSpent::class, ExpenseWithGroupSum::class, ExpenseWithCategory::class, DailyBudgetSpent::class], version = 4, exportSchema = false,
 )
 @TypeConverters(Converters::class)
 abstract class ExpenseTrackerDatabase : RoomDatabase() {

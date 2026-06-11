@@ -202,7 +202,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 expenseViewModel.syncFirebaseToRoom()
                 summaryViewModel.syncFirebaseToRoom()
             },
-            title = requireContext().getString(R.string.download_data),
+            title = requireContext().getString(R.string.download_data_title),
             message = requireContext().getString(R.string.download_data_message)
         )
     }

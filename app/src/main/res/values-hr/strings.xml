@@ -57,7 +57,7 @@
     <string name="limit_info_format">Ograničenje: %.2f€</string>
     <string name="remaining_info_format">Preostalo: %.2f€</string>
     <string name="all">Sve</string>
-    <string name="download_data">Preuzimanje podatke</string>
+    <string name="download_data">Preuzimanje podataka</string>
     <string name="sync_data_title">Sinkronizacija podataka?</string>
     <string name="english">Engleski</string>
     <string name="croatian">Hrvatski</string>
@@ -71,4 +71,6 @@
     <string name="analytics">Analitika</string>
     <string name="spending_trend">Trend potrošnje</string>
     <string name="category_breakdown">Graf kategorija</string>
+    <string name="sync_data">Sinkroniziraj podatke</string>
+    <string name="download_data_title">Preuzmi podatke?</string>
 </resources>

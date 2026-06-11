@@ -36,7 +36,7 @@ interface ExpenseDao {
     @Query("""
     SELECT *,
            SUM(amount) OVER (
-               PARTITION BY date(createdAt / 1000, 'unixepoch')
+               PARTITION BY date(createdAt / 1000, 'unixepoch', 'localtime')
                ORDER BY createdAt
            ) AS dailySum
     FROM ExpenseWithGroupSum

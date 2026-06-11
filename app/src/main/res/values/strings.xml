@@ -45,12 +45,14 @@
     <string name="spent_info_format">Spent: %.2f€</string>
 
     <!-- Settings strings -->
-    <string name="download_data">Download data?</string>
+    <string name="download_data">Download data</string>
+    <string name="download_data_title">Download data?</string>
     <string name="download_data_message">This action will download data from external database, continue?</string>
     <string name="sync_data_title">Sync data?</string>
     <string name="sync_data_message">This action will sync external data with yours?</string>
     <string name="continue_dialog">Continue</string>
     <string name="no_internet">No internet connection!</string>
+    <string name="sync_data">Sync data</string>
 
     <!-- Categories enums -->
     <string name="FOOD">Food</string>
@@ -96,5 +98,6 @@
     <string name="croatian">Croatian</string>
     <string name="spending_trend">Spending trend</string>
     <string name="category_breakdown">Category Breakdown</string>
+
 
 </resources>
