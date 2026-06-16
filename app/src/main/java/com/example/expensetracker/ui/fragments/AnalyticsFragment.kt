@@ -19,6 +19,7 @@ import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.utils.ChartUtils
 import com.example.expensetracker.utils.firstOfMonthCalendarToMillis
+import com.example.expensetracker.utils.formatWeekDate
 import com.example.expensetracker.utils.getLast3MonthsRange
 import com.example.expensetracker.utils.getLast6MonthsRange
 import com.example.expensetracker.utils.getLastYearRange
@@ -77,6 +78,8 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
     private var monthStart = Calendar.getInstance().firstOfMonthCalendarToMillis()
     private var monthEnd = Calendar.getInstance().lastOfMonthCalendarToMillis()
 
+    private var period: PeriodChipEnum = PeriodChipEnum.THIS_MONTH
+
     var valueColor: Int = 0
     var labelColor: Int = 0
 
@@ -113,21 +116,17 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
             AnalyticsFilterBottomSheetFragment.REQUEST_KEY,
             viewLifecycleOwner
         ) { _, bundle ->
-            //val period = bundle.getString(AnalyticsFilterBottomSheetFragment.KEY_PERIOD) ?: "This Month"
             val periodId =
                 bundle.getString(AnalyticsFilterBottomSheetFragment.KEY_PERIOD_ID) ?: "NULL"
 
             val selectedPeriod = PeriodChipEnum.fromText(requireContext(), periodId)
 
-            // update analytics
-            //loadAnalytics(period, type)
+            period = selectedPeriod
             setRange(selectedPeriod)
         }
         btnOpenFilter.setOnClickListener {
             AnalyticsFilterBottomSheetFragment().show(parentFragmentManager, "AnalyticsFilter")
         }
-
-
     }
 
     private fun setSummary() {
@@ -166,15 +165,49 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         val labels = mutableListOf<String>()
 
         lifecycleScope.launch {
-            val data =
-                expenseViewModel.getDailyBudgetSpent(
-                    monthStart,
-                    monthEnd
-                )
-            data.forEachIndexed { index, item ->
-                spendingData.add(Entry(index.toFloat(), item.amount.toFloat()))
-                labels.add(item.date.toDateString())
+
+            when (period) {
+                PeriodChipEnum.THIS_MONTH -> {
+                    val data =
+                        expenseViewModel.getDailyBudgetSpent(
+                            monthStart,
+                            monthEnd
+                        )
+
+                    data.forEachIndexed { index, item ->
+                        spendingData.add(Entry(index.toFloat(), item.amount.toFloat()))
+                        labels.add(item.date.toDateString())
+                    }
+                }
+
+                PeriodChipEnum.THREE_MONTHS -> {
+                    val data =
+                        expenseViewModel.getWeeklyBudgetSpent(
+                            monthStart,
+                            monthEnd
+                        )
+                    data.forEachIndexed { index, item ->
+                        spendingData.add(Entry(index.toFloat(), item.total.toFloat()))
+                        labels.add(formatWeekDate(item.weekStartDate, item.weekEndDate))
+                    }
+                }
+
+                PeriodChipEnum.SIX_MONTHS -> {
+                    val data =
+                        expenseViewModel.getWeeklyBudgetSpent(
+                            monthStart,
+                            monthEnd
+                        )
+                    data.forEachIndexed { index, item ->
+                        spendingData.add(Entry(index.toFloat(), item.total.toFloat()))
+                        labels.add(formatWeekDate(item.weekStartDate, item.weekEndDate))
+                    }
+                }
+
+                PeriodChipEnum.YEAR -> TODO()
+                PeriodChipEnum.CUSTOM -> TODO()
             }
+
 
             if (spendingData.isNotEmpty()) {
                 val lineDataSet = ChartUtils.setLineChartDataSet(requireContext(), spendingData)
@@ -300,6 +333,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                 monthStart = startMillis
                 monthEnd = endMillis
             }
+
             PeriodChipEnum.CUSTOM -> {
                 // show date picker
             }
