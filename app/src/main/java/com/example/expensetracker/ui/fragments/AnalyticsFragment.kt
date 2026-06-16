@@ -8,9 +8,13 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import com.example.expensetracker.R
+import com.example.expensetracker.data.model.AnalyticsSummary
+import com.example.expensetracker.data.viewModel.AnalyticsViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
+import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.utils.ChartUtils
 import com.example.expensetracker.utils.firstOfMonthCalendarToMillis
 import com.example.expensetracker.utils.lastOfMonthCalendarToMillis
@@ -30,6 +34,7 @@ import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.time.LocalDate
@@ -37,11 +42,15 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
 import java.util.Calendar
+import kotlin.String
 import kotlin.getValue
 
 class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
     private val expenseViewModel: ExpenseViewModel by activityViewModels()
+    private val analyticsViewModel: AnalyticsViewModel by activityViewModels()
+
+    private val monthlySummaryViewModel: MonthlySummaryViewModel by activityViewModels()
 
     private lateinit var spendingChart: LineChart
     private lateinit var categorySpendingChart: PieChart
@@ -50,6 +59,18 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
     //private lateinit var barDataSet: LineDataSet
     private lateinit var spendingData: ArrayList<Entry>
     private lateinit var categorySpendingData: ArrayList<PieEntry> //value, label su ulazne vrijednosti
+
+    private lateinit var incTotalSpent: MaterialCardView
+    private lateinit var incTotalIncome: MaterialCardView
+    private lateinit var incBalance: MaterialCardView
+    private lateinit var incAvgDay: MaterialCardView
+
+    private lateinit var incCategory1: MaterialCardView
+    private lateinit var incCategory2: MaterialCardView
+    private lateinit var incCategory3: MaterialCardView
+
+    private val monthStart = Calendar.getInstance().firstOfMonthCalendarToMillis()
+    private val monthEnd = Calendar.getInstance().lastOfMonthCalendarToMillis()
 
     var valueColor: Int = 0
     var labelColor: Int = 0
@@ -60,20 +81,57 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         valueColor = ContextCompat.getColor(requireContext(), R.color.chart_value_text)
         labelColor = ContextCompat.getColor(requireContext(), R.color.chart_label_text)
 
-        val incTotalSpent: MaterialCardView = view.findViewById(R.id.incTotalSpent)
-        val incTotalIncome: MaterialCardView = view.findViewById(R.id.incTotalIncome)
-        val incBalance: MaterialCardView = view.findViewById(R.id.incBalance)
-        val incAvgDay: MaterialCardView = view.findViewById(R.id.incAvgDay)
+        incTotalSpent = view.findViewById(R.id.incTotalSpent)
+        incTotalIncome = view.findViewById(R.id.incTotalIncome)
+        incBalance = view.findViewById(R.id.incBalance)
+        incAvgDay = view.findViewById(R.id.incAvgDay)
+
+        incCategory1 = view.findViewById(R.id.inc_category_1)
+        incCategory2 = view.findViewById(R.id.inc_category_2)
+        incCategory3 = view.findViewById(R.id.inc_category_3)
 
         incTotalSpent.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_spent)
-        incTotalIncome.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_spent)
-        incBalance.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_spent)
-        incAvgDay.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_spent)
+        incTotalIncome.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_income)
+        incBalance.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.balance)
+        incAvgDay.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.avg_per_day)
+
 
         spendingChart = view.findViewById(R.id.lineGraph)
         categorySpendingChart = view.findViewById(R.id.pieGraph)
+        setSummary()
         setLineChart()
         setPieChart()
+        getTopCategorySpent()
+    }
+
+    private fun setSummary() {
+        lifecycleScope.launch {
+            val summary = analyticsViewModel.getSummary(
+                monthStart,
+                monthEnd
+            )
+
+            val monthlySummary = monthlySummaryViewModel
+                .getCurrentMonthBudget
+                .asFlow()
+                .first()
+
+            val balance = monthlySummary.money - monthlySummary.spent
+
+            Log.d("AnalyticsData", summary.toString())
+
+            if (summary.totalSpent != 0.0) {
+                incTotalSpent.findViewById<TextView>(R.id.tvValue).text =
+                    String.format(getString(R.string.price_format), summary.totalSpent)
+                incTotalIncome.findViewById<TextView>(R.id.tvValue).text =
+                    String.format(getString(R.string.price_format), monthlySummary.money)
+                incBalance.findViewById<TextView>(R.id.tvValue).text =
+                    String.format(getString(R.string.price_format), balance)
+                incAvgDay.findViewById<TextView>(R.id.tvValue).text =
+                    String.format(getString(R.string.price_format), summary.avgPerDay)
+            }
+
+        }
     }
 
     private fun setLineChart() {
@@ -83,8 +141,10 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
         lifecycleScope.launch {
             val data =
-                expenseViewModel.getDailyBudgetSpent(Calendar.getInstance().firstOfMonthCalendarToMillis(),
-                    Calendar.getInstance().lastOfMonthCalendarToMillis())
+                expenseViewModel.getDailyBudgetSpent(
+                    monthStart,
+                    monthEnd
+                )
             data.forEachIndexed { index, item ->
                 spendingData.add(Entry(index.toFloat(), item.amount.toFloat()))
                 labels.add(item.date.toDateString())
@@ -119,7 +179,6 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
         }
     }
-
     private fun setPieChart() {
 
         categorySpendingData = ArrayList()
@@ -128,32 +187,59 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
             categorySpendingData.clear()
 
             val data =
-                expenseViewModel.getSpentPerCategory(Calendar.getInstance().firstOfMonthCalendarToMillis(),
-                    Calendar.getInstance().lastOfMonthCalendarToMillis())
+                expenseViewModel.getSpentPerCategory(
+                    monthStart,
+                    monthEnd
+                )
 
             categorySpendingData = ChartUtils.buildPieEntriesDynamic(requireContext(), data)
 
+            if (categorySpendingData.isNotEmpty()) {
 
-             if (categorySpendingData.isNotEmpty()) {
+                categorySpendingChart.setUsePercentValues(true)
+                val pieDataSet = ChartUtils.setPieDataSet(requireContext(), categorySpendingData)
+                val pieData = PieData(pieDataSet)
+                pieData.setValueTextColor(valueColor)
 
-                 categorySpendingChart.setUsePercentValues(true)
-                 val pieDataSet = ChartUtils.setPieDataSet(requireContext(),categorySpendingData)
-                 val pieData = PieData(pieDataSet)
-                 pieData.setValueTextColor(valueColor)
+                categorySpendingChart.data = pieData
+                categorySpendingChart.setEntryLabelColor(labelColor)
+                categorySpendingChart.legend.textColor = labelColor
 
-                 categorySpendingChart.data = pieData
-                 categorySpendingChart.setEntryLabelColor(labelColor)
-                 categorySpendingChart.legend.textColor = labelColor
-
-                 categorySpendingChart.notifyDataSetChanged()
-                 categorySpendingChart.invalidate()
-             } else {
-                 categorySpendingChart.clear()
-                 categorySpendingChart.setNoDataText("No spending data for this period")
-                 categorySpendingChart.invalidate()
-             }
+                categorySpendingChart.notifyDataSetChanged()
+                categorySpendingChart.invalidate()
+            } else {
+                categorySpendingChart.clear()
+                categorySpendingChart.setNoDataText("No spending data for this period")
+                categorySpendingChart.invalidate()
+            }
 
         }
+    }
+    private fun getTopCategorySpent() {
+        lifecycleScope.launch {
+            val topCategorySpent = analyticsViewModel.getTopCategorySpent(
+                monthStart,
+                monthEnd
+            )
+
+            val s1 = topCategorySpent[0]
+            val s2 = topCategorySpent[1]
+            val s3 = topCategorySpent[2]
+
+            setUpCategory(incCategory1, 1, s1.categoryName, s1.totalSpent)
+            setUpCategory(incCategory2, 2, s2.categoryName, s2.totalSpent)
+            setUpCategory(incCategory3, 3, s3.categoryName, s3.totalSpent)
+
+            Log.d("AnalyticsData", topCategorySpent.toString())
+        }
+
+    }
+
+
+    private fun setUpCategory(categoryView: MaterialCardView, number: Int, category: String, spent: Double){
+        categoryView.findViewById<TextView>(R.id.tv_number).text = number.toString() + "."
+        categoryView.findViewById<TextView>(R.id.tv_category).text = category
+        categoryView.findViewById<TextView>(R.id.tv_spent).text = String.format(getString(R.string.price_format), spent)
     }
 
 

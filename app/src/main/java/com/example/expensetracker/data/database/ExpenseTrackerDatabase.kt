@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.expensetracker.data.dao.AnalyticsDao
 import com.example.expensetracker.data.dao.CacheCrudDao
 import com.example.expensetracker.data.dao.CategoriesDao
 import com.example.expensetracker.data.dao.ExpenseDao
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [Expense::class, MonthlySummary::class, CacheCrud::class, SummaryCacheCrud::class, Categories::class],
-    [BudgetWithSpent::class, ExpenseWithGroupSum::class, ExpenseWithCategory::class, DailyBudgetSpent::class], version = 4, exportSchema = false,
+    [BudgetWithSpent::class, ExpenseWithGroupSum::class, ExpenseWithCategory::class, DailyBudgetSpent::class], version = 5, exportSchema = false,
 )
 @TypeConverters(Converters::class)
 abstract class ExpenseTrackerDatabase : RoomDatabase() {
@@ -41,6 +42,8 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun categoriesDao(): CategoriesDao
 
     abstract fun summaryCacheCrudDao(): SummaryCacheCrudDao
+
+    abstract fun analyticsDao(): AnalyticsDao
 
     companion object {
         @Volatile

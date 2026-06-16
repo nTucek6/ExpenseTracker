@@ -54,6 +54,12 @@
     <string name="no_internet">No internet connection!</string>
     <string name="sync_data">Sync data</string>
 
+    <!-- Analytics strings -->
+    <string name="total_income">Total income</string>
+    <string name="balance">Balance</string>
+    <string name="avg_per_day">Avg / Day</string>
+
+
     <!-- Categories enums -->
     <string name="FOOD">Food</string>
     <string name="TRANSPORT">Transport</string>
@@ -98,6 +104,7 @@
     <string name="croatian">Croatian</string>
     <string name="spending_trend">Spending trend</string>
     <string name="category_breakdown">Category Breakdown</string>
+    <string name="top_categories">Top Categories</string>
 
 
 </resources>

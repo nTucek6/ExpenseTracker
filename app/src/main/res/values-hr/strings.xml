@@ -61,6 +61,7 @@
     <string name="sync_data_title">Sinkronizacija podataka?</string>
     <string name="english">Engleski</string>
     <string name="croatian">Hrvatski</string>
+    <string name="avg_per_day">Dnevni prosjek</string>
     <string name="FOOD">Hrana</string>
     <string name="TRANSPORT">Prijevoz</string>
     <string name="ENTERTAINMENT">Zabava</string>
@@ -73,4 +74,7 @@
     <string name="category_breakdown">Graf kategorija</string>
     <string name="sync_data">Sinkroniziraj podatke</string>
     <string name="download_data_title">Preuzmi podatke?</string>
+    <string name="total_income">Ukupni prihodi</string>
+    <string name="balance">Stanje računa</string>
+    <string name="top_categories">Najveći trošak po kategoriji</string>
 </resources>
