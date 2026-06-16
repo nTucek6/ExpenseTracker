@@ -77,4 +77,9 @@
     <string name="total_income">Ukupni prihodi</string>
     <string name="balance">Stanje računa</string>
     <string name="top_categories">Najveći trošak po kategoriji</string>
+    <string name="this_month">Trenutni mjesec</string>
+    <string name="three_months">3M</string>
+    <string name="six_months">6M</string>
+    <string name="year">Godina</string>
+    <string name="custom">Prilagođeno</string>
 </resources>

@@ -33,14 +33,14 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
-                <TextView
+                <Button
+                    android:id="@+id/btn_open_filter"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:layout_weight="1"
-                    android:gravity="end"
+                    android:gravity="center"
                     android:text="Filter" />
-
             </LinearLayout>
         </LinearLayout>
 

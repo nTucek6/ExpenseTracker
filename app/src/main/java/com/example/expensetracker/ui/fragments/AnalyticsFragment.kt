@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -11,12 +12,16 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import com.example.expensetracker.R
+import com.example.expensetracker.data.enums.PeriodChipEnum
 import com.example.expensetracker.data.model.AnalyticsSummary
 import com.example.expensetracker.data.viewModel.AnalyticsViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.utils.ChartUtils
 import com.example.expensetracker.utils.firstOfMonthCalendarToMillis
+import com.example.expensetracker.utils.getLast3MonthsRange
+import com.example.expensetracker.utils.getLast6MonthsRange
+import com.example.expensetracker.utils.getLastYearRange
 import com.example.expensetracker.utils.lastOfMonthCalendarToMillis
 import com.example.expensetracker.utils.toDateString
 import com.example.expensetracker.utils.todayCalendarToMillis
@@ -69,8 +74,8 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
     private lateinit var incCategory2: MaterialCardView
     private lateinit var incCategory3: MaterialCardView
 
-    private val monthStart = Calendar.getInstance().firstOfMonthCalendarToMillis()
-    private val monthEnd = Calendar.getInstance().lastOfMonthCalendarToMillis()
+    private var monthStart = Calendar.getInstance().firstOfMonthCalendarToMillis()
+    private var monthEnd = Calendar.getInstance().lastOfMonthCalendarToMillis()
 
     var valueColor: Int = 0
     var labelColor: Int = 0
@@ -80,6 +85,8 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
         valueColor = ContextCompat.getColor(requireContext(), R.color.chart_value_text)
         labelColor = ContextCompat.getColor(requireContext(), R.color.chart_label_text)
+
+        val btnOpenFilter: Button = view.findViewById(R.id.btn_open_filter)
 
         incTotalSpent = view.findViewById(R.id.incTotalSpent)
         incTotalIncome = view.findViewById(R.id.incTotalIncome)
@@ -98,10 +105,29 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
         spendingChart = view.findViewById(R.id.lineGraph)
         categorySpendingChart = view.findViewById(R.id.pieGraph)
-        setSummary()
-        setLineChart()
-        setPieChart()
-        getTopCategorySpent()
+
+        setAnalytics()
+
+
+        parentFragmentManager.setFragmentResultListener(
+            AnalyticsFilterBottomSheetFragment.REQUEST_KEY,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            //val period = bundle.getString(AnalyticsFilterBottomSheetFragment.KEY_PERIOD) ?: "This Month"
+            val periodId =
+                bundle.getString(AnalyticsFilterBottomSheetFragment.KEY_PERIOD_ID) ?: "NULL"
+
+            val selectedPeriod = PeriodChipEnum.fromText(requireContext(), periodId)
+
+            // update analytics
+            //loadAnalytics(period, type)
+            setRange(selectedPeriod)
+        }
+        btnOpenFilter.setOnClickListener {
+            AnalyticsFilterBottomSheetFragment().show(parentFragmentManager, "AnalyticsFilter")
+        }
+
+
     }
 
     private fun setSummary() {
@@ -179,6 +205,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
         }
     }
+
     private fun setPieChart() {
 
         categorySpendingData = ArrayList()
@@ -215,6 +242,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
         }
     }
+
     private fun getTopCategorySpent() {
         lifecycleScope.launch {
             val topCategorySpent = analyticsViewModel.getTopCategorySpent(
@@ -235,12 +263,56 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
     }
 
-
-    private fun setUpCategory(categoryView: MaterialCardView, number: Int, category: String, spent: Double){
+    private fun setUpCategory(
+        categoryView: MaterialCardView,
+        number: Int,
+        category: String,
+        spent: Double
+    ) {
         categoryView.findViewById<TextView>(R.id.tv_number).text = number.toString() + "."
         categoryView.findViewById<TextView>(R.id.tv_category).text = category
-        categoryView.findViewById<TextView>(R.id.tv_spent).text = String.format(getString(R.string.price_format), spent)
+        categoryView.findViewById<TextView>(R.id.tv_spent).text =
+            String.format(getString(R.string.price_format), spent)
     }
 
+
+    private fun setRange(periodEnum: PeriodChipEnum) {
+        when (periodEnum) {
+            PeriodChipEnum.THIS_MONTH -> {
+                monthStart = Calendar.getInstance().firstOfMonthCalendarToMillis()
+                monthEnd = Calendar.getInstance().lastOfMonthCalendarToMillis()
+            }
+
+            PeriodChipEnum.THREE_MONTHS -> {
+                val (startMillis, endMillis) = Calendar.getInstance().getLast3MonthsRange()
+                monthStart = startMillis
+                monthEnd = endMillis
+            }
+
+            PeriodChipEnum.SIX_MONTHS -> {
+                val (startMillis, endMillis) = Calendar.getInstance().getLast6MonthsRange()
+                monthStart = startMillis
+                monthEnd = endMillis
+            }
+
+            PeriodChipEnum.YEAR -> {
+                val (startMillis, endMillis) = Calendar.getInstance().getLastYearRange()
+                monthStart = startMillis
+                monthEnd = endMillis
+            }
+            PeriodChipEnum.CUSTOM -> {
+                // show date picker
+            }
+        }
+        setAnalytics()
+    }
+
+
+    private fun setAnalytics() {
+        setSummary()
+        setLineChart()
+        setPieChart()
+        getTopCategorySpent()
+    }
 
 }

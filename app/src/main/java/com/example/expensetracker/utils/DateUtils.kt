@@ -80,3 +80,44 @@ fun Calendar.lastOfMonthCalendarToMillis(): Long {
         .toEpochMilli()
 }
 
+
+fun Calendar.getLast3MonthsRange(): Pair<Long, Long> {
+    val today = LocalDate.now()
+    val zone = ZoneId.systemDefault()
+
+    // Start of current month
+    val startOfCurrentMonth = today.withDayOfMonth(1).atStartOfDay(zone).toInstant().toEpochMilli()
+
+    // First day of month 3 months ago
+    val threeMonthsBackMonth = today.minusMonths(3).withDayOfMonth(1)
+    val startOfThreeMonthsBackMonth = threeMonthsBackMonth.atStartOfDay(zone).toInstant().toEpochMilli()
+
+    return startOfThreeMonthsBackMonth to startOfCurrentMonth
+}
+
+fun Calendar.getLast6MonthsRange(): Pair<Long, Long> {
+    val today = LocalDate.now()
+    val zone = ZoneId.systemDefault()
+
+    // Start of current month
+    val startOfCurrentMonth = today.withDayOfMonth(1).atStartOfDay(zone).toInstant().toEpochMilli()
+
+    // First day of month 6 months ago
+    val threeMonthsBackMonth = today.minusMonths(6).withDayOfMonth(1)
+    val startOfThreeMonthsBackMonth = threeMonthsBackMonth.atStartOfDay(zone).toInstant().toEpochMilli()
+    return startOfThreeMonthsBackMonth to startOfCurrentMonth
+}
+
+fun Calendar.getLastYearRange(): Pair<Long, Long> {
+    val today = LocalDate.now()
+    val zone = ZoneId.systemDefault()
+
+    // Start of current month
+    val startOfCurrentMonth = today.withDayOfMonth(1).atStartOfDay(zone).toInstant().toEpochMilli()
+
+    // First day of Year ago
+    val threeMonthsBackMonth = today.minusMonths(12).withDayOfMonth(1)
+    val startOfThreeMonthsBackMonth = threeMonthsBackMonth.atStartOfDay(zone).toInstant().toEpochMilli()
+    return startOfThreeMonthsBackMonth to startOfCurrentMonth
+}
+
