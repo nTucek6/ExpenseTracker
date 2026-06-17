@@ -52,6 +52,8 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getWeeklyBudgetSpent(dateFrom,dateTo)
 
+    suspend fun getMonthlyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getMonthlyBudgetSpent(dateFrom,dateTo)
+
     suspend fun getSpentPerCategory(dateFrom: Long?, dateTo:Long?) = expenseDao.getSpentPerCategory(dateFrom,dateTo)
 
 

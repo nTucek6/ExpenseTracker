@@ -17,9 +17,20 @@
 
         <TextView
             android:id="@+id/tv_category"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
 
+
+        <ImageView
+            android:id="@+id/iv_remove_category"
+            android:layout_width="24dp"
+            android:layout_height="match_parent"
+            app:tint="?attr/colorOnSurface"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="0.2"
+            android:src="@drawable/trash"
+            />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

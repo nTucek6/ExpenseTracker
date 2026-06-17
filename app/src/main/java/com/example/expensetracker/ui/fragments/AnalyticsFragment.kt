@@ -124,7 +124,16 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
             period = selectedPeriod
             setRange(selectedPeriod)
         }
+
+        parentFragmentManager.setFragmentResultListener(
+            AnalyticsFilterBottomSheetFragment.REQUEST_KEY_CLOSED,
+            viewLifecycleOwner
+        ) { _, _ ->
+            btnOpenFilter.isEnabled = true
+        }
+
         btnOpenFilter.setOnClickListener {
+            btnOpenFilter.isEnabled = false
             AnalyticsFilterBottomSheetFragment().show(parentFragmentManager, "AnalyticsFilter")
         }
     }
@@ -204,7 +213,18 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                     }
                 }
 
-                PeriodChipEnum.YEAR -> TODO()
+                PeriodChipEnum.YEAR -> {
+                    val data =
+                        expenseViewModel.getMonthlyBudgetSpent(
+                            monthStart,
+                            monthEnd
+                        )
+                    data.forEachIndexed { index, item ->
+                        spendingData.add(Entry(index.toFloat(), item.total.toFloat()))
+                        //labels.add(formatWeekDate(item.weekStartDate, item.weekEndDate))
+                        labels.add("${item.year}-${item.month}")
+                    }
+                }
                 PeriodChipEnum.CUSTOM -> TODO()
             }
 

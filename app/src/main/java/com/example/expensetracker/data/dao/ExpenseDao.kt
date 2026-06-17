@@ -12,6 +12,7 @@ import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.data.model.DailyBudgetSpent
+import com.example.expensetracker.data.model.MonthlyBudgetSpent
 import com.example.expensetracker.data.model.SpentPerCategory
 import com.example.expensetracker.data.model.WeeklyBudgetSpent
 
@@ -100,7 +101,51 @@ GROUP BY weekStartDate
 ORDER BY weekStartDate;
         """
     )
-    suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo: Long?) : List<WeeklyBudgetSpent>
+    suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo: Long?): List<WeeklyBudgetSpent>
+
+    /*   @Query(
+           """
+       WITH months AS (
+           SELECT
+               createdAt,
+               amount,
+               (
+                   (JULIANDAY(
+                       DATE(createdAt / 1000, 'unixepoch', 'localtime', 'start of month')
+                   ) - 2440587.5) * 86400
+               ) * 1000 AS monthStartDate,
+               (
+                   (JULIANDAY(
+                       DATE(createdAt / 1000, 'unixepoch', 'localtime', 'start of month', '+1 month', '-1 day')
+                   ) - 2440587.5) * 86400
+               ) * 1000 AS monthEndDate
+           FROM expenses
+           WHERE createdAt >= :dateFrom
+             AND createdAt < :dateTo
+       )
+       SELECT
+           monthStartDate,
+           monthEndDate,
+           SUM(amount) AS total
+       FROM months
+       GROUP BY monthStartDate
+       ORDER BY monthStartDate
+       """
+       )*/
+    @Query(
+        """
+           SELECT
+        SUM(amount) AS total,
+        CAST(STRFTIME('%m', createdAt / 1000, 'unixepoch', 'localtime') AS INTEGER) AS month,
+        CAST(STRFTIME('%Y', createdAt / 1000, 'unixepoch', 'localtime') AS INTEGER) AS year
+    FROM expenses
+    WHERE createdAt >= :dateFrom
+      AND createdAt < :dateTo
+    GROUP BY year, month
+    ORDER BY year, month
+    """
+    )
+    suspend fun getMonthlyBudgetSpent(dateFrom: Long?, dateTo: Long?): List<MonthlyBudgetSpent>
 
     @Query(
         """

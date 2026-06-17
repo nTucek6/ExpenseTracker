@@ -23,6 +23,12 @@ interface CategoriesDao {
     @Update
     suspend fun update(categories: Categories): Int
 
+    @Delete
+    suspend fun delete(categories: Categories): Int
+
+    @Query("SELECT * FROM categories where id = :id")
+    suspend fun findById(id: Int) : Categories
+
     @Query("SELECT * FROM categories ")
     fun getAllCategories(): LiveData<List<Categories>>
 

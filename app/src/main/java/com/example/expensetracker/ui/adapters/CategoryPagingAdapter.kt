@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.databinding.ItemCategoryBinding
 
-class CategoryPagingAdapter : PagingDataAdapter<Categories, CategoryPagingAdapter.ViewHolder>(
+class CategoryPagingAdapter(
+    private val onTrashClick: (Categories) -> Unit
+) : PagingDataAdapter<Categories, CategoryPagingAdapter.ViewHolder>(
     object : DiffUtil.ItemCallback<Categories>() {
         override fun areItemsTheSame(old: Categories, new: Categories) = old.id == new.id
         override fun areContentsTheSame(old: Categories, new: Categories) = old == new
@@ -35,6 +37,11 @@ class CategoryPagingAdapter : PagingDataAdapter<Categories, CategoryPagingAdapte
 
         if (category != null) {
             viewHolder.binding.tvCategory.text = category.displayName
+
+            viewHolder.binding.ivRemoveCategory.setOnClickListener {
+                onTrashClick(category)
+            }
+
         }
 
     }

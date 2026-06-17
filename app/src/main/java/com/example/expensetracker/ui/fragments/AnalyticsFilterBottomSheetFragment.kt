@@ -1,6 +1,7 @@
 package com.example.expensetracker.ui.fragments
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -20,6 +21,7 @@ class AnalyticsFilterBottomSheetFragment :
 
     companion object {
         const val REQUEST_KEY = "analytics_filter_request"
+        const val REQUEST_KEY_CLOSED = "filter_closed"
         const val KEY_PERIOD_ID = "period_id"
         const val KEY_PERIOD = "period"
         const val KEY_TYPE = "type"
@@ -35,6 +37,15 @@ class AnalyticsFilterBottomSheetFragment :
             //KEY_TYPE to type
         )
         parentFragmentManager.setFragmentResult(REQUEST_KEY, result)
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+
+        parentFragmentManager.setFragmentResult(
+            REQUEST_KEY_CLOSED,
+            bundleOf()
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
