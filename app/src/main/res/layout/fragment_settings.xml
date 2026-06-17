@@ -124,4 +124,12 @@
         android:text="Toggle language cro/en"
         />
 
+
+    <Button
+        android:id="@+id/btn_categories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Manage categories"
+        />
+
 </LinearLayout>

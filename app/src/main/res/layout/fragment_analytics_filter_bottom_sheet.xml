@@ -5,86 +5,53 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".ui.fragments.AnalyticsFilterBottomSheetFragment">
+    tools:context=".ui.fragments.AnalyticsFilterBottomSheetFragment"
+    android:padding="18dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Filters" />
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Periods" />
-
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupPeriod"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:singleSelection="true"
-        app:singleLine="false">
-
-       <!-- <com.google.android.material.chip.Chip
-            android:id="@+id/chipThisMonth"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="This Month"
-            android:checked="true" />
+            android:textStyle="bold"
+            android:textSize="40sp"
+            android:text="Filters" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip3m"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="3M" />
+            android:textSize="20sp"
+            android:text="Periods" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip6m"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupPeriod"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="6M" />
+            app:singleSelection="true"
+            app:singleLine="false">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipYear"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
+        </com.google.android.material.chip.ChipGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Year" />
+            android:gravity="bottom"
+            android:orientation="horizontal">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipCustom"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Custom" /> -->
+            <Button
+                android:id="@+id/btn_dismiss"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dismiss" />
 
-    </com.google.android.material.chip.ChipGroup>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <Button
+                android:id="@+id/btn_apply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Apply" />
 
-        <Button
-            android:id="@+id/btn_dismiss"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dismiss" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/btn_apply"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Apply" />
-
-    </LinearLayout>
-
+        </LinearLayout>
 </LinearLayout>

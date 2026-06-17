@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.expensetracker.R
 import com.example.expensetracker.data.enums.LanguageISOEnum
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
@@ -54,6 +55,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         val tvSingInInfo = view.findViewById<TextView>(R.id.tv_sign_in_info)
         val swAutoSync = view.findViewById<SwitchMaterial>(R.id.sw_auto_sync)
         val btnLanguage = view.findViewById<Button>(R.id.btn_language)
+        val btnManageCategories = view.findViewById<Button>(R.id.btn_categories)
 
         singInBtn = view.findViewById(R.id.btn_login_out)
         syncDataBtn = view.findViewById(R.id.btn_sync_data)
@@ -177,8 +179,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             } else {
                 changeLanguage(LanguageISOEnum.EN.code)
             }
+        }
 
-
+        btnManageCategories.setOnClickListener {
+            val navigate = SettingsFragmentDirections.actionSettingsToManageCategories()
+            findNavController().navigate(navigate)
         }
     }
 

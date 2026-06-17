@@ -80,6 +80,13 @@
         android:name="com.example.expensetracker.ui.fragments.SettingsFragment"
         android:label="Settings">
 
+        <action
+            android:id="@+id/action_settings_to_manage_categories"
+            app:destination="@id/manageCategoriesFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="false">
+        </action>
+
     </fragment>
     <!-- Navigation fragments -->
 
@@ -93,6 +100,13 @@
             android:defaultValue="@null"
             app:argType="com.example.expensetracker.data.entity.Expense"
             app:nullable="true" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/manageCategoriesFragment"
+        android:name="com.example.expensetracker.ui.fragments.ManageCategoriesFragment"
+        android:label="Manage Categories">
 
     </fragment>
 
