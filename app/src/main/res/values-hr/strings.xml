@@ -82,4 +82,6 @@
     <string name="six_months">6M</string>
     <string name="year">Godina</string>
     <string name="custom">Prilagođeno</string>
+    <string name="new_category">Nova kategorija</string>
+    <string name="input_category">Dodaj kategoriju</string>
 </resources>

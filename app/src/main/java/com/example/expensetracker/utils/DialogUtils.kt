@@ -2,9 +2,11 @@ package com.example.expensetracker.utils
 
 import android.app.AlertDialog
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -97,6 +99,28 @@ object DialogUtils {
                 }
             }
             .show()
+    }
+
+    fun showNewCategoryDialog(
+        context: Context,
+        onEdit: (String) -> Unit,){
+
+        val dialog: View =
+            LayoutInflater.from(context).inflate(R.layout.dialog_edit_category, null)
+
+        val tlEditCategory = dialog.findViewById<TextInputLayout>(R.id.til_edit_category)
+
+        MaterialAlertDialogBuilder(context)
+            .setTitle(context.getString(R.string.expense_details))
+            .setView(dialog)
+            .setNegativeButton(context.getString(R.string.close), null)
+            //.setNeutralButton(context.getString(R.string.delete)) { _, _ -> onDelete() }
+            .setPositiveButton(context.getString(R.string.edit)) { _, _ ->
+                val editCategory = tlEditCategory.editText?.text.toString()
+                Log.d("CategoryTest", editCategory)
+                onEdit(editCategory) }
+            .show()
+
     }
 
 }

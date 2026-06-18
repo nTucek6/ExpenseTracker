@@ -1,7 +1,9 @@
 package com.example.expensetracker.ui.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -38,10 +40,14 @@ class CategoryPagingAdapter(
         if (category != null) {
             viewHolder.binding.tvCategory.text = category.displayName
 
-            viewHolder.binding.ivRemoveCategory.setOnClickListener {
-                onTrashClick(category)
+            if(!category.isDefault){
+                viewHolder.binding.ivRemoveCategory.setOnClickListener {
+                    onTrashClick(category)
+                }
             }
-
+            else{
+                viewHolder.binding.ivRemoveCategory.visibility = View.GONE
+            }
         }
 
     }
