@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Expense Tracker</string>
     <string name="dashboard">Nadzorna ploča</string>
+    <string name="transactions">Promet</string>
     <string name="expenses">Troškovi</string>
     <string name="expenses_summary">Sažetak</string>
     <string name="settings">Postavke</string>
@@ -56,10 +57,11 @@
     <string name="limit_info_format">Ograničenje: %.2f€</string>
     <string name="remaining_info_format">Preostalo: %.2f€</string>
     <string name="all">Sve</string>
-    <string name="download_data">Preuzimanje podatke</string>
+    <string name="download_data">Preuzimanje podataka</string>
     <string name="sync_data_title">Sinkronizacija podataka?</string>
     <string name="english">Engleski</string>
     <string name="croatian">Hrvatski</string>
+    <string name="avg_per_day">Dnevni prosjek</string>
     <string name="FOOD">Hrana</string>
     <string name="TRANSPORT">Prijevoz</string>
     <string name="ENTERTAINMENT">Zabava</string>
@@ -67,4 +69,22 @@
     <string name="BILLS">Računi</string>
     <string name="HEALTH">Zdravlje</string>
     <string name="OTHER">Ostalo</string>
+    <string name="analytics">Analitika</string>
+    <string name="spending_trend">Trend potrošnje</string>
+    <string name="category_breakdown">Graf kategorija</string>
+    <string name="sync_data">Sinkroniziraj podatke</string>
+    <string name="download_data_title">Preuzmi podatke?</string>
+    <string name="total_income">Ukupni prihodi</string>
+    <string name="balance">Stanje računa</string>
+    <string name="top_categories">Najveći trošak po kategoriji</string>
+    <string name="this_month">Trenutni mjesec</string>
+    <string name="three_months">3M</string>
+    <string name="six_months">6M</string>
+    <string name="year">Godina</string>
+    <string name="custom">Prilagođeno</string>
+    <string name="new_category">Nova kategorija</string>
+    <string name="default_category">Zadana kategorija</string>
+    <string name="used_categories">Korišteno u %s troškova</string>
+    <string name="add_category">Dodaj kategoriju</string>
+    <string name="edit_category">Ažuriraj kategoriju</string>
 </resources>

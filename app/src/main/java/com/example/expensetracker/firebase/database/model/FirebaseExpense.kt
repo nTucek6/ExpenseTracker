@@ -11,8 +11,6 @@ data class FirebaseExpense(
     val description: String? = null,
     val createdAt: Long = 0L
 ) {
-    constructor() : this("", 0.0, 0, null, 0L)
-
     fun toExpense(): Expense = Expense(
         id = id.toIntOrNull() ?: 0,
         amount = amount,

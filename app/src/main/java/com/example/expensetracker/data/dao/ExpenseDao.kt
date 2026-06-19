@@ -11,17 +11,23 @@ import androidx.room.Update
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
+import com.example.expensetracker.data.model.DailyBudgetSpent
+import com.example.expensetracker.data.model.MonthlyBudgetSpent
+import com.example.expensetracker.data.model.SpentPerCategory
+import com.example.expensetracker.data.model.WeeklyBudgetSpent
 
 @Dao
 interface ExpenseDao {
 
     @Query("SELECT * from expenses where id = :id")
-    suspend fun findById(id:Int): Expense
+    suspend fun findById(id: Int): Expense
 
     @Insert
     suspend fun insert(expense: Expense): Long
+
     @Update
-    suspend fun update(expense: Expense) : Int
+    suspend fun update(expense: Expense): Int
+
     @Delete
     suspend fun delete(expense: Expense)
 
@@ -31,16 +37,18 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses Order By createdAt DESC")
     fun getAllExpenses(): LiveData<List<Expense>>
 
-    @Query("""
+    @Query(
+        """
     SELECT *,
            SUM(amount) OVER (
-               PARTITION BY date(createdAt / 1000, 'unixepoch')
+               PARTITION BY date(createdAt / 1000, 'unixepoch', 'localtime')
                ORDER BY createdAt
            ) AS dailySum
     FROM ExpenseWithGroupSum
     WHERE (:query IS NULL OR description LIKE '%' || :query || '%' OR categoryName LIKE '%' || :query || '%')
     ORDER BY createdAt DESC
-""")
+"""
+    )
     fun getExpensesPaging(query: String? = null): PagingSource<Int, ExpenseWithGroupSum>
 
     @Query("SELECT * FROM expenses ORDER BY createdAt DESC LIMIT 5")
@@ -55,4 +63,103 @@ interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(expenses: List<Expense>)
 
+    @Query(
+        """
+    SELECT * FROM DailyBudgetSpent s
+    WHERE (:dateFrom IS NULL OR s.date >= :dateFrom)
+      AND (:dateTo IS NULL OR s.date <= :dateTo)
+"""
+    )
+    suspend fun getDailyBudgetSpent(dateFrom: Long?, dateTo: Long?): List<DailyBudgetSpent>
+
+    @Query(
+        """
+            WITH weeks AS (
+    SELECT
+        createdAt,
+        amount,
+        (
+            (JULIANDAY(
+                DATE(createdAt / 1000, 'unixepoch', 'localtime', 'weekday 1')
+            ) - 2440587.5) * 86400
+        ) * 1000 AS weekStartDate,
+        (
+            (JULIANDAY(
+                DATE(createdAt / 1000, 'unixepoch', 'localtime', 'weekday 1', '+6 days')
+            ) - 2440587.5) * 86400
+        ) * 1000 AS weekEndDate
+    FROM expenses
+    WHERE createdAt >= :dateFrom
+      AND createdAt < :dateTo
+)
+SELECT
+    weekStartDate,
+    weekEndDate,
+    SUM(amount) AS total
+FROM weeks
+GROUP BY weekStartDate
+ORDER BY weekStartDate;
+        """
+    )
+    suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo: Long?): List<WeeklyBudgetSpent>
+
+    /*   @Query(
+           """
+       WITH months AS (
+           SELECT
+               createdAt,
+               amount,
+               (
+                   (JULIANDAY(
+                       DATE(createdAt / 1000, 'unixepoch', 'localtime', 'start of month')
+                   ) - 2440587.5) * 86400
+               ) * 1000 AS monthStartDate,
+               (
+                   (JULIANDAY(
+                       DATE(createdAt / 1000, 'unixepoch', 'localtime', 'start of month', '+1 month', '-1 day')
+                   ) - 2440587.5) * 86400
+               ) * 1000 AS monthEndDate
+           FROM expenses
+           WHERE createdAt >= :dateFrom
+             AND createdAt < :dateTo
+       )
+       SELECT
+           monthStartDate,
+           monthEndDate,
+           SUM(amount) AS total
+       FROM months
+       GROUP BY monthStartDate
+       ORDER BY monthStartDate
+       """
+       )*/
+    @Query(
+        """
+           SELECT
+        SUM(amount) AS total,
+        CAST(STRFTIME('%m', createdAt / 1000, 'unixepoch', 'localtime') AS INTEGER) AS month,
+        CAST(STRFTIME('%Y', createdAt / 1000, 'unixepoch', 'localtime') AS INTEGER) AS year
+    FROM expenses
+    WHERE createdAt >= :dateFrom
+      AND createdAt < :dateTo
+    GROUP BY year, month
+    ORDER BY year, month
+    """
+    )
+    suspend fun getMonthlyBudgetSpent(dateFrom: Long?, dateTo: Long?): List<MonthlyBudgetSpent>
+
+    @Query(
+        """
+        SELECT 
+            SUM(e.amount) AS amount,
+            e.categoryId AS categoryId,
+            c.displayName AS category
+        FROM expenses e
+        LEFT JOIN categories c ON e.categoryId = c.id
+        WHERE (:dateFrom IS NULL OR e.createdAt >= :dateFrom)
+        AND (:dateTo IS NULL OR e.createdAt <= :dateTo)
+        GROUP BY e.categoryId, c.displayName
+        ORDER BY amount DESC
+    """
+    )
+    suspend fun getSpentPerCategory(dateFrom: Long?, dateTo: Long?): List<SpentPerCategory>
 }

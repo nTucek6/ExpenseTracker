@@ -2,11 +2,14 @@ package com.example.expensetracker.utils
 
 import android.app.AlertDialog
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.model.ManageCategories
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 
@@ -99,4 +102,55 @@ object DialogUtils {
             .show()
     }
 
+    fun showAddCategoryDialog(
+        context: Context,
+        onAdd: (String) -> Unit,
+    ) {
+        val dialog: View =
+            LayoutInflater.from(context).inflate(R.layout.dialog_edit_category, null)
+        val tlAddCategory = dialog.findViewById<TextInputLayout>(R.id.til_edit_category)
+        tlAddCategory.hint = context.getString(R.string.add_category)
+        MaterialAlertDialogBuilder(context)
+            .setTitle(context.getString(R.string.add_category))
+            .setView(dialog)
+            .setNegativeButton(context.getString(R.string.close), null)
+            .setPositiveButton(context.getString(R.string.edit)) { _, _ ->
+                val addCategory = tlAddCategory.editText?.text.toString()
+                onAdd(addCategory)
+            }
+            .show()
+    }
+
+    fun showEditCategoryDialog(
+        context: Context,
+        category: ManageCategories,
+        onEdit: (ManageCategories) -> Unit,
+        onDelete: (Int) -> Unit,
+    ) {
+        val dialog: View =
+            LayoutInflater.from(context).inflate(R.layout.dialog_edit_category, null)
+
+        val tlEditCategory = dialog.findViewById<TextInputLayout>(R.id.til_edit_category)
+
+        tlEditCategory.hint = context.getString(R.string.edit_category)
+        tlEditCategory.editText?.setText(category.displayName)
+
+        MaterialAlertDialogBuilder(context)
+            .setTitle(context.getString(R.string.edit_category))
+            .setView(dialog)
+            .setNegativeButton(context.getString(R.string.close), null)
+            .setNeutralButton(context.getString(R.string.delete)) { _, _ -> onDelete(category.id) }
+            .setPositiveButton(context.getString(R.string.edit)) { _, _ ->
+                val editCategory = tlEditCategory.editText?.text.toString()
+                val editedCategory = ManageCategories(
+                    id = category.id,
+                    displayName = editCategory,
+                    isDefault = category.isDefault,
+                    imageSvg = category.imageSvg,
+                    expensesCount = category.expensesCount
+                )
+                onEdit(editedCategory)
+            }
+            .show()
+    }
 }

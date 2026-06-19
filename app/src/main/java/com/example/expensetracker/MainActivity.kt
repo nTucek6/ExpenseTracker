@@ -27,6 +27,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.fragment.NavHostFragment
+import com.example.expensetracker.data.viewModel.AnalyticsViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.firebase.database.FirebaseDb
@@ -47,6 +48,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val expenseViewModel: ExpenseViewModel by viewModels()
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
     private val networkViewModel: NetworkViewModel by viewModels()
+
+    private val analyticsViewModel: AnalyticsViewModel by viewModels()
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -48,6 +48,15 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     val allCachesCrud = cacheDao.getAllCrud()
 
+    suspend fun getDailyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getDailyBudgetSpent(dateFrom,dateTo)
+
+    suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getWeeklyBudgetSpent(dateFrom,dateTo)
+
+    suspend fun getMonthlyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getMonthlyBudgetSpent(dateFrom,dateTo)
+
+    suspend fun getSpentPerCategory(dateFrom: Long?, dateTo:Long?) = expenseDao.getSpentPerCategory(dateFrom,dateTo)
+
+
     suspend fun getExpenseById(id: Int): Expense = expenseDao.findById(id)
 
     private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
