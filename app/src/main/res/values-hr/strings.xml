@@ -83,5 +83,8 @@
     <string name="year">Godina</string>
     <string name="custom">Prilagođeno</string>
     <string name="new_category">Nova kategorija</string>
-    <string name="input_category">Dodaj kategoriju</string>
+    <string name="default_category">Zadana kategorija</string>
+    <string name="used_categories">Korišteno u %s troškova</string>
+    <string name="add_category">Dodaj kategoriju</string>
+    <string name="edit_category">Ažuriraj kategoriju</string>
 </resources>

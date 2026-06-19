@@ -9,6 +9,8 @@
     tools:context=".ui.fragments.ManageCategoriesFragment">
 
 
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_categories"
         android:layout_width="0dp"

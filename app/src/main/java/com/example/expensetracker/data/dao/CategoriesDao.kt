@@ -10,6 +10,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
+import com.example.expensetracker.data.model.ManageCategories
 
 @Dao
 interface CategoriesDao {
@@ -34,8 +35,8 @@ interface CategoriesDao {
 
 
     @Query("""
-        SELECT * FROM categories ORDER BY id ASC
+        SELECT c.*, COUNT(e.categoryId) AS expensesCount FROM categories c LEFT JOIN expenses e on c.id = e.categoryId GROUP BY c.id ORDER BY id ASC
     """)
-    fun getCategoriesPaging() : PagingSource<Int, Categories>
+    fun getCategoriesPaging() : PagingSource<Int, ManageCategories>
 
 }

@@ -12,6 +12,7 @@ import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.CrudActionEnum
+import com.example.expensetracker.data.model.ManageCategories
 import com.example.expensetracker.utils.ViewModelUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
@@ -39,9 +40,21 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun update(category: ManageCategories) {
+        viewModelScope.launch {
+            val updatedCategory = Categories(
+                id = category.id,
+                displayName = category.displayName,
+                imageSvg = category.imageSvg,
+                isDefault = category.isDefault
+            )
+            categoriesDao.update(updatedCategory)
+        }
+    }
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val categoryPaging: Flow<PagingData<Categories>> =
+    val categoryPaging: Flow<PagingData<ManageCategories>> =
         Pager(
             config = PagingConfig(
                 pageSize = 15,
@@ -52,23 +65,22 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         ).flow.cachedIn(viewModelScope)
 
 
-
     fun delete(category: Categories) {
         viewModelScope.launch {
             withContext(NonCancellable) {
                 categoriesDao.delete(category)
 
-               /* val online = networkViewModel.isOnline.first()
-                if (online) {
-                    deleteExpense(expense.id)
-                } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
-                    cacheDao.insert(
-                        CacheCrud(
-                            expenseId = expense.id,
-                            action = CrudActionEnum.DELETE
-                        )
-                    )
-                }*/
+                /* val online = networkViewModel.isOnline.first()
+                 if (online) {
+                     deleteExpense(expense.id)
+                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
+                     cacheDao.insert(
+                         CacheCrud(
+                             expenseId = expense.id,
+                             action = CrudActionEnum.DELETE
+                         )
+                     )
+                 }*/
             }
         }
     }
