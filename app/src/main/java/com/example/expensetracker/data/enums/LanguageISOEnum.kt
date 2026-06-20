@@ -5,6 +5,6 @@ import com.example.expensetracker.R
 
 enum class LanguageISOEnum(val code: String, @StringRes val displayName: Int) {
     EN("en", R.string.english),
-    CRO("hr", R.string.croatian);
-
+    CRO("hr", R.string.croatian),
+    CS("cs", R.string.czech)
 }
