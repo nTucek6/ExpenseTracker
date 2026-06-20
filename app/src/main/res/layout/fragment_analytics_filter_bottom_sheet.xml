@@ -13,13 +13,13 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="40sp"
-            android:text="Filters" />
+            android:text="@string/filters" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            android:text="Periods" />
+            android:text="@string/periods" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupPeriod"
@@ -40,7 +40,7 @@
                 android:id="@+id/btn_dismiss"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dismiss" />
+                android:text="@string/cancel" />
 
             <View
                 android:layout_width="0dp"
@@ -51,7 +51,7 @@
                 android:id="@+id/btn_apply"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Apply" />
+                android:text="@string/apply" />
 
         </LinearLayout>
 </LinearLayout>

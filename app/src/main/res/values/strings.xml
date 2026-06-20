@@ -124,7 +124,7 @@
     <string name="three_months">3M</string>
     <string name="six_months">6M</string>
     <string name="year">Year</string>
-    <string name="custom">Custom\n</string>
+    <string name="custom">Custom</string>
     <string name="new_category">New Category</string>
     <string name="input_category">Add category</string>
 
@@ -133,6 +133,10 @@
     <string name="used_categories">Used in %s expenses</string>
     <string name="add_category">Add category</string>
     <string name="edit_category">Edit category</string>
+    <string name="filter">Filter</string>
+    <string name="filters">Filters</string>
+    <string name="periods">Periods</string>
+    <string name="apply">Apply</string>
 
 
 </resources>

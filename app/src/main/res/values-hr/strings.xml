@@ -101,4 +101,8 @@
     <string name="sync">Sinkronizacija</string>
     <string name="preferences">Postavke</string>
     <string name="sign_in_with_google">Prijavite se s Google računom</string>
+    <string name="filter">Filtriraj</string>
+    <string name="filters">Filteri</string>
+    <string name="periods">Razdoblja</string>
+    <string name="apply">Primjeni</string>
 </resources>

@@ -39,6 +39,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -89,7 +90,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         valueColor = ContextCompat.getColor(requireContext(), R.color.chart_value_text)
         labelColor = ContextCompat.getColor(requireContext(), R.color.chart_label_text)
 
-        val btnOpenFilter: Button = view.findViewById(R.id.btn_open_filter)
+        val btnOpenFilter: MaterialButton = view.findViewById(R.id.btn_open_filter)
 
         incTotalSpent = view.findViewById(R.id.incTotalSpent)
         incTotalIncome = view.findViewById(R.id.incTotalIncome)
