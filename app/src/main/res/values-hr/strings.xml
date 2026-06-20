@@ -74,6 +74,14 @@
     <string name="category_breakdown">Graf kategorija</string>
     <string name="sync_data">Sinkroniziraj podatke</string>
     <string name="download_data_title">Preuzmi podatke?</string>
+    <string name="auto_sync">Automatska sinkronizacija</string>
+    <string name="language">Jezik</string>
+    <string name="manage_categories">Upravljaj kategorijama</string>
+    <string name="sign_out">Odjava</string>
+    <string name="categories">Kategorije</string>
+    <string name="connected_with_google">Povezano s Googleom</string>
+    <string name="not_signed_in">Niste prijavljeni</string>
+    <string name="choose_language">Odaberite jezik</string>
     <string name="total_income">Ukupni prihodi</string>
     <string name="balance">Stanje računa</string>
     <string name="top_categories">Najveći trošak po kategoriji</string>
@@ -83,8 +91,14 @@
     <string name="year">Godina</string>
     <string name="custom">Prilagođeno</string>
     <string name="new_category">Nova kategorija</string>
+    <string name="input_category">Dodaj kategoriju</string>
     <string name="default_category">Zadana kategorija</string>
     <string name="used_categories">Korišteno u %s troškova</string>
     <string name="add_category">Dodaj kategoriju</string>
     <string name="edit_category">Ažuriraj kategoriju</string>
+    <string name="sign_in">Prijava</string>
+    <string name="account">Račun</string>
+    <string name="sync">Sinkronizacija</string>
+    <string name="preferences">Postavke</string>
+    <string name="sign_in_with_google">Prijavite se s Google računom</string>
 </resources>

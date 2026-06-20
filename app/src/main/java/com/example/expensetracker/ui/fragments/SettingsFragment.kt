@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -25,19 +26,22 @@ import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.DialogUtils
+import com.example.expensetracker.utils.LanguageUtils
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Locale
 import kotlin.getValue
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
-    lateinit var singInBtn: MaterialButton
-    lateinit var syncDataBtn: MaterialButton
-    lateinit var downloadDataBtn: MaterialButton
+    lateinit var singInOutBtn: MaterialButton
+    lateinit var syncDataBtn: LinearLayout
+    lateinit var downloadDataBtn: LinearLayout
 
     private val expenseViewModel: ExpenseViewModel by viewModels()
 
@@ -51,15 +55,19 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         val googleAuthClient = GoogleAuthClient(requireContext())
 
 
-        val tvSingInStatus = view.findViewById<TextView>(R.id.tv_sign_in_status)
-        val tvSingInInfo = view.findViewById<TextView>(R.id.tv_sign_in_info)
-        val swAutoSync = view.findViewById<SwitchMaterial>(R.id.sw_auto_sync)
-        val btnLanguage = view.findViewById<Button>(R.id.btn_language)
-        val btnManageCategories = view.findViewById<Button>(R.id.btn_categories)
+        val tvAccountName = view.findViewById<TextView>(R.id.tvAccountName)
+        val tvAccountEmail = view.findViewById<TextView>(R.id.tvAccountEmail)
+        val tvAccountProvider = view.findViewById<TextView>(R.id.tvAccountProvider)
+        val swAutoSync = view.findViewById<SwitchMaterial>(R.id.switchAutoSync)
+        val btnLanguage = view.findViewById<LinearLayout>(R.id.rowLanguage)
+        val tvLanguageValue = view.findViewById<TextView>(R.id.tvLanguageValue)
+        val btnManageCategories = view.findViewById<LinearLayout>(R.id.rowManageCategories)
 
-        singInBtn = view.findViewById(R.id.btn_login_out)
-        syncDataBtn = view.findViewById(R.id.btn_sync_data)
-        downloadDataBtn = view.findViewById(R.id.btn_download_data)
+        singInOutBtn = view.findViewById(R.id.btnSignInOut)
+        syncDataBtn = view.findViewById(R.id.rowSyncData)
+        downloadDataBtn = view.findViewById(R.id.rowDownloadData)
+
+        tvLanguageValue.text = LanguageUtils.getCurrentLanguageLabel(requireContext())
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -67,11 +75,24 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     val autoSync = SharedPreferencesUtils.getAutoSync(requireContext())
                     val user = googleAuthClient.getUser()
                     swAutoSync.isChecked = autoSync
-                    tvSingInStatus.text =
+
+                    /*tvSingInStatus.text =
                         if (isSignedIn) "${user?.displayName} (${user?.email})" else "Not signed in"
                     tvSingInInfo.text =
-                        if (isSignedIn) "Connected with Google" else "Sign in with Google to sync data"
-                    singInBtn.text = if (isSignedIn) "Sign Out" else "Sign in With Google"
+                        if (isSignedIn) "Connected with Google" else "Sign in with Google to sync data"*/
+
+                    if (isSignedIn) {
+                        tvAccountName.text = user?.displayName
+                        tvAccountEmail.text = user?.email
+                        tvAccountProvider.text = getString(R.string.connected_with_google)
+                        singInOutBtn.text = getString(R.string.sign_out)
+                    } else {
+                        tvAccountName.text = getString(R.string.not_signed_in)
+                        tvAccountEmail.text = ""
+                        tvAccountProvider.text = getString(R.string.sign_in_with_google)
+                        singInOutBtn.text = getString(R.string.sign_in)
+                    }
+
                     syncDataBtn.isVisible = isSignedIn
                     downloadDataBtn.isVisible = isSignedIn
                     swAutoSync.isVisible = isSignedIn
@@ -79,7 +100,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             }
         }
 
-        singInBtn.setOnClickListener {
+        singInOutBtn.setOnClickListener {
             lifecycleScope.launch {
                 toggleButtonDisable()
                 try {
@@ -130,7 +151,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 networkViewModel.isOnline.collect { online ->
-                    singInBtn.isEnabled = online
+                    singInOutBtn.isEnabled = online
                     syncDataBtn.isEnabled = online
                     downloadDataBtn.isEnabled = online
                     swAutoSync.isEnabled = online
@@ -172,13 +193,14 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
 
         btnLanguage.setOnClickListener {
-            val currentLocale = AppCompatDelegate.getApplicationLocales().get(0)
+            DialogUtils.showLanguageDialog(requireContext())
+            /*val currentLocale = AppCompatDelegate.getApplicationLocales().get(0)
 
             if (currentLocale?.language == LanguageISOEnum.EN.code) {
                 changeLanguage(LanguageISOEnum.CRO.code)
             } else {
                 changeLanguage(LanguageISOEnum.EN.code)
-            }
+            }*/
         }
 
         btnManageCategories.setOnClickListener {
@@ -213,12 +235,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     private fun toggleButtonDisable() {
-        singInBtn.isEnabled = !singInBtn.isEnabled
+        singInOutBtn.isEnabled = !singInOutBtn.isEnabled
     }
 
-    private fun changeLanguage(languageCode: String) {
-        val appLocale = LocaleListCompat.forLanguageTags(languageCode)
-        AppCompatDelegate.setApplicationLocales(appLocale)
-    }
 
 }

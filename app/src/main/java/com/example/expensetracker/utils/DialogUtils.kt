@@ -2,14 +2,15 @@ package com.example.expensetracker.utils
 
 import android.app.AlertDialog
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import com.example.expensetracker.R
 import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.enums.LanguageISOEnum
 import com.example.expensetracker.data.model.ManageCategories
+import com.example.expensetracker.utils.LanguageUtils.changeLanguage
+import com.example.expensetracker.utils.LanguageUtils.getCurrentLanguageCode
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 
@@ -151,6 +152,23 @@ object DialogUtils {
                 )
                 onEdit(editedCategory)
             }
+            .show()
+    }
+
+    fun showLanguageDialog(context: Context) {
+        val languages = LanguageISOEnum.entries.toTypedArray()
+        val items = languages.map { context.getString(it.displayName) }.toTypedArray()
+        val currentCode = getCurrentLanguageCode()
+        val checkedItem = languages.indexOfFirst { it.code == currentCode }.takeIf { it >= 0 } ?: 0
+
+        MaterialAlertDialogBuilder(context)
+            .setTitle(context.getString(R.string.choose_language))
+            .setSingleChoiceItems(items, checkedItem) { dialog, which ->
+                val selectedCode = languages[which]
+                changeLanguage(selectedCode.code)
+                dialog.dismiss()
+            }
+            .setNegativeButton(context.getString(R.string.cancel), null)
             .show()
     }
 }
