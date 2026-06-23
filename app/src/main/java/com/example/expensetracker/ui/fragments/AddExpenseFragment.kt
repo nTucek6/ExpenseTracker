@@ -22,6 +22,8 @@ import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.ui.models.DropdownItem
+import com.example.expensetracker.utils.toDateString
+import com.example.expensetracker.utils.toDateTimeString
 import com.example.expensetracker.utils.toMillisDate
 import com.example.expensetracker.utils.todayCalendarToMillis
 import com.google.android.material.button.MaterialButton
@@ -79,7 +81,6 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
 
             val data = expense;
             if (data != null) {
-                Log.d("OnUpdate", data.toString())
                 tvTitle.text = getString(R.string.edit_expense)
                 tilAmount.editText?.setText(data.amount.toString())
                 val selectedItem = displayCategories.firstOrNull() { it -> it.value == data.categoryId }

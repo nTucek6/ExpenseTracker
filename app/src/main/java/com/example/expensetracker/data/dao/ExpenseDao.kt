@@ -67,7 +67,7 @@ interface ExpenseDao {
     @Query("Select COALESCE(sum(amount), 0) from expenses")
     fun getTotalSpent(): LiveData<Double>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(expenses: List<Expense>)
 
     @Transaction

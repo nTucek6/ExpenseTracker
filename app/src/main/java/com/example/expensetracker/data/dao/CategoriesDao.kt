@@ -18,7 +18,7 @@ interface CategoriesDao {
 
     @Insert
     suspend fun insert(categories: Categories)
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(categories: List<Categories>)
 
     @Transaction
@@ -37,15 +37,17 @@ interface CategoriesDao {
     suspend fun deleteAll()
 
     @Query("SELECT * FROM categories where id = :id")
-    suspend fun findById(id: String) : Categories
+    suspend fun findById(id: String): Categories
 
     @Query("SELECT * FROM categories ")
     fun getAllCategories(): LiveData<List<Categories>>
 
 
-    @Query("""
+    @Query(
+        """
         SELECT c.*, COUNT(e.categoryId) AS expensesCount FROM categories c LEFT JOIN expenses e on c.id = e.categoryId GROUP BY c.id ORDER BY id ASC
-    """)
-    fun getCategoriesPaging() : PagingSource<Int, ManageCategories>
+    """
+    )
+    fun getCategoriesPaging(): PagingSource<Int, ManageCategories>
 
 }

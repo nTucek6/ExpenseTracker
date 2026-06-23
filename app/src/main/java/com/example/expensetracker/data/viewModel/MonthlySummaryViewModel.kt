@@ -51,7 +51,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
     val allCachesCrud = cacheDao.getAllSummaryCrud()
 
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+   // private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
     suspend fun findAllExistingYears(): List<Int> = monthlySummaryDao.findAllExistingYears()
 
@@ -160,6 +160,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     fun syncFirebaseToRoom() {
         viewModelScope.launch {
             try {
+                val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
                 val firebaseExpenses = FirebaseDb.getUserSummaryOnce(userId)
                 monthlySummaryDao.insertAll(firebaseExpenses)
                 Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} monthly expenses")

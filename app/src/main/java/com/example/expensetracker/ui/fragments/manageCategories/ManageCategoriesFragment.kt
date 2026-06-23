@@ -13,6 +13,7 @@ import com.example.expensetracker.data.model.ManageCategories
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.ui.adapters.CategoryPagingAdapter
 import com.example.expensetracker.utils.DialogUtils
+import com.example.expensetracker.utils.toDateTimeString
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -29,6 +30,7 @@ class ManageCategoriesFragment : Fragment(R.layout.fragment_manage_categories) {
         val newCategoryBtn = view.findViewById<ExtendedFloatingActionButton>(R.id.newCategoryBtn)
 
         categoryAdapter = CategoryPagingAdapter { category ->
+            Log.d("TimeUpdated", category.updatedAt.toDateTimeString())
             ManageCategoriesBottomSheetFragment(
                 category,
                 onCategorySave = null

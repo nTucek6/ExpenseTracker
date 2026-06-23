@@ -17,7 +17,6 @@ data class Expense (
     val amount : Double,
     val categoryId : String,
     val description: String? = null,
-    val createdAt : Long = System.currentTimeMillis(),
-
-
+    val createdAt : Long,
+    val updatedAt: Long = System.currentTimeMillis(),
 ) : Parcelable

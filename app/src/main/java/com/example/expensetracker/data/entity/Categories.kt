@@ -13,5 +13,5 @@ data class Categories(
     val displayName: String,
     val image: CategoryIconEnum,
     val isDefault: Boolean,
-    //val remoteId: String = UUID.randomUUID().toString(),
+    val updatedAt: Long = System.currentTimeMillis(),
 )

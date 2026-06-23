@@ -60,18 +60,20 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     suspend fun getExpenseById(id: String): Expense = expenseDao.findById(id)
 
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+    //private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
-    fun syncFirebaseToRoom() {
-        viewModelScope.launch {
+    suspend fun syncFirebaseToRoom() {
+        //viewModelScope.launch {
             try {
+                val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
                 val firebaseExpenses = FirebaseDb.getUserExpensesOnce(userId)
                 expenseDao.replaceAll(firebaseExpenses)
+               // expenseDao.insertAll(firebaseExpenses)
                 Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
             } catch (e: Exception) {
                 Log.e("Sync", "Failed", e)
             }
-        }
+     //   }
     }
 
     private val _query = MutableStateFlow("")
@@ -135,6 +137,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             description = description?.trim(),
             categoryId = categoryId,
             createdAt = createdAt,
+            updatedAt = System.currentTimeMillis()
         )
         viewModelScope.launch {
             withContext(NonCancellable) {
@@ -176,6 +179,13 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
+    fun deleteAll(){
+        viewModelScope.launch {
+            expenseDao.deleteAll()
+        }
+    }
+
+
     fun deleteFromCacheCrud() {
         viewModelScope.launch {
             cacheDao.deleteAll()

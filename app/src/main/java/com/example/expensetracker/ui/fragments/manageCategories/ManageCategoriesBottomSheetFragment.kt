@@ -72,6 +72,7 @@ class ManageCategoriesBottomSheetFragment(
                     isDefault = category.isDefault,
                     image = icon,
                     expensesCount = category.expensesCount,
+                    updatedAt = System.currentTimeMillis()//category.updatedAt
                 )
                 onCategoryEdit?.invoke(editedCategory)
             } else {

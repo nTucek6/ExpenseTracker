@@ -8,4 +8,5 @@ data class ManageCategories(
     val image: CategoryIconEnum,
     val isDefault: Boolean,
     val expensesCount: Int,
+    val updatedAt: Long,
 )

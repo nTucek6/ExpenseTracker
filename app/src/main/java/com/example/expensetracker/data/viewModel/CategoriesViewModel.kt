@@ -50,7 +50,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
     val allCategories = categoriesDao.getAllCategories()
 
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+    //private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
     suspend fun getCategoryById(id: String): Categories = categoriesDao.findById(id)
 
@@ -148,6 +148,12 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun deleteAll() {
+        viewModelScope.launch {
+            categoriesDao.deleteAll()
+        }
+    }
+
     fun deleteFromCategoryCacheCrud() {
         viewModelScope.launch {
             categoryCacheDao.deleteAll()
@@ -174,16 +180,18 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun syncFirebaseToRoom() {
-        viewModelScope.launch {
+    suspend fun syncFirebaseToRoom() {
+        //viewModelScope.launch {
             try {
+                val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
                 val firebaseCategories = FirebaseDb.getUserCategoriesOnce(userId)
                 categoriesDao.replaceAll(firebaseCategories)
+                //categoriesDao.insertAll(firebaseCategories)
                 Log.d("Sync", "Firebase → Room: ${firebaseCategories.size} categories")
             } catch (e: Exception) {
                 Log.e("Sync", "Failed", e)
             }
-        }
+     //   }
     }
 
 }

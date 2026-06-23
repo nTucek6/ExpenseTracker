@@ -116,7 +116,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                         val autoSync = SharedPreferencesUtils.getAutoSync(requireContext())
                         val user = googleAuthClient.getUser()
                         if (autoSync && user != null) {
-                            FirebaseDb.syncData(user, expenseViewModel, summaryViewModel, categoryViewModel)
+                            FirebaseDb.syncData(
+                                user,
+                                expenseViewModel,
+                                summaryViewModel,
+                                categoryViewModel
+                            )
                         }
 
                     }
@@ -187,7 +192,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     googleAuthClient.getUser()?.let { user ->
                         Log.d("CheckAutoSync", user.email.toString())
                         //lifecycleScope.launch {
-                        FirebaseDb.syncData(user, expenseViewModel, summaryViewModel, categoryViewModel)
+                        FirebaseDb.syncData(
+                            user,
+                            expenseViewModel,
+                            summaryViewModel,
+                            categoryViewModel
+                        )
                         // }
                     }
                 }
@@ -228,9 +238,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         DialogUtils.showInfoConfirmation(
             context = requireContext(),
             onConfirm = {
-                expenseViewModel.syncFirebaseToRoom()
-                summaryViewModel.syncFirebaseToRoom()
-                categoryViewModel.syncFirebaseToRoom()
+                downloadData()
             },
             title = requireContext().getString(R.string.download_data_title),
             message = requireContext().getString(R.string.download_data_message)
@@ -239,6 +247,18 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private fun toggleButtonDisable() {
         singInOutBtn.isEnabled = !singInOutBtn.isEnabled
+    }
+
+    private fun downloadData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                expenseViewModel.syncFirebaseToRoom()
+                categoryViewModel.syncFirebaseToRoom()
+                summaryViewModel.syncFirebaseToRoom()
+            } catch (e: Exception) {
+                Log.e("Sync", "Download failed", e)
+            }
+        }
     }
 
 

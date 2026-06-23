@@ -19,5 +19,6 @@ data class ExpenseWithCategory(
     val categoryName: String,
     val image: CategoryIconEnum,
     val description: String? = null,
-    val createdAt : Long = System.currentTimeMillis(),
+    val createdAt : Long, //= System.currentTimeMillis(),
+    val updatedAt : Long,
 )

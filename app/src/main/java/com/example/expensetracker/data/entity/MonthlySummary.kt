@@ -7,4 +7,5 @@ data class MonthlySummary(
     val year: Int,
     val month: Int,
     val money: Double,
+    val updatedAt: Long = System.currentTimeMillis(),
 )
