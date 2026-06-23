@@ -7,6 +7,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.model.ExpenseWithCategory
@@ -20,10 +21,10 @@ import com.example.expensetracker.data.model.WeeklyBudgetSpent
 interface ExpenseDao {
 
     @Query("SELECT * from expenses where id = :id")
-    suspend fun findById(id: Int): Expense
+    suspend fun findById(id: String): Expense
 
-    @Query("SELECT * from expenses where remoteId = :id")
-    suspend fun findByRemoteId(id: String): Expense
+  /*  @Query("SELECT * from expenses where remoteId = :id")
+    suspend fun findByRemoteId(id: String): Expense */
 
     @Insert
     suspend fun insert(expense: Expense): Long
@@ -34,8 +35,11 @@ interface ExpenseDao {
     @Delete
     suspend fun delete(expense: Expense)
 
+    @Query("DELETE FROM expenses")
+    suspend fun deleteAll()
+
     @Query("DELETE FROM expenses WHERE id = :id")
-    suspend fun deleteById(id: Long): Int
+    suspend fun deleteById(id: String): Int
 
     @Query("SELECT * FROM expenses Order By createdAt DESC")
     fun getAllExpenses(): LiveData<List<Expense>>
@@ -63,8 +67,15 @@ interface ExpenseDao {
     @Query("Select COALESCE(sum(amount), 0) from expenses")
     fun getTotalSpent(): LiveData<Double>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(expenses: List<Expense>)
+
+    @Transaction
+    suspend fun replaceAll(expenses: List<Expense>)
+    {
+        deleteAll()
+        insertAll(expenses)
+    }
 
     @Query(
         """
@@ -106,35 +117,6 @@ ORDER BY weekStartDate;
     )
     suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo: Long?): List<WeeklyBudgetSpent>
 
-    /*   @Query(
-           """
-       WITH months AS (
-           SELECT
-               createdAt,
-               amount,
-               (
-                   (JULIANDAY(
-                       DATE(createdAt / 1000, 'unixepoch', 'localtime', 'start of month')
-                   ) - 2440587.5) * 86400
-               ) * 1000 AS monthStartDate,
-               (
-                   (JULIANDAY(
-                       DATE(createdAt / 1000, 'unixepoch', 'localtime', 'start of month', '+1 month', '-1 day')
-                   ) - 2440587.5) * 86400
-               ) * 1000 AS monthEndDate
-           FROM expenses
-           WHERE createdAt >= :dateFrom
-             AND createdAt < :dateTo
-       )
-       SELECT
-           monthStartDate,
-           monthEndDate,
-           SUM(amount) AS total
-       FROM months
-       GROUP BY monthStartDate
-       ORDER BY monthStartDate
-       """
-       )*/
     @Query(
         """
            SELECT

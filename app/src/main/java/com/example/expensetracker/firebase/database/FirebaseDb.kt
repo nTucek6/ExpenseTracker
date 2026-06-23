@@ -54,9 +54,9 @@ object FirebaseDb {
 
         Log.d("FirebaseCheckData", expenseList.toString())
 
-        val expenseMap = expense.associate { it.remoteId to it }
+        val expenseMap = expense.associate { it.id to it }
         val summaryMap = summary.associate { "${it.year}-${it.month}" to it }
-        val categoryMap = categories.associate { it.remoteId to it }
+        val categoryMap = categories.associate { it.id to it }
         val userData = FirebaseUsers(user.uid, user.email, expenseMap, summaryMap, categoryMap)
 
         usersRef.child(user.uid).setValue(userData)
@@ -77,7 +77,7 @@ object FirebaseDb {
 
         for (c in categoryCache) {
             if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
-                val category = categoriesViewModel.getCategoryByRemoteId(c.categoryId)
+                val category = categoriesViewModel.getCategoryById(c.categoryId)
                 updateOrCreateCategory(user.uid, category)
             } else if (c.action == CrudActionEnum.DELETE) {
                 deleteCategory(user.uid, c.categoryId)
@@ -86,7 +86,7 @@ object FirebaseDb {
 
         for (c in cache) {
             if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
-                val expense = expenseViewModel.getExpenseByRemoteId(c.expenseId)
+                val expense = expenseViewModel.getExpenseById(c.expenseId)
                 updateOrCreateExpense(user.uid, expense)
             } else if (c.action == CrudActionEnum.DELETE) {
                 deleteExpense(user.uid, c.expenseId)
@@ -113,12 +113,11 @@ object FirebaseDb {
 
             val id = map["id"]?.toString() ?: ""
             val amount = (map["amount"] as? Number)?.toDouble() ?: 0.0
-            val category = (map["categoryId"] as? Number)?.toInt() ?: 0
+            val category = map["categoryId"]?.toString() ?: ""
             val description = map["description"]?.toString()
             val createdAt = (map["createdAt"] as? Number)?.toLong() ?: 0L
-            val remoteId = map["remoteId"]?.toString() ?: UUID.randomUUID().toString()
 
-            FirebaseExpense(id, amount, category, description, createdAt, remoteId).toExpense()
+            FirebaseExpense(id, amount, category, description, createdAt).toExpense()
         }
     }
 
@@ -138,17 +137,18 @@ object FirebaseDb {
 
             val id = map["id"]?.toString() ?: ""
             val displayName = map["displayName"].toString()
-            val image = (map["categoryId"] as? CategoryIconEnum) ?: CategoryIconEnum.OTHER
+            val imageKey = map["image"] as? String
+            val image = CategoryIconEnum.entries.firstOrNull { it.key == imageKey?.lowercase() }
+                ?: CategoryIconEnum.OTHER
             val isDefault = (map["default"] as? Boolean) ?: false
-            val remoteId = map["remoteId"].toString()
 
-            FirebaseCategory(id, displayName, image, isDefault, remoteId).toCategories()
+            FirebaseCategory(id, displayName, image, isDefault).toCategories()
         }
     }
 
 
     fun updateOrCreateExpense(userUid: String?, expense: Expense) {
-        val key = expense.remoteId
+        val key = expense.id
         usersRef.child("$userUid/expenses/$key").setValue(expense)
             .addOnSuccessListener {
                 Log.d("FirebaseData", "created /expenses/$key")
@@ -158,11 +158,11 @@ object FirebaseDb {
             }
     }
 
-    fun deleteExpense(userUid: String, expenseRemoteId: String) {
-        val key = expenseRemoteId
-        usersRef.child("$userUid/expenses/$key").removeValue()
+    fun deleteExpense(userUid: String, expenseId: String) {
+
+        usersRef.child("$userUid/expenses/$expenseId").removeValue()
             .addOnSuccessListener {
-                Log.d("Firebase", "Deleted /expenses/$key")
+                Log.d("Firebase", "Deleted /expenses/$expenseId")
             }
             .addOnFailureListener { e ->
                 Log.e("Firebase", "Delete failed", e)
@@ -180,7 +180,7 @@ object FirebaseDb {
     }
 
     fun updateOrCreateCategory(userUid: String?, category: Categories) {
-        val key = category.remoteId
+        val key = category.id
         usersRef.child("$userUid/categories/$key").setValue(category)
             .addOnSuccessListener {
                 Log.d("FirebaseData", "created /categories/$key")
@@ -191,10 +191,9 @@ object FirebaseDb {
     }
 
     fun deleteCategory(userUid: String, categoryId: String) {
-        val key = categoryId
-        usersRef.child("$userUid/categories/$key").removeValue()
+        usersRef.child("$userUid/categories/$categoryId").removeValue()
             .addOnSuccessListener {
-                Log.d("Firebase", "Deleted /expenses/$key")
+                Log.d("Firebase", "Deleted /expenses/$categoryId")
             }
             .addOnFailureListener { e ->
                 Log.e("Firebase", "Delete failed", e)

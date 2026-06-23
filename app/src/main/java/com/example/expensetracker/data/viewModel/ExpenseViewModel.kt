@@ -58,9 +58,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
     suspend fun getSpentPerCategory(dateFrom: Long?, dateTo:Long?) = expenseDao.getSpentPerCategory(dateFrom,dateTo)
 
 
-    suspend fun getExpenseById(id: Int): Expense = expenseDao.findById(id)
-
-    suspend fun getExpenseByRemoteId(id: String): Expense = expenseDao.findByRemoteId(id)
+    suspend fun getExpenseById(id: String): Expense = expenseDao.findById(id)
 
     private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
@@ -68,7 +66,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             try {
                 val firebaseExpenses = FirebaseDb.getUserExpensesOnce(userId)
-                expenseDao.insertAll(firebaseExpenses)
+                expenseDao.replaceAll(firebaseExpenses)
                 Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
             } catch (e: Exception) {
                 Log.e("Sync", "Failed", e)
@@ -94,28 +92,28 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         _query.value = newQuery
     }
 
-    fun insert(amount: Double, description: String?, category: Int, createdAt: Long) {
+    fun insert(amount: Double, description: String?, category: String, createdAt: Long) {
         val expense = Expense(
+            id = UUID.randomUUID().toString(),
             amount = amount,
             description = description?.trim(),
             categoryId = category,
             createdAt = createdAt,
-            remoteId = UUID.randomUUID().toString()
         )
         viewModelScope.launch {
             withContext(NonCancellable) {
-                val id = expenseDao.insert(expense)
+                expenseDao.insert(expense)
 
-                val newExpense = expense.copy(id = id.toInt())
+                //val newExpense = expense.copy(id = expense.id)
 
                 val online = networkViewModel.isOnline.first()
 
                 if (online) {
-                    firebaseSync(newExpense.copy(id = id.toInt()))
+                    firebaseSync(expense)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         CacheCrud(
-                            expenseId = newExpense.remoteId,
+                            expenseId = expense.id,
                             action = CrudActionEnum.INSERT
                         )
                     )
@@ -125,12 +123,11 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun update(
-        id: Int,
+        id: String,
         amount: Double,
         description: String?,
-        categoryId: Int,
+        categoryId: String,
         createdAt: Long,
-        remoteId: String
     ) {
         val updatedExpense = Expense(
             id = id,
@@ -138,7 +135,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             description = description?.trim(),
             categoryId = categoryId,
             createdAt = createdAt,
-            remoteId = remoteId
         )
         viewModelScope.launch {
             withContext(NonCancellable) {
@@ -150,7 +146,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                     } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                         cacheDao.insert(
                             CacheCrud(
-                                expenseId = updatedExpense.remoteId,
+                                expenseId = updatedExpense.id,
                                 action = CrudActionEnum.UPDATE
                             )
                         )
@@ -168,11 +164,11 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
                 val online = networkViewModel.isOnline.first()
                 if (online) {
-                    deleteExpense(expense.remoteId)
+                    deleteExpense(expense.id)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         CacheCrud(
-                            expenseId = expense.remoteId,
+                            expenseId = expense.id,
                             action = CrudActionEnum.DELETE
                         )
                     )

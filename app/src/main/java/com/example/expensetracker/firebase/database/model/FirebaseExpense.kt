@@ -8,17 +8,16 @@ import java.util.UUID
 data class FirebaseExpense(
     val id: String = "",
     val amount: Double = 0.0,
-    val categoryId: Int = 0,
+    val categoryId: String = "",
     val description: String? = null,
     val createdAt: Long = 0L,
-    val remoteId: String = UUID.randomUUID().toString(),
+    //val remoteId: String = UUID.randomUUID().toString(),
 ) {
     fun toExpense(): Expense = Expense(
-        id = id.toIntOrNull() ?: 0,
+        id = id,
         amount = amount,
         categoryId = categoryId,
         description = description,
         createdAt = createdAt,
-        remoteId = remoteId
     )
 }

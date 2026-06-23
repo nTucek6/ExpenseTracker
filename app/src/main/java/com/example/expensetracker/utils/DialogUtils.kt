@@ -126,7 +126,7 @@ object DialogUtils {
         context: Context,
         category: ManageCategories,
         onEdit: (ManageCategories) -> Unit,
-        onDelete: (Int) -> Unit,
+        onDelete: (String) -> Unit,
     ) {
         val dialog: View =
             LayoutInflater.from(context).inflate(R.layout.dialog_edit_category, null)
@@ -149,7 +149,6 @@ object DialogUtils {
                     isDefault = category.isDefault,
                     image = category.image,
                     expensesCount = category.expensesCount,
-                    remoteId = category.remoteId
                 )
                 onEdit(editedCategory)
             }

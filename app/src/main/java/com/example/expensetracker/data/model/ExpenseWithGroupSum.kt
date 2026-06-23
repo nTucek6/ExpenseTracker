@@ -12,13 +12,12 @@ import com.example.expensetracker.data.enums.CategoryIconEnum
     LEFT JOIN categories c ON e.categoryId = c.id ORDER BY createdAt DESC
 """)
 data class ExpenseWithGroupSum(
-    val id: Int = 0,
+    val id: String,
     val amount : Double,
-    val categoryId : Int,
+    val categoryId : String,
     val categoryName: String,
     val image: CategoryIconEnum,
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis(),
     val dailySum: Double,
-    val remoteId: String,
 )

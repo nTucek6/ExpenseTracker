@@ -1,5 +1,6 @@
 package com.example.expensetracker.data.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.expensetracker.data.enums.CategoryIconEnum
@@ -7,10 +8,10 @@ import java.util.UUID
 
 @Entity(tableName = "categories")
 data class Categories(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
     val displayName: String,
     val image: CategoryIconEnum,
     val isDefault: Boolean,
-    val remoteId: String = UUID.randomUUID().toString(),
+    //val remoteId: String = UUID.randomUUID().toString(),
 )

@@ -7,6 +7,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
@@ -16,22 +17,27 @@ import com.example.expensetracker.data.model.ManageCategories
 interface CategoriesDao {
 
     @Insert
-    suspend fun insert(categories: Categories): Long
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(categories: Categories)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(categories: List<Categories>)
-   /* @Delete
-    suspend fun delete(id: Long) : Int*/
+
+    @Transaction
+    suspend fun replaceAll(categories: List<Categories>) {
+        deleteAll()
+        insertAll(categories)
+    }
+
     @Update
     suspend fun update(categories: Categories): Int
 
     @Delete
     suspend fun delete(categories: Categories): Int
 
-    @Query("SELECT * FROM categories where id = :id")
-    suspend fun findById(id: Int) : Categories
+    @Query("DELETE FROM categories")
+    suspend fun deleteAll()
 
-    @Query("SELECT * FROM categories where remoteId = :id")
-    suspend fun findByRemoteId(id: String) : Categories
+    @Query("SELECT * FROM categories where id = :id")
+    suspend fun findById(id: String) : Categories
 
     @Query("SELECT * FROM categories ")
     fun getAllCategories(): LiveData<List<Categories>>

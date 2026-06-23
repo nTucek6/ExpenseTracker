@@ -63,7 +63,6 @@ class ExpenseAdapter(private val onItemClick: (Expense, String) -> Unit) :
             categoryId = expense.categoryId,
             description = expense.description,
             createdAt = expense.createdAt,
-            remoteId = expense.remoteId,
         )
         viewHolder.binding.cardView.setOnClickListener { onItemClick(e, expense.categoryName) }
     }

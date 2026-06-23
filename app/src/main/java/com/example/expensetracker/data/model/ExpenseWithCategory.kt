@@ -13,12 +13,11 @@ import com.example.expensetracker.data.enums.CategoryIconEnum
     ORDER BY e.id DESC
 """)
 data class ExpenseWithCategory(
-    val id: Int = 0,
+    val id: String,
     val amount : Double,
-    val categoryId : Int,
+    val categoryId : String,
     val categoryName: String,
     val image: CategoryIconEnum,
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis(),
-    val remoteId: String,
 )

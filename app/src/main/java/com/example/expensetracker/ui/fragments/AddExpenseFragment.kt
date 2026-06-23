@@ -121,8 +121,7 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
                         amount,
                         description,
                         selectedCategory!!.value,
-                        createdAt,
-                        expense!!.remoteId
+                        createdAt
                     )
                     toast("Updated ${selectedCategory!!.name}: $amount€")
 

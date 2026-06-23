@@ -72,7 +72,6 @@ class ManageCategoriesBottomSheetFragment(
                     isDefault = category.isDefault,
                     image = icon,
                     expensesCount = category.expensesCount,
-                    remoteId = category.remoteId
                 )
                 onCategoryEdit?.invoke(editedCategory)
             } else {
@@ -110,7 +109,7 @@ class ManageCategoriesBottomSheetFragment(
 
 
     private fun showDeleteCategoryDialog(
-        categoryId: Int
+        categoryId: String
     ) {
         lifecycleScope.launch {
             val data = categoryViewModel.findById(categoryId)

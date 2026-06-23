@@ -46,38 +46,36 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
     val allCategoryCachesCrud = categoryCacheDao.getAllCrud()
 
-    suspend fun findById(id: Int): Categories = categoriesDao.findById(id)
+    suspend fun findById(id: String): Categories = categoriesDao.findById(id)
 
     val allCategories = categoriesDao.getAllCategories()
 
     private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
-    suspend fun getCategoryById(id: Int): Categories = categoriesDao.findById(id)
-
-    suspend fun getCategoryByRemoteId(id: String): Categories = categoriesDao.findByRemoteId(id)
+    suspend fun getCategoryById(id: String): Categories = categoriesDao.findById(id)
 
     fun insert(displayName: String, imageSvg: CategoryIconEnum) {
         val category = Categories(
+            id = UUID.randomUUID().toString(),
             displayName = displayName,
             image = imageSvg,
             isDefault = false,
-            remoteId = UUID.randomUUID().toString()
         )
 
         viewModelScope.launch {
             withContext(NonCancellable) {
-                val id = categoriesDao.insert(category)
+                categoriesDao.insert(category)
 
-                val newCategory = category.copy(id = id.toInt())
+                val newCategory = category.copy(id = category.id)
 
                 val online = networkViewModel.isOnline.first()
 
                 if (online) {
-                    firebaseSync(category.copy(id = id.toInt()))
+                    firebaseSync(category.copy(id = category.id))
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     categoryCacheDao.insert(
                         CategoryCacheCrud(
-                            categoryId = newCategory.remoteId,
+                            categoryId = newCategory.id,
                             action = CrudActionEnum.INSERT
                         )
                     )
@@ -93,7 +91,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
             displayName = category.displayName,
             image = category.image,
             isDefault = category.isDefault,
-            remoteId = category.remoteId
+            //remoteId = category.remoteId
         )
 
         viewModelScope.launch {
@@ -106,7 +104,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
                     } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                         categoryCacheDao.insert(
                             CategoryCacheCrud(
-                                categoryId = updatedCategory.remoteId,
+                                categoryId = updatedCategory.id,
                                 action = CrudActionEnum.UPDATE
                             )
                         )
@@ -137,11 +135,11 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
                 val online = networkViewModel.isOnline.first()
                 if (online) {
-                    deleteCategory(category.remoteId)
+                    deleteCategory(category.id)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     categoryCacheDao.insert(
                         CategoryCacheCrud(
-                            categoryId = category.remoteId,
+                            categoryId = category.id,
                             action = CrudActionEnum.DELETE
                         )
                     )
@@ -180,7 +178,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             try {
                 val firebaseCategories = FirebaseDb.getUserCategoriesOnce(userId)
-                categoriesDao.insertAll(firebaseCategories)
+                categoriesDao.replaceAll(firebaseCategories)
                 Log.d("Sync", "Firebase → Room: ${firebaseCategories.size} categories")
             } catch (e: Exception) {
                 Log.e("Sync", "Failed", e)

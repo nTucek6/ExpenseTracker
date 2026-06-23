@@ -34,9 +34,9 @@ class SummaryFragment : Fragment(R.layout.fragment_summary) {
 
         lifecycleScope.launch {
             val years = summaryViewModel.findAllExistingYears()
-            val displayYears = listOf(DropdownItem(0, getString(R.string.all))) + years.map {
+            val displayYears = listOf(DropdownItem(0.toString(), getString(R.string.all))) + years.map {
                 DropdownItem(
-                    it,
+                    it.toString(),
                     it.toString()
                 )
             }
@@ -49,7 +49,7 @@ class SummaryFragment : Fragment(R.layout.fragment_summary) {
         autoCompleteYear.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
                 val selectedYear = parent.getItemAtPosition(position) as DropdownItem
-                summaryViewModel.updateYearQuery(selectedYear.value)
+                summaryViewModel.updateYearQuery(selectedYear.value.toInt())
                 yearAdapter.filter.filter(null)
                 autoCompleteYear.dismissDropDown()
             }
@@ -64,7 +64,7 @@ class SummaryFragment : Fragment(R.layout.fragment_summary) {
         autoCompleteMonth.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
                 val selectedMonth = parent.getItemAtPosition(position) as DropdownItem
-                summaryViewModel.updateMonthQuery(selectedMonth.value)
+                summaryViewModel.updateMonthQuery(selectedMonth.value.toInt())
                 monthAdapter.filter.filter(null)
                 autoCompleteMonth.dismissDropDown()
             }

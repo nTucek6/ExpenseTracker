@@ -15,9 +15,9 @@ enum class MonthEnum(val order: Int, @StringRes val displayName: Int) {
         fun fromNumber(monthNumber: Int): MonthEnum = MonthEnum.entries[monthNumber - 1]
 
         fun createMonthItems(context: Context): List<DropdownItem> =
-            listOf(DropdownItem(0, context.getString(R.string.all).trim())) + entries.map {
+            listOf(DropdownItem(0.toString(), context.getString(R.string.all).trim())) + entries.map {
                 DropdownItem(
-                    it.order,
+                    it.order.toString(),
                     context.getString(it.displayName).substring(0, 3).trim()
                 )
             }

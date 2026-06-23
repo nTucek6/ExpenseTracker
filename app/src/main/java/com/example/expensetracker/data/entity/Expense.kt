@@ -1,6 +1,7 @@
 package com.example.expensetracker.data.entity
 
 import android.os.Parcelable
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
@@ -9,12 +10,14 @@ import java.util.UUID
 @Parcelize
 @Entity(tableName = "expenses")
 data class Expense (
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    //@PrimaryKey(autoGenerate = true)
+   // val id: Int = 0,
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
     val amount : Double,
-    val categoryId : Int,
+    val categoryId : String,
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis(),
-    val remoteId: String = UUID.randomUUID().toString(),
+
 
 ) : Parcelable
