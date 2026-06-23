@@ -18,19 +18,17 @@ class ExpensePagingAdapter(
     private val onItemClick: (ExpenseWithGroupSum) -> Unit
 ) : PagingDataAdapter<ExpenseWithGroupSum, ExpensePagingAdapter.ViewHolder>(
     object : DiffUtil.ItemCallback<ExpenseWithGroupSum>() {
-        override fun areItemsTheSame(old: ExpenseWithGroupSum, new: ExpenseWithGroupSum) = old.id == new.id
-        override fun areContentsTheSame(old: ExpenseWithGroupSum, new: ExpenseWithGroupSum) = old == new
+        override fun areItemsTheSame(old: ExpenseWithGroupSum, new: ExpenseWithGroupSum) =
+            old.id == new.id
+
+        override fun areContentsTheSame(old: ExpenseWithGroupSum, new: ExpenseWithGroupSum) =
+            old == new
     }) {
-
-
 
     class ViewHolder(val binding: ItemExpenseBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-
-    // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-        // Create a new view, which defines the UI of the list item
         val view = ItemExpenseBinding.inflate(
             LayoutInflater.from(viewGroup.context),
             viewGroup,
@@ -64,12 +62,12 @@ class ExpensePagingAdapter(
                 viewHolder.itemView.context.getString(R.string.price_format),
                 expense.amount
             )
-            //viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.category.imageSvg))
-            //viewHolder.binding.tvCategory.text =  viewHolder.itemView.context.getString(expense.category.displayName)
 
-            if(expense.imageSvg != 0)
-                viewHolder.binding.ivCategory.setImageDrawable(viewHolder.itemView.context.getDrawable(expense.imageSvg))
-            //viewHolder.binding.tvCategory.text = viewHolder.itemView.context.getString(expense.imageSvg.toInt())
+            viewHolder.binding.ivCategory.setImageDrawable(
+                viewHolder.itemView.context.getDrawable(
+                    expense.image.resId
+                )
+            )
             viewHolder.binding.tvCategory.text = expense.categoryName
             viewHolder.binding.tvDate.text = expense.createdAt.toTimeString()
             viewHolder.binding.cardView.setOnClickListener { onItemClick(expense) }

@@ -92,7 +92,7 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
                     dao.insert(
                         Categories(
                             displayName = context.getString(c.displayName),
-                            imageSvg = c.imageSvg,
+                            image = c.image,
                             isDefault = true
                         )
                     )

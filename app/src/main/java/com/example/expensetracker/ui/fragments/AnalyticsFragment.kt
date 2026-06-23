@@ -223,6 +223,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                         labels.add("${item.year}-${item.month}")
                     }
                 }
+
                 PeriodChipEnum.CUSTOM -> TODO()
             }
 
@@ -301,15 +302,19 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                 monthEnd
             )
 
-            val s1 = topCategorySpent[0]
-            val s2 = topCategorySpent[1]
-            val s3 = topCategorySpent[2]
+            if (topCategorySpent.isNotEmpty()) {
+                val s1 = topCategorySpent[0]
+                val s2 = topCategorySpent[1]
+                val s3 = topCategorySpent[2]
 
-            setUpCategory(incCategory1, 1, s1.categoryName, s1.totalSpent)
-            setUpCategory(incCategory2, 2, s2.categoryName, s2.totalSpent)
-            setUpCategory(incCategory3, 3, s3.categoryName, s3.totalSpent)
+                setUpCategory(incCategory1, 1, s1.categoryName, s1.totalSpent)
+                setUpCategory(incCategory2, 2, s2.categoryName, s2.totalSpent)
+                setUpCategory(incCategory3, 3, s3.categoryName, s3.totalSpent)
 
-            Log.d("AnalyticsData", topCategorySpent.toString())
+                Log.d("AnalyticsData", topCategorySpent.toString())
+            }
+
+
         }
 
     }

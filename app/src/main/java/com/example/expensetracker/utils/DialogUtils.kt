@@ -147,7 +147,7 @@ object DialogUtils {
                     id = category.id,
                     displayName = editCategory,
                     isDefault = category.isDefault,
-                    imageSvg = category.imageSvg,
+                    image = category.image,
                     expensesCount = category.expensesCount
                 )
                 onEdit(editedCategory)

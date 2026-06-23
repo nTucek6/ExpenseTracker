@@ -6,9 +6,11 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.R
+import com.example.expensetracker.data.enums.CategoryIconEnum
 import com.example.expensetracker.data.model.ManageCategories
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.ui.adapters.CategoryPagingAdapter
@@ -53,7 +55,7 @@ class ManageCategoriesFragment : Fragment(R.layout.fragment_manage_categories) {
                 context = requireContext(),
                 onAdd = { name ->
                     Log.d("CategoryAdd", name)
-                    categoryViewModel.insert(displayName = name, null)
+                    categoryViewModel.insert(displayName = name, CategoryIconEnum.OTHER)
                 },
             )
         }

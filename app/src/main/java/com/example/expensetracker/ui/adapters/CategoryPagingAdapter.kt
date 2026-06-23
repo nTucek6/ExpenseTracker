@@ -46,13 +46,13 @@ class CategoryPagingAdapter(
         if (category != null) {
             viewHolder.binding.tvCategory.text = category.displayName
 
-            if (category.imageSvg != 0) {
+            //if (category.imageSvg != 0) {
                 viewHolder.binding.ivIcon.setImageDrawable(
                     viewHolder.itemView.context.getDrawable(
-                        category.imageSvg
+                        category.image.resId
                     )
                 )
-            }
+            //}
             viewHolder.binding.tvIsUsedNumeric.text = String.format(
                 viewHolder.binding.root.context.getString(R.string.used_categories),
                 category.expensesCount.toString()

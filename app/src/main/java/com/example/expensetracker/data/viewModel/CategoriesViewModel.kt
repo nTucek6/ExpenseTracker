@@ -11,6 +11,7 @@ import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.enums.CategoryIconEnum
 import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.ManageCategories
 import com.example.expensetracker.utils.ViewModelUtils
@@ -29,10 +30,10 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
     val allCategories = categoriesDao.getAllCategories()
 
-    fun insert(displayName: String, imageSvg: Int?) {
+    fun insert(displayName: String, imageSvg: CategoryIconEnum) {
         val category = Categories(
             displayName = displayName,
-            imageSvg = imageSvg ?: 0,
+            image = imageSvg,
             isDefault = false
         )
         viewModelScope.launch {
@@ -45,7 +46,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
             val updatedCategory = Categories(
                 id = category.id,
                 displayName = category.displayName,
-                imageSvg = category.imageSvg,
+                image = category.image,
                 isDefault = category.isDefault
             )
             categoriesDao.update(updatedCategory)
