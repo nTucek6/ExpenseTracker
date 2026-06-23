@@ -71,7 +71,8 @@ class ManageCategoriesBottomSheetFragment(
                     displayName = categoryInput,
                     isDefault = category.isDefault,
                     image = icon,
-                    expensesCount = category.expensesCount
+                    expensesCount = category.expensesCount,
+                    remoteId = category.remoteId
                 )
                 onCategoryEdit?.invoke(editedCategory)
             } else {

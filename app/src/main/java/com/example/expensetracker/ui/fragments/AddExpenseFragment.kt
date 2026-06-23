@@ -79,7 +79,7 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
 
             val data = expense;
             if (data != null) {
-                Log.d("OnUpdate", data.categoryId.toString())
+                Log.d("OnUpdate", data.toString())
                 tvTitle.text = getString(R.string.edit_expense)
                 tilAmount.editText?.setText(data.amount.toString())
                 val selectedItem = displayCategories.firstOrNull() { it -> it.value == data.categoryId }
@@ -121,7 +121,8 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
                         amount,
                         description,
                         selectedCategory!!.value,
-                        createdAt
+                        createdAt,
+                        expense!!.remoteId
                     )
                     toast("Updated ${selectedCategory!!.name}: $amount€")
 

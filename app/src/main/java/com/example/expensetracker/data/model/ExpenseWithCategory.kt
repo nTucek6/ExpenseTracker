@@ -20,4 +20,5 @@ data class ExpenseWithCategory(
     val image: CategoryIconEnum,
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis(),
+    val remoteId: String,
 )

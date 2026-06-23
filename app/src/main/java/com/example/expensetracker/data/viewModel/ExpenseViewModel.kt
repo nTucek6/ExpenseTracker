@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class ExpenseViewModel(application: Application) : AndroidViewModel(application) {
     private val expenseDao = ExpenseTrackerDatabase.getDatabase(application).expenseDao()
@@ -58,6 +59,8 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
 
     suspend fun getExpenseById(id: Int): Expense = expenseDao.findById(id)
+
+    suspend fun getExpenseByRemoteId(id: String): Expense = expenseDao.findByRemoteId(id)
 
     private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
@@ -92,15 +95,18 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun insert(amount: Double, description: String?, category: Int, createdAt: Long) {
-        val newExpense = Expense(
+        val expense = Expense(
             amount = amount,
             description = description?.trim(),
             categoryId = category,
-            createdAt = createdAt
+            createdAt = createdAt,
+            remoteId = UUID.randomUUID().toString()
         )
         viewModelScope.launch {
             withContext(NonCancellable) {
-                val id = expenseDao.insert(newExpense)
+                val id = expenseDao.insert(expense)
+
+                val newExpense = expense.copy(id = id.toInt())
 
                 val online = networkViewModel.isOnline.first()
 
@@ -109,7 +115,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         CacheCrud(
-                            expenseId = id.toInt(),
+                            expenseId = newExpense.remoteId,
                             action = CrudActionEnum.INSERT
                         )
                     )
@@ -117,19 +123,22 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
+
     fun update(
         id: Int,
         amount: Double,
         description: String?,
         categoryId: Int,
-        createdAt: Long
+        createdAt: Long,
+        remoteId: String
     ) {
         val updatedExpense = Expense(
             id = id,
             amount = amount,
             description = description?.trim(),
             categoryId = categoryId,
-            createdAt = createdAt
+            createdAt = createdAt,
+            remoteId = remoteId
         )
         viewModelScope.launch {
             withContext(NonCancellable) {
@@ -141,7 +150,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                     } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                         cacheDao.insert(
                             CacheCrud(
-                                expenseId = updatedExpense.id,
+                                expenseId = updatedExpense.remoteId,
                                 action = CrudActionEnum.UPDATE
                             )
                         )
@@ -159,11 +168,11 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
                 val online = networkViewModel.isOnline.first()
                 if (online) {
-                    deleteExpense(expense.id)
+                    deleteExpense(expense.remoteId)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         CacheCrud(
-                            expenseId = expense.id,
+                            expenseId = expense.remoteId,
                             action = CrudActionEnum.DELETE
                         )
                     )
@@ -185,7 +194,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             FirebaseDb.updateOrCreateExpense(userUid, updatedExpense)
         }
     }
-    private fun deleteExpense(expenseId: Int) {
+    private fun deleteExpense(expenseId: String) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
         val isSyncOn: Boolean =

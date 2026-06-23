@@ -7,6 +7,6 @@ import com.example.expensetracker.data.enums.CrudActionEnum
 @Entity(tableName = "cache_crud")
 data class CacheCrud(
     @PrimaryKey
-    val expenseId: Int,
+    val expenseId: String,
     val action: CrudActionEnum
 )

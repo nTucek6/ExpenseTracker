@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
+import java.util.UUID
 
 @Parcelize
 @Entity(tableName = "expenses")
@@ -13,6 +14,7 @@ data class Expense (
     val amount : Double,
     val categoryId : Int,
     val description: String? = null,
-    val createdAt : Long = System.currentTimeMillis()
+    val createdAt : Long = System.currentTimeMillis(),
+    val remoteId: String = UUID.randomUUID().toString(),
 
 ) : Parcelable

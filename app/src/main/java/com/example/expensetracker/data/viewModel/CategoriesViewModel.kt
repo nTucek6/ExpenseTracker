@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class CategoriesViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -53,16 +54,21 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
     suspend fun getCategoryById(id: Int): Categories = categoriesDao.findById(id)
 
+    suspend fun getCategoryByRemoteId(id: String): Categories = categoriesDao.findByRemoteId(id)
+
     fun insert(displayName: String, imageSvg: CategoryIconEnum) {
         val category = Categories(
             displayName = displayName,
             image = imageSvg,
-            isDefault = false
+            isDefault = false,
+            remoteId = UUID.randomUUID().toString()
         )
 
         viewModelScope.launch {
             withContext(NonCancellable) {
                 val id = categoriesDao.insert(category)
+
+                val newCategory = category.copy(id = id.toInt())
 
                 val online = networkViewModel.isOnline.first()
 
@@ -71,7 +77,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     categoryCacheDao.insert(
                         CategoryCacheCrud(
-                            categoryId = id.toInt(),
+                            categoryId = newCategory.remoteId,
                             action = CrudActionEnum.INSERT
                         )
                     )
@@ -86,7 +92,8 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
             id = category.id,
             displayName = category.displayName,
             image = category.image,
-            isDefault = category.isDefault
+            isDefault = category.isDefault,
+            remoteId = category.remoteId
         )
 
         viewModelScope.launch {
@@ -99,7 +106,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
                     } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                         categoryCacheDao.insert(
                             CategoryCacheCrud(
-                                categoryId = updatedCategory.id,
+                                categoryId = updatedCategory.remoteId,
                                 action = CrudActionEnum.UPDATE
                             )
                         )
@@ -130,11 +137,11 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
                 val online = networkViewModel.isOnline.first()
                 if (online) {
-                    deleteCategory(category.id)
+                    deleteCategory(category.remoteId)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     categoryCacheDao.insert(
                         CategoryCacheCrud(
-                            categoryId = category.id,
+                            categoryId = category.remoteId,
                             action = CrudActionEnum.DELETE
                         )
                     )
@@ -159,7 +166,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    private fun deleteCategory(categoryId: Int) {
+    private fun deleteCategory(categoryId: String) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
         val isSyncOn: Boolean =

@@ -22,6 +22,9 @@ interface ExpenseDao {
     @Query("SELECT * from expenses where id = :id")
     suspend fun findById(id: Int): Expense
 
+    @Query("SELECT * from expenses where remoteId = :id")
+    suspend fun findByRemoteId(id: String): Expense
+
     @Insert
     suspend fun insert(expense: Expense): Long
 

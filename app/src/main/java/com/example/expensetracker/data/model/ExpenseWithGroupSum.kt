@@ -19,5 +19,6 @@ data class ExpenseWithGroupSum(
     val image: CategoryIconEnum,
     val description: String? = null,
     val createdAt : Long = System.currentTimeMillis(),
-    val dailySum: Double
+    val dailySum: Double,
+    val remoteId: String,
 )

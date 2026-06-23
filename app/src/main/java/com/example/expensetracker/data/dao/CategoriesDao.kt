@@ -30,6 +30,9 @@ interface CategoriesDao {
     @Query("SELECT * FROM categories where id = :id")
     suspend fun findById(id: Int) : Categories
 
+    @Query("SELECT * FROM categories where remoteId = :id")
+    suspend fun findByRemoteId(id: String) : Categories
+
     @Query("SELECT * FROM categories ")
     fun getAllCategories(): LiveData<List<Categories>>
 

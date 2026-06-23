@@ -148,7 +148,8 @@ object DialogUtils {
                     displayName = editCategory,
                     isDefault = category.isDefault,
                     image = category.image,
-                    expensesCount = category.expensesCount
+                    expensesCount = category.expensesCount,
+                    remoteId = category.remoteId
                 )
                 onEdit(editedCategory)
             }

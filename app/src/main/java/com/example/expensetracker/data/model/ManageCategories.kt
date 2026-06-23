@@ -7,5 +7,6 @@ data class ManageCategories(
     val displayName: String,
     val image: CategoryIconEnum,
     val isDefault: Boolean,
-    val expensesCount: Int
+    val expensesCount: Int,
+    val remoteId: String
 )
