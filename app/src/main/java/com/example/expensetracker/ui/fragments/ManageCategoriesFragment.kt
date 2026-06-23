@@ -13,6 +13,7 @@ import com.example.expensetracker.data.model.ManageCategories
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.ui.adapters.CategoryPagingAdapter
 import com.example.expensetracker.utils.DialogUtils
+import com.example.expensetracker.utils.DialogUtils.showDeleteInfoDialog
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -66,7 +67,15 @@ class ManageCategoriesFragment : Fragment(R.layout.fragment_manage_categories) {
                 onEdit = { editedCategory ->
                     categoryViewModel.update(editedCategory)
                 },
-                onDelete = { id -> showDeleteCategoryDialog(id) }
+                onDelete = { id ->
+                    if (category.expensesCount > 0)
+                        showDeleteInfoDialog(
+                            requireContext(),
+                            String.format(getString(R.string.no_delete_category_title), category.displayName),
+                            getString(R.string.no_delete_category_message)
+                        )
+                    else showDeleteCategoryDialog(id)
+                }
             )
         }
     }
@@ -80,8 +89,8 @@ class ManageCategoriesFragment : Fragment(R.layout.fragment_manage_categories) {
                 DialogUtils.showDeleteConfirmation(
                     context = requireContext(),
                     onConfirm = { categoryViewModel.delete(category) },
-                    title = "Delete category: ${data.displayName}",
-                    message = "Do you wish to delete ${data.displayName} category?",
+                    title = String.format(getString(R.string.delete_category_title), data.displayName) ,//"Delete category: ${data.displayName}",
+                    message = String.format(getString(R.string.delete_category_message), data.displayName) //"Do you wish to delete ${data.displayName} category?",
                 )
             }
         }

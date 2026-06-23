@@ -106,4 +106,10 @@
     <string name="filters">Filtry</string>
     <string name="periods">Období</string>
     <string name="apply">Použít</string>
+    <string name="manage_categories_subtitle">Vytváření, úprava a odebírání kategorií výdajů</string>
+    <string name="add_first_category_hint">Klepnutím na tlačítko níže vytvořte svou první kategorii</string>
+    <string name="delete_category_title">Smazat kategorii: %s</string>
+    <string name="delete_category_message">Chcete smazat kategorii %s?</string>
+    <string name="no_delete_category_title">Nelze smazat kategorii %s</string>
+    <string name="no_delete_category_message">Tuto kategorii nelze smazat, protože již obsahuje výdaje.</string>
 </resources>

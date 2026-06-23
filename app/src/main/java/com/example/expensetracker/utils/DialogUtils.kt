@@ -171,4 +171,16 @@ object DialogUtils {
             .setNegativeButton(context.getString(R.string.cancel), null)
             .show()
     }
+
+    fun showDeleteInfoDialog(
+        context: Context,
+        title: String?,
+        message: String? ,
+    ) {
+        AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setNegativeButton(context.getString(R.string.close), null)
+            .show()
+    }
 }

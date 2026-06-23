@@ -62,8 +62,6 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
     private lateinit var spendingChart: LineChart
     private lateinit var categorySpendingChart: PieChart
 
-    //private lateinit var barData: LineData
-    //private lateinit var barDataSet: LineDataSet
     private lateinit var spendingData: ArrayList<Entry>
     private lateinit var categorySpendingData: ArrayList<PieEntry> //value, label su ulazne vrijednosti
 
@@ -111,7 +109,6 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         categorySpendingChart = view.findViewById(R.id.pieGraph)
 
         setAnalytics()
-
 
         parentFragmentManager.setFragmentResultListener(
             AnalyticsFilterBottomSheetFragment.REQUEST_KEY,
