@@ -1,7 +1,9 @@
 package com.example.expensetracker.firebase.database.mappers
 
+import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
+import com.example.expensetracker.firebase.database.model.FirebaseCategory
 import com.example.expensetracker.firebase.database.model.FirebaseExpense
 import com.example.expensetracker.firebase.database.model.FirebaseMonthlySummary
 
@@ -22,4 +24,14 @@ fun MonthlySummary.toFirebaseSummary() = FirebaseMonthlySummary(
 
 fun List<MonthlySummary>.toFirebaseMonthlySummary(): List<FirebaseMonthlySummary> =
     map { it.toFirebaseSummary() }
+
+
+fun Categories.toFirebaseCategory() = FirebaseCategory(
+    id = this.id.toString(),
+    displayName = this.displayName,
+    image = this.image,
+    isDefault = this.isDefault
+)
+
+fun List<Categories>.toFirebaseCategories(): List<FirebaseCategory> = map {it.toFirebaseCategory()}
 

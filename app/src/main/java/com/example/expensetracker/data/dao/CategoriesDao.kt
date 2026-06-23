@@ -17,7 +17,7 @@ interface CategoriesDao {
 
     @Insert
     suspend fun insert(categories: Categories): Long
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(categories: List<Categories>)
    /* @Delete
     suspend fun delete(id: Long) : Int*/

@@ -28,6 +28,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.expensetracker.data.viewModel.AnalyticsViewModel
+import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.firebase.database.FirebaseDb
@@ -50,6 +51,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val networkViewModel: NetworkViewModel by viewModels()
 
     private val analyticsViewModel: AnalyticsViewModel by viewModels()
+
+    private val categoriesViewModel: CategoriesViewModel by viewModels()
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,8 +92,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             val itemId = when (destination.id) {
                 R.id.dashboardFragment -> R.id.dashboardFragment
                 R.id.transactionFragment -> R.id.transactionFragment
-                //R.id.expensesFragment -> R.id.expensesFragment
-                //R.id.summaryFragment -> R.id.summaryFragment
+                R.id.analyticsFragment -> R.id.analyticsFragment
                 R.id.settingsFragment -> R.id.settingsFragment
                 else -> return@addOnDestinationChangedListener
             }
@@ -125,7 +127,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         if (isSignedIn && autoSync) {
                             val user = googleAuthClient.getUser()
                             if (user != null) {
-                                FirebaseDb.syncRecentUpdates(user,expenseViewModel, summaryViewModel)
+                                FirebaseDb.syncRecentUpdates(user,expenseViewModel, summaryViewModel, categoriesViewModel)
                             }
                         }
                     } /*else{

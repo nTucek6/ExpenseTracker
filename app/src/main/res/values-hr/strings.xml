@@ -112,4 +112,6 @@
     <string name="delete_category_message">Želite li izbrisati %s kategoriju?</string>
     <string name="no_delete_category_title">Nije moguće izbrisati kategoriju %s</string>
     <string name="no_delete_category_message">Ova kategorija se ne može izbrisati jer već sadrži troškove.</string>
+    <string name="preview_icon">Pregled ikone</string>
+    <string name="choose_icon_msg">Odaberite ikonu</string>
 </resources>

@@ -10,11 +10,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.expensetracker.data.dao.AnalyticsDao
 import com.example.expensetracker.data.dao.CacheCrudDao
 import com.example.expensetracker.data.dao.CategoriesDao
+import com.example.expensetracker.data.dao.CategoryCacheCrudDao
 import com.example.expensetracker.data.dao.ExpenseDao
 import com.example.expensetracker.data.dao.MonthlySummaryDao
 import com.example.expensetracker.data.dao.SummaryCacheCrudDao
 import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Categories
+import com.example.expensetracker.data.entity.CategoryCacheCrud
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
 import com.example.expensetracker.data.entity.SummaryCacheCrud
@@ -29,8 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Expense::class, MonthlySummary::class, CacheCrud::class, SummaryCacheCrud::class, Categories::class],
-    [BudgetWithSpent::class, ExpenseWithGroupSum::class, ExpenseWithCategory::class, DailyBudgetSpent::class], version = 5, exportSchema = false,
+    entities = [Expense::class, MonthlySummary::class, CacheCrud::class, SummaryCacheCrud::class, Categories::class, CategoryCacheCrud::class],
+    [BudgetWithSpent::class, ExpenseWithGroupSum::class, ExpenseWithCategory::class, DailyBudgetSpent::class], version = 6, exportSchema = false,
 )
 @TypeConverters(Converters::class)
 abstract class ExpenseTrackerDatabase : RoomDatabase() {
@@ -44,6 +46,8 @@ abstract class ExpenseTrackerDatabase : RoomDatabase() {
     abstract fun summaryCacheCrudDao(): SummaryCacheCrudDao
 
     abstract fun analyticsDao(): AnalyticsDao
+
+    abstract fun categoryCacheCrudDao(): CategoryCacheCrudDao
 
     companion object {
         @Volatile

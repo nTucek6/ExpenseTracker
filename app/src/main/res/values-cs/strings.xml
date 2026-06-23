@@ -112,4 +112,6 @@
     <string name="delete_category_message">Chcete smazat kategorii %s?</string>
     <string name="no_delete_category_title">Nelze smazat kategorii %s</string>
     <string name="no_delete_category_message">Tuto kategorii nelze smazat, protože již obsahuje výdaje.</string>
+    <string name="preview_icon">Náhled ikony</string>
+    <string name="choose_icon_msg">Vyberte ikonu</string>
 </resources>

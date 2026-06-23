@@ -145,6 +145,8 @@
     <string name="delete_category_message">Do you wish to delete %s category?</string>
     <string name="no_delete_category_title">Can\'t delete category %s</string>
     <string name="no_delete_category_message">This category can\'t be deleted because it already has expenses.</string>
+    <string name="preview_icon">Icon preview</string>
+    <string name="choose_icon_msg">Choose an icon</string>
 
 
 </resources>

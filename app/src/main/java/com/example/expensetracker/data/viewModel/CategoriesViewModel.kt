@@ -1,20 +1,28 @@
 package com.example.expensetracker.data.viewModel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.expensetracker.data.dao.CategoryCacheCrudDao
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Categories
+import com.example.expensetracker.data.entity.CategoryCacheCrud
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.CategoryIconEnum
 import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.ManageCategories
+import com.example.expensetracker.firebase.database.FirebaseDb
+import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
+import com.example.expensetracker.ui.viewModel.NetworkViewModel
+import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.example.expensetracker.utils.ViewModelUtils
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -24,11 +32,26 @@ import kotlinx.coroutines.withContext
 
 class CategoriesViewModel(application: Application) : AndroidViewModel(application) {
 
+    val context = getApplication<Application>()
+
+    val googleAuthClient = GoogleAuthClient(context.applicationContext)
+
+    val networkViewModel = NetworkViewModel(context)
+
+    private val categoryCacheDao =
+        ExpenseTrackerDatabase.getDatabase(application).categoryCacheCrudDao()
+
     private val categoriesDao = ExpenseTrackerDatabase.getDatabase(application).categoriesDao()
+
+    val allCategoryCachesCrud = categoryCacheDao.getAllCrud()
 
     suspend fun findById(id: Int): Categories = categoriesDao.findById(id)
 
     val allCategories = categoriesDao.getAllCategories()
+
+    private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+
+    suspend fun getCategoryById(id: Int): Categories = categoriesDao.findById(id)
 
     fun insert(displayName: String, imageSvg: CategoryIconEnum) {
         val category = Categories(
@@ -36,23 +59,57 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
             image = imageSvg,
             isDefault = false
         )
+
         viewModelScope.launch {
-            categoriesDao.insert(category)
+            withContext(NonCancellable) {
+                val id = categoriesDao.insert(category)
+
+                val online = networkViewModel.isOnline.first()
+
+                if (online) {
+                    firebaseSync(category.copy(id = id.toInt()))
+                } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
+                    categoryCacheDao.insert(
+                        CategoryCacheCrud(
+                            categoryId = id.toInt(),
+                            action = CrudActionEnum.INSERT
+                        )
+                    )
+                }
+            }
         }
+
     }
 
     fun update(category: ManageCategories) {
+        val updatedCategory = Categories(
+            id = category.id,
+            displayName = category.displayName,
+            image = category.image,
+            isDefault = category.isDefault
+        )
+
         viewModelScope.launch {
-            val updatedCategory = Categories(
-                id = category.id,
-                displayName = category.displayName,
-                image = category.image,
-                isDefault = category.isDefault
-            )
-            categoriesDao.update(updatedCategory)
+            withContext(NonCancellable) {
+                try {
+                    categoriesDao.update(updatedCategory)
+                    val online = networkViewModel.isOnline.first()
+                    if (online) {
+                        firebaseSync(updatedCategory)
+                    } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
+                        categoryCacheDao.insert(
+                            CategoryCacheCrud(
+                                categoryId = updatedCategory.id,
+                                action = CrudActionEnum.UPDATE
+                            )
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.e("ExpenseUpdate", "Update failed", e)
+                }
+            }
         }
     }
-
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val categoryPaging: Flow<PagingData<ManageCategories>> =
@@ -71,17 +128,55 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
             withContext(NonCancellable) {
                 categoriesDao.delete(category)
 
-                /* val online = networkViewModel.isOnline.first()
-                 if (online) {
-                     deleteExpense(expense.id)
-                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
-                     cacheDao.insert(
-                         CacheCrud(
-                             expenseId = expense.id,
-                             action = CrudActionEnum.DELETE
-                         )
-                     )
-                 }*/
+                val online = networkViewModel.isOnline.first()
+                if (online) {
+                    deleteCategory(category.id)
+                } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
+                    categoryCacheDao.insert(
+                        CategoryCacheCrud(
+                            categoryId = category.id,
+                            action = CrudActionEnum.DELETE
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteFromCategoryCacheCrud() {
+        viewModelScope.launch {
+            categoryCacheDao.deleteAll()
+        }
+    }
+
+    private fun firebaseSync(updatedCategory: Categories) {
+        val isSignedIn = googleAuthClient.isSignedIn.value
+        val userUid = googleAuthClient.getUser()?.uid
+        val isSyncOn: Boolean =
+            SharedPreferencesUtils.getAutoSync(context.applicationContext)
+        if (isSyncOn && isSignedIn && userUid != null) {
+            FirebaseDb.updateOrCreateCategory(userUid, updatedCategory)
+        }
+    }
+
+    private fun deleteCategory(categoryId: Int) {
+        val isSignedIn = googleAuthClient.isSignedIn.value
+        val userUid = googleAuthClient.getUser()?.uid
+        val isSyncOn: Boolean =
+            SharedPreferencesUtils.getAutoSync(context.applicationContext)
+        if (isSyncOn && isSignedIn && userUid != null) {
+            FirebaseDb.deleteCategory(userUid, categoryId)
+        }
+    }
+
+    fun syncFirebaseToRoom() {
+        viewModelScope.launch {
+            try {
+                val firebaseCategories = FirebaseDb.getUserCategoriesOnce(userId)
+                categoriesDao.insertAll(firebaseCategories)
+                Log.d("Sync", "Firebase → Room: ${firebaseCategories.size} categories")
+            } catch (e: Exception) {
+                Log.e("Sync", "Failed", e)
             }
         }
     }

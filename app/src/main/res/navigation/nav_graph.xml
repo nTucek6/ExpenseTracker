@@ -105,7 +105,7 @@
 
     <fragment
         android:id="@+id/manageCategoriesFragment"
-        android:name="com.example.expensetracker.ui.fragments.ManageCategoriesFragment"
+        android:name="com.example.expensetracker.ui.fragments.manageCategories.ManageCategoriesFragment"
         android:label="Manage Categories">
 
     </fragment>

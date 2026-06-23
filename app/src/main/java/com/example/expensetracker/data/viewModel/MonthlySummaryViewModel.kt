@@ -55,7 +55,8 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
     suspend fun findAllExistingYears(): List<Int> = monthlySummaryDao.findAllExistingYears()
 
-    suspend fun getSummaryById(year: Int, month: Int): MonthlySummary = monthlySummaryDao.findById(year,month)
+    suspend fun getSummaryById(year: Int, month: Int): MonthlySummary =
+        monthlySummaryDao.findById(year, month)
 
     private val _queryYear = MutableStateFlow(0)
     private val _queryMonth = MutableStateFlow(0)
@@ -94,7 +95,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    private fun firebaseSync(limit: Double, key: String){
+    private fun firebaseSync(limit: Double, key: String) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
         val isSyncOn: Boolean =
@@ -115,8 +116,8 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
                 val online = networkViewModel.isOnline.first()
                 if (online) {
-                        firebaseSync(limit, "${year}-${month}")
-                } else if (ViewModelUtils.checkOfflineSync(googleAuthClient,context)) {
+                    firebaseSync(limit, "${year}-${month}")
+                } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         SummaryCacheCrud(
                             year = year,
@@ -161,7 +162,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
             try {
                 val firebaseExpenses = FirebaseDb.getUserSummaryOnce(userId)
                 monthlySummaryDao.insertAll(firebaseExpenses)
-                Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
+                Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} monthly expenses")
             } catch (e: Exception) {
                 Log.e("Sync", "Failed", e)
             }
@@ -173,5 +174,4 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
             cacheDao.deleteAll()
         }
     }
-
 }
