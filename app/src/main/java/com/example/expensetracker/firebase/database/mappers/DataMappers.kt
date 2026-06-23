@@ -13,6 +13,7 @@ fun Expense.toFirebaseExpense() = FirebaseExpense(
     categoryId = this.categoryId,
     description = this.description,
     createdAt = this.createdAt,
+    updatedAt = this.updatedAt
 )
 
 fun List<Expense>.toFirebaseExpenses(): List<FirebaseExpense> = map { it.toFirebaseExpense() }
@@ -31,6 +32,7 @@ fun Categories.toFirebaseCategory() = FirebaseCategory(
     displayName = this.displayName,
     image = this.image,
     isDefault = this.isDefault,
+    updatedAt = this.updatedAt
 )
 
 fun List<Categories>.toFirebaseCategories(): List<FirebaseCategory> = map {it.toFirebaseCategory()}

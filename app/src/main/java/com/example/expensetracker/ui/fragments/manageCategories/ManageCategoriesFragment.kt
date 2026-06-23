@@ -30,7 +30,7 @@ class ManageCategoriesFragment : Fragment(R.layout.fragment_manage_categories) {
         val newCategoryBtn = view.findViewById<ExtendedFloatingActionButton>(R.id.newCategoryBtn)
 
         categoryAdapter = CategoryPagingAdapter { category ->
-            Log.d("TimeUpdated", category.updatedAt.toDateTimeString())
+            //Log.d("TimeUpdated", category.updatedAt.toDateTimeString())
             ManageCategoriesBottomSheetFragment(
                 category,
                 onCategorySave = null

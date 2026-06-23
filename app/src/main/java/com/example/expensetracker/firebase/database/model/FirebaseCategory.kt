@@ -8,11 +8,13 @@ data class FirebaseCategory(
     val displayName: String,
     val image: CategoryIconEnum,
     val isDefault: Boolean,
+    val updatedAt: Long,
 ) {
     fun toCategories(): Categories = Categories(
         id = id,
         displayName = displayName,
         image = image,
         isDefault = isDefault,
+        updatedAt = updatedAt
     )
 }

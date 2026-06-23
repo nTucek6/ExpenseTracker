@@ -27,10 +27,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.room.Database
+import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.viewModel.AnalyticsViewModel
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
+import com.example.expensetracker.firebase.database.ExpenseSyncManager
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
@@ -51,26 +54,26 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val networkViewModel: NetworkViewModel by viewModels()
 
     private val analyticsViewModel: AnalyticsViewModel by viewModels()
-
     private val categoriesViewModel: CategoriesViewModel by viewModels()
+
+    private lateinit var expenseSyncManager: ExpenseSyncManager
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        /* first time run example code, not needed now
-        if (SharedPreferencesUtils.isFirstLaunch(this)) {
-            //code
-            SharedPreferencesUtils.disableFirstLaunch(this)
-        }
-        */
-
         val googleAuthClient = GoogleAuthClient(this)
 
         lifecycleScope.launch {
             summaryViewModel.createDefaultSummary()
         }
+
+        val userUid = googleAuthClient.getUser()?.uid
+        val expenseDao = ExpenseTrackerDatabase.getDatabase(this).expenseDao()
+
+        if(googleAuthClient.isSingedIn() && userUid != null)
+            expenseSyncManager = ExpenseSyncManager(userUid,expenseDao)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.fragment_container)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -140,6 +143,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
 
         setUpBackHandler()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        expenseSyncManager.startListening()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        expenseSyncManager.stopListening()
     }
 
     private fun setUpBackHandler() {

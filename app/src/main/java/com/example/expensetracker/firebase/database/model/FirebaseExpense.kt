@@ -11,6 +11,7 @@ data class FirebaseExpense(
     val categoryId: String = "",
     val description: String? = null,
     val createdAt: Long = 0L,
+    val updatedAt: Long,
     //val remoteId: String = UUID.randomUUID().toString(),
 ) {
     fun toExpense(): Expense = Expense(
@@ -19,5 +20,6 @@ data class FirebaseExpense(
         categoryId = categoryId,
         description = description,
         createdAt = createdAt,
+        updatedAt = updatedAt
     )
 }

@@ -116,8 +116,9 @@ object FirebaseDb {
             val category = map["categoryId"]?.toString() ?: ""
             val description = map["description"]?.toString()
             val createdAt = (map["createdAt"] as? Number)?.toLong() ?: 0L
+            val updatedAt = (map["updatedAt"] as? Number)?.toLong() ?: 0L
 
-            FirebaseExpense(id, amount, category, description, createdAt).toExpense()
+            FirebaseExpense(id, amount, category, description, createdAt, updatedAt).toExpense()
         }
     }
 
@@ -141,11 +142,11 @@ object FirebaseDb {
             val image = CategoryIconEnum.entries.firstOrNull { it.key == imageKey?.lowercase() }
                 ?: CategoryIconEnum.OTHER
             val isDefault = (map["default"] as? Boolean) ?: false
+            val updatedAt = (map["updatedAt"] as? Number)?.toLong() ?: 0L
 
-            FirebaseCategory(id, displayName, image, isDefault).toCategories()
+            FirebaseCategory(id, displayName, image, isDefault, updatedAt).toCategories()
         }
     }
-
 
     fun updateOrCreateExpense(userUid: String?, expense: Expense) {
         val key = expense.id
@@ -199,5 +200,8 @@ object FirebaseDb {
                 Log.e("Firebase", "Delete failed", e)
             }
     }
+
+
+
 
 }
