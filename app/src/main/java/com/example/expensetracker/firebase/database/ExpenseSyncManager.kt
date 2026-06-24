@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.example.expensetracker.data.dao.ExpenseDao
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
+import com.example.expensetracker.utils.FirebaseUtils
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -70,21 +71,7 @@ class ExpenseSyncManager(
 
     private fun handleUpsert(snapshot: DataSnapshot) {
 
-        val id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: return
-        val amount = snapshot.child("amount").getValue(Double::class.java) ?: 0.0
-        val updatedAt = snapshot.child("updatedAt").getValue(Long::class.java) ?: 0L
-        val categoryId = snapshot.child("categoryId").getValue(String::class.java) ?: return
-        val description = snapshot.child("description").getValue(String::class.java) ?: return
-        val createdAt = snapshot.child("createdAt").getValue(Long::class.java) ?: 0L
-
-        val expense = Expense(
-            id = id,
-            categoryId = categoryId,
-            amount = amount,
-            description = description,
-            createdAt = createdAt,
-            updatedAt = updatedAt
-        )
+        val expense = FirebaseUtils.snapshotToExpense(snapshot)
 
         CoroutineScope(Dispatchers.IO).launch {
           val changed = expenseDao.insertOrUpdateIfNewer(expense)

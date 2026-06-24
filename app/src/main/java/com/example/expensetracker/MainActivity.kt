@@ -74,9 +74,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val userUid = googleAuthClient.getUser()?.uid
         val expenseDao = ExpenseTrackerDatabase.getDatabase(this).expenseDao()
 
-        if (googleAuthClient.isSingedIn() && userUid != null) {
+        val isSyncOn: Boolean =
+            SharedPreferencesUtils.getAutoSync(this.applicationContext)
+
+        if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn) {
             expenseSyncManager = ExpenseSyncManager(
-                onItemUpdated = { syncToastManager.onItemUpdated()},
+                onItemUpdated = { syncToastManager.onItemUpdated() },
                 userUid,
                 expenseDao
             )

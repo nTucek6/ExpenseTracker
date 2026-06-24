@@ -3,6 +3,7 @@ package com.example.expensetracker.data.viewModel
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -49,13 +50,17 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     val allCachesCrud = cacheDao.getAllCrud()
 
-    suspend fun getDailyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getDailyBudgetSpent(dateFrom,dateTo)
+    suspend fun getDailyBudgetSpent(dateFrom: Long?, dateTo: Long?) =
+        expenseDao.getDailyBudgetSpent(dateFrom, dateTo)
 
-    suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getWeeklyBudgetSpent(dateFrom,dateTo)
+    suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo: Long?) =
+        expenseDao.getWeeklyBudgetSpent(dateFrom, dateTo)
 
-    suspend fun getMonthlyBudgetSpent(dateFrom: Long?, dateTo:Long?) = expenseDao.getMonthlyBudgetSpent(dateFrom,dateTo)
+    suspend fun getMonthlyBudgetSpent(dateFrom: Long?, dateTo: Long?) =
+        expenseDao.getMonthlyBudgetSpent(dateFrom, dateTo)
 
-    suspend fun getSpentPerCategory(dateFrom: Long?, dateTo:Long?) = expenseDao.getSpentPerCategory(dateFrom,dateTo)
+    suspend fun getSpentPerCategory(dateFrom: Long?, dateTo: Long?) =
+        expenseDao.getSpentPerCategory(dateFrom, dateTo)
 
 
     suspend fun getExpenseById(id: String): Expense = expenseDao.findById(id)
@@ -64,16 +69,16 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     suspend fun syncFirebaseToRoom() {
         //viewModelScope.launch {
-            try {
-                val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
-                val firebaseExpenses = FirebaseDb.getUserExpensesOnce(userId)
-                expenseDao.replaceAll(firebaseExpenses)
-               // expenseDao.insertAll(firebaseExpenses)
-                Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
-            } catch (e: Exception) {
-                Log.e("Sync", "Failed", e)
-            }
-     //   }
+        try {
+            val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+            val firebaseExpenses = FirebaseDb.getUserExpensesOnce(userId)
+            expenseDao.replaceAll(firebaseExpenses)
+            // expenseDao.insertAll(firebaseExpenses)
+            Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
+        } catch (e: Exception) {
+            Log.e("Sync", "Failed", e)
+        }
+        //   }
     }
 
     private val _query = MutableStateFlow("")
@@ -90,6 +95,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                 pagingSourceFactory = { expenseDao.getExpensesPaging(query) }
             ).flow.cachedIn(viewModelScope)
         }
+
     fun updateQuery(newQuery: String) {
         _query.value = newQuery
     }
@@ -105,8 +111,6 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(NonCancellable) {
                 expenseDao.insert(expense)
-
-                //val newExpense = expense.copy(id = expense.id)
 
                 val online = networkViewModel.isOnline.first()
 
@@ -160,6 +164,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
+
     fun delete(expense: Expense) {
         viewModelScope.launch {
             withContext(NonCancellable) {
@@ -179,7 +184,8 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-    fun deleteAll(){
+
+    fun deleteAll() {
         viewModelScope.launch {
             expenseDao.deleteAll()
         }
@@ -191,15 +197,25 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             cacheDao.deleteAll()
         }
     }
-    private fun firebaseSync(updatedExpense: Expense) {
+
+    private suspend fun firebaseSync(updatedExpense: Expense) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            FirebaseDb.updateOrCreateExpense(userUid, updatedExpense)
+            val updateFlag =
+                FirebaseDb.checkConflictData(userUid, updatedExpense.id, updatedExpense.updatedAt)
+            Log.d("Compare data", updateFlag.toString())
+            if (updateFlag) {
+                FirebaseDb.updateOrCreateExpense(userUid, updatedExpense)
+            } else {
+                Toast.makeText(context,"There is newer data on remote server...", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+
     private fun deleteExpense(expenseId: String) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid

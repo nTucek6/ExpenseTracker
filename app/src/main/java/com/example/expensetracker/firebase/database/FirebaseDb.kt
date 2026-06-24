@@ -17,6 +17,7 @@ import com.example.expensetracker.firebase.database.model.FirebaseCategory
 import com.example.expensetracker.firebase.database.model.FirebaseExpense
 import com.example.expensetracker.firebase.database.model.FirebaseMonthlySummary
 import com.example.expensetracker.firebase.database.model.FirebaseUsers
+import com.example.expensetracker.utils.FirebaseUtils
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -24,6 +25,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
+import kotlin.collections.get
+import kotlin.math.exp
 
 object FirebaseDb {
 
@@ -87,7 +90,13 @@ object FirebaseDb {
         for (c in cache) {
             if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
                 val expense = expenseViewModel.getExpenseById(c.expenseId)
-                updateOrCreateExpense(user.uid, expense)
+
+                val updateFlag = checkConflictData(user.uid, expense.id, expense.updatedAt)
+
+                if (updateFlag) {
+                    updateOrCreateExpense(user.uid, expense)
+                }
+
             } else if (c.action == CrudActionEnum.DELETE) {
                 deleteExpense(user.uid, c.expenseId)
             }
@@ -150,6 +159,7 @@ object FirebaseDb {
 
     fun updateOrCreateExpense(userUid: String?, expense: Expense) {
         val key = expense.id
+
         usersRef.child("$userUid/expenses/$key").setValue(expense)
             .addOnSuccessListener {
                 Log.d("FirebaseData", "created /expenses/$key")
@@ -157,6 +167,26 @@ object FirebaseDb {
             .addOnFailureListener { e ->
                 Log.e("FirebaseData", "Create/Update failed", e)
             }
+    }
+
+
+    suspend fun checkConflictData(userUid: String, key: String, updatedAt: Long): Boolean {
+       // var isNewer = false
+        /*usersRef.child("$userUid/expenses/$key").get()
+            .addOnSuccessListener { snapshot ->
+                val expense = FirebaseUtils.snapshotToExpense(snapshot)
+                Log.d("Compare data", "(${expense.updatedAt} - $updatedAt")
+                if (expense.updatedAt < updatedAt) {
+                    isNewer = true
+                }
+
+            }*/
+        val snapshot = usersRef.child("$userUid/expenses/$key").get().await()
+        val expense = FirebaseUtils.snapshotToExpense(snapshot)
+
+        Log.d("Compare data", (expense.updatedAt < updatedAt).toString())
+        return expense.updatedAt < updatedAt
+       // return isNewer
     }
 
     fun deleteExpense(userUid: String, expenseId: String) {
@@ -200,8 +230,6 @@ object FirebaseDb {
                 Log.e("Firebase", "Delete failed", e)
             }
     }
-
-
 
 
 }
