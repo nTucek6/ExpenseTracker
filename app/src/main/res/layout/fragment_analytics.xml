@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
     android:clipToPadding="false"
     android:fillViewport="true"
     tools:context=".ui.fragments.AnalyticsFragment">
@@ -197,7 +196,14 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <include
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_top_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+
+
+                <!--<include
                     android:id="@+id/inc_category_1"
                     layout="@layout/item_analytics_category_card" />
 
@@ -207,7 +213,7 @@
 
                 <include
                     android:id="@+id/inc_category_3"
-                    layout="@layout/item_analytics_category_card" />
+                    layout="@layout/item_analytics_category_card" /> -->
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

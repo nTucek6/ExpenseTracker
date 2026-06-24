@@ -46,7 +46,7 @@ class ExpenseSyncManager(
         listener = object : ChildEventListener, ValueEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 //here is added
-                Log.d("FirebaseChild", "added: ${snapshot.key}")
+                //Log.d("FirebaseChild", "added: ${snapshot.key}")
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {

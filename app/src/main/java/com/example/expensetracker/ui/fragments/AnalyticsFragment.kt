@@ -11,12 +11,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.R
 import com.example.expensetracker.data.enums.PeriodChipEnum
 import com.example.expensetracker.data.model.AnalyticsSummary
 import com.example.expensetracker.data.viewModel.AnalyticsViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
+import com.example.expensetracker.ui.adapters.TopCategoriesAdapter
 import com.example.expensetracker.utils.ChartUtils
 import com.example.expensetracker.utils.firstOfMonthCalendarToMillis
 import com.example.expensetracker.utils.formatWeekDate
@@ -25,6 +28,7 @@ import com.example.expensetracker.utils.getLast6MonthsRange
 import com.example.expensetracker.utils.getLastYearRange
 import com.example.expensetracker.utils.lastOfMonthCalendarToMillis
 import com.example.expensetracker.utils.toDateString
+import com.example.expensetracker.utils.toYearAndMonth
 import com.example.expensetracker.utils.todayCalendarToMillis
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
@@ -69,11 +73,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
     private lateinit var incTotalIncome: MaterialCardView
     private lateinit var incBalance: MaterialCardView
     private lateinit var incAvgDay: MaterialCardView
-
-    private lateinit var incCategory1: MaterialCardView
-    private lateinit var incCategory2: MaterialCardView
-    private lateinit var incCategory3: MaterialCardView
-
+    private lateinit var topCategoryAdapter: TopCategoriesAdapter
     private var monthStart = Calendar.getInstance().firstOfMonthCalendarToMillis()
     private var monthEnd = Calendar.getInstance().lastOfMonthCalendarToMillis()
 
@@ -95,10 +95,6 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         incBalance = view.findViewById(R.id.incBalance)
         incAvgDay = view.findViewById(R.id.incAvgDay)
 
-        incCategory1 = view.findViewById(R.id.inc_category_1)
-        incCategory2 = view.findViewById(R.id.inc_category_2)
-        incCategory3 = view.findViewById(R.id.inc_category_3)
-
         incTotalSpent.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_spent)
         incTotalIncome.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.total_income)
         incBalance.findViewById<TextView>(R.id.tvTitle).text = getString(R.string.balance)
@@ -107,6 +103,13 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
         spendingChart = view.findViewById(R.id.lineGraph)
         categorySpendingChart = view.findViewById(R.id.pieGraph)
+
+        topCategoryAdapter = TopCategoriesAdapter()
+        val topCategoriesRecycleView: RecyclerView =
+            view.findViewById(R.id.rv_top_categories)
+
+        topCategoriesRecycleView.layoutManager = LinearLayoutManager(context)
+        topCategoriesRecycleView.adapter = topCategoryAdapter
 
         setAnalytics()
 
@@ -143,26 +146,33 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                 monthEnd
             )
 
-            val monthlySummary = monthlySummaryViewModel
-                .getCurrentMonthBudget
-                .asFlow()
-                .first()
+            val (startYear, startMonth) = monthStart.toYearAndMonth()
+            val (endYear, endMonth) = monthEnd.toYearAndMonth()
 
-            val balance = monthlySummary.money - monthlySummary.spent
+            val monthlySummary = monthlySummaryViewModel.getRangeMonthBudget(
+                startYear,
+                startMonth,
+                endYear,
+                endMonth
+            ).asFlow().first()
 
-            Log.d("AnalyticsData", summary.toString())
+            var balance = 0.0
+            var money = 0.0
 
+            for (m in monthlySummary) {
+                money += m.money
+                balance += m.money - m.spent
+            }
             if (summary.totalSpent != 0.0) {
                 incTotalSpent.findViewById<TextView>(R.id.tvValue).text =
                     String.format(getString(R.string.price_format), summary.totalSpent)
                 incTotalIncome.findViewById<TextView>(R.id.tvValue).text =
-                    String.format(getString(R.string.price_format), monthlySummary.money)
+                    String.format(getString(R.string.price_format), money)
                 incBalance.findViewById<TextView>(R.id.tvValue).text =
                     String.format(getString(R.string.price_format), balance)
                 incAvgDay.findViewById<TextView>(R.id.tvValue).text =
                     String.format(getString(R.string.price_format), summary.avgPerDay)
             }
-
         }
     }
 
@@ -301,36 +311,11 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                 monthStart,
                 monthEnd
             )
-
             if (topCategorySpent.isNotEmpty()) {
-                val s1 = topCategorySpent[0]
-                val s2 = topCategorySpent[1]
-                val s3 = topCategorySpent[2]
-
-                setUpCategory(incCategory1, 1, s1.categoryName, s1.totalSpent)
-                setUpCategory(incCategory2, 2, s2.categoryName, s2.totalSpent)
-                setUpCategory(incCategory3, 3, s3.categoryName, s3.totalSpent)
-
-                Log.d("AnalyticsData", topCategorySpent.toString())
+                topCategoryAdapter.submitList(topCategorySpent)
             }
-
-
         }
-
     }
-
-    private fun setUpCategory(
-        categoryView: MaterialCardView,
-        number: Int,
-        category: String,
-        spent: Double
-    ) {
-        categoryView.findViewById<TextView>(R.id.tv_number).text = number.toString() + "."
-        categoryView.findViewById<TextView>(R.id.tv_category).text = category
-        categoryView.findViewById<TextView>(R.id.tv_spent).text =
-            String.format(getString(R.string.price_format), spent)
-    }
-
 
     private fun setRange(periodEnum: PeriodChipEnum) {
         when (periodEnum) {
@@ -364,12 +349,10 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         setAnalytics()
     }
 
-
     private fun setAnalytics() {
         setSummary()
         setLineChart()
         setPieChart()
         getTopCategorySpent()
     }
-
 }

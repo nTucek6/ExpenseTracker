@@ -27,6 +27,13 @@ fun Long.toDateTimeString(pattern: String = "dd.MM.yyyy. HH:mm"): String {
     return SimpleDateFormat(pattern, Locale.getDefault()).format(Date(this))
 }
 
+fun Long.toYearAndMonth(): Pair<Int, Int> {
+    val calendar = Calendar.getInstance().apply {
+        timeInMillis = this@toYearAndMonth
+    }
+    return calendar.get(Calendar.YEAR) to (calendar.get(Calendar.MONTH) + 1)
+}
+
 
 fun Long.isToday(): Boolean {
     val today = LocalDate.now(ZoneId.systemDefault())

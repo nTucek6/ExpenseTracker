@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Add category"
+            android:text="@string/add_category"
             android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:hint="Category name">
+            android:hint="@string/category_hint">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -130,7 +130,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="@string/edit_category"
+            android:text="@string/add_category"
             android:textSize="18sp" />
 
     </LinearLayout>

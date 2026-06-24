@@ -47,11 +47,15 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
     val networkViewModel = NetworkViewModel(context)
 
     val getCurrentMonthBudget = monthlySummaryDao.getCurrentMonthBudget()
+
+    fun getRangeMonthBudget(startYear: Int, startMonth: Int, endYear: Int, endMonth: Int) =
+        monthlySummaryDao.getRangeMonthBudget(startYear, startMonth, endYear, endMonth)
+
     val getAllMonthBudget = monthlySummaryDao.getAllMonthBudget()
 
     val allCachesCrud = cacheDao.getAllSummaryCrud()
 
-   // private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+    // private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
     suspend fun findAllExistingYears(): List<Int> = monthlySummaryDao.findAllExistingYears()
 

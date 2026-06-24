@@ -47,11 +47,11 @@ class ManageCategoriesBottomSheetFragment(
 
         icon = CategoryIconEnum.OTHER
 
-
         if (category != null) {
             tilCategoryName.editText?.setText(category.displayName)
             setIconPreview(category.image)
             deleteCategoryBtn.visibility = View.VISIBLE
+            saveCategoryBtn.text = getString(R.string.edit_category)
         } else {
             setIconPreview(CategoryIconEnum.OTHER)
         }

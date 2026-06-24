@@ -1,13 +1,12 @@
 package com.example.expensetracker.ui.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.compose.ui.text.toUpperCase
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.data.enums.CategoryIconEnum
-import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.databinding.ItemCategoryIconBinding
 
 
@@ -38,16 +37,15 @@ class IconPickerAdapter(
         return ViewHolder(view)
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewHolder(
         holder: ViewHolder,
         position: Int
     ) {
         val category = getItem(position)
         holder.binding.ivIcon.setImageDrawable(holder.itemView.context.getDrawable(category.resId))
-        holder.binding.tvIconLabel.text = category.key.uppercase()
+        holder.binding.tvIconLabel.text =  holder.itemView.context.getString(category.displayName)
 
         holder.binding.root.setOnClickListener { onClick(category) }
-
     }
-
 }

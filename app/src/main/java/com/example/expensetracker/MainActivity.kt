@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val analyticsViewModel: AnalyticsViewModel by viewModels()
     private val categoriesViewModel: CategoriesViewModel by viewModels()
 
+    val googleAuthClient = GoogleAuthClient(this)
     private lateinit var expenseSyncManager: ExpenseSyncManager
 
     @SuppressLint("RestrictedApi")
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val googleAuthClient = GoogleAuthClient(this)
+
 
         lifecycleScope.launch {
             summaryViewModel.createDefaultSummary()
@@ -72,8 +73,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val userUid = googleAuthClient.getUser()?.uid
         val expenseDao = ExpenseTrackerDatabase.getDatabase(this).expenseDao()
 
-        if(googleAuthClient.isSingedIn() && userUid != null)
-            expenseSyncManager = ExpenseSyncManager(userUid,expenseDao)
+        if(googleAuthClient.isSingedIn() && userUid != null){
+            expenseSyncManager = ExpenseSyncManager(userUid,expenseDao)}
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.fragment_container)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -147,12 +148,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onStart() {
         super.onStart()
-        expenseSyncManager.startListening()
+        val userUid = googleAuthClient.getUser()?.uid
+        if(googleAuthClient.isSingedIn() && userUid != null)
+            expenseSyncManager.startListening()
     }
 
     override fun onStop() {
         super.onStop()
-        expenseSyncManager.stopListening()
+        val userUid = googleAuthClient.getUser()?.uid
+        if(googleAuthClient.isSingedIn() && userUid != null)
+            expenseSyncManager.stopListening()
     }
 
     private fun setUpBackHandler() {

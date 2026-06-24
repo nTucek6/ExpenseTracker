@@ -9,6 +9,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.Upsert
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.model.ExpenseWithCategory
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
@@ -28,6 +29,28 @@ interface ExpenseDao {
 
     @Insert
     suspend fun insert(expense: Expense): Long
+
+    @Upsert
+    suspend fun upsert(expense: Expense)
+
+    @Query("""
+    UPDATE expenses
+    SET categoryId = :categoryId,
+        amount = :amount,
+        updatedAt = :updatedAt,
+        createdAt = :createdAt,
+        description = :description
+    WHERE id = :id
+      AND updatedAt < :updatedAt
+""")
+    suspend fun updateIfNewer(
+        id: String,
+        categoryId: String,
+        amount: Double,
+        description: String,
+        createdAt: Long,
+        updatedAt: Long
+    ): Int
 
     @Update
     suspend fun update(expense: Expense): Int
