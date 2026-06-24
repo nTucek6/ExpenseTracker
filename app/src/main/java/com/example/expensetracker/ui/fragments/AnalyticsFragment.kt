@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetracker.R
+import com.example.expensetracker.data.enums.MonthEnum
 import com.example.expensetracker.data.enums.PeriodChipEnum
 import com.example.expensetracker.data.model.AnalyticsSummary
 import com.example.expensetracker.data.viewModel.AnalyticsViewModel
@@ -63,6 +64,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
     private val monthlySummaryViewModel: MonthlySummaryViewModel by activityViewModels()
 
+    private lateinit var tvCurrentDateRange: TextView
     private lateinit var spendingChart: LineChart
     private lateinit var categorySpendingChart: PieChart
 
@@ -90,6 +92,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
         val btnOpenFilter: MaterialButton = view.findViewById(R.id.btn_open_filter)
 
+        tvCurrentDateRange = view.findViewById(R.id.tvMonthYear)
         incTotalSpent = view.findViewById(R.id.incTotalSpent)
         incTotalIncome = view.findViewById(R.id.incTotalIncome)
         incBalance = view.findViewById(R.id.incBalance)
@@ -122,8 +125,11 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
 
             val selectedPeriod = PeriodChipEnum.fromText(requireContext(), periodId)
 
+            val startDate =
+                bundle.getLong(AnalyticsFilterBottomSheetFragment.KEY_DATE_START)
+            val endDate = bundle.getLong(AnalyticsFilterBottomSheetFragment.KEY_DATE_END)
             period = selectedPeriod
-            setRange(selectedPeriod)
+            setRange(selectedPeriod, startDate, endDate)
         }
 
         parentFragmentManager.setFragmentResultListener(
@@ -163,6 +169,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                 money += m.money
                 balance += m.money - m.spent
             }
+
             if (summary.totalSpent != 0.0) {
                 incTotalSpent.findViewById<TextView>(R.id.tvValue).text =
                     String.format(getString(R.string.price_format), summary.totalSpent)
@@ -234,9 +241,19 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                     }
                 }
 
-                PeriodChipEnum.CUSTOM -> TODO()
-            }
+                PeriodChipEnum.CUSTOM -> {
+                    val data =
+                        expenseViewModel.getDailyBudgetSpent(
+                            monthStart,
+                            monthEnd
+                        )
 
+                    data.forEachIndexed { index, item ->
+                        spendingData.add(Entry(index.toFloat(), item.amount.toFloat()))
+                        labels.add(item.date.toDateString())
+                    }
+                }
+            }
 
             if (spendingData.isNotEmpty()) {
                 val lineDataSet = ChartUtils.setLineChartDataSet(requireContext(), spendingData)
@@ -317,7 +334,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
         }
     }
 
-    private fun setRange(periodEnum: PeriodChipEnum) {
+    private fun setRange(periodEnum: PeriodChipEnum, startDate: Long?, endDate: Long?) {
         when (periodEnum) {
             PeriodChipEnum.THIS_MONTH -> {
                 monthStart = Calendar.getInstance().firstOfMonthCalendarToMillis()
@@ -343,16 +360,31 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
             }
 
             PeriodChipEnum.CUSTOM -> {
-                // show date picker
+                if (startDate != null && endDate != null) {
+                    monthStart = startDate
+                    monthEnd = endDate
+                }
             }
         }
         setAnalytics()
     }
-
     private fun setAnalytics() {
+        setDateText()
         setSummary()
         setLineChart()
         setPieChart()
         getTopCategorySpent()
+    }
+    private fun setDateText() {
+        if (period == PeriodChipEnum.THIS_MONTH) {
+            val (year, month) = monthStart.toYearAndMonth()
+            tvCurrentDateRange.text = String.format(
+                getString(R.string.dashboard_date_format),
+                MonthEnum.fromNumber(month).displayName.let { requireContext().getString(it) },
+                year.toString()
+            )
+        } else {
+            tvCurrentDateRange.text = "${monthStart.toDateString()} - ${monthEnd.toDateString()}"
+        }
     }
 }
