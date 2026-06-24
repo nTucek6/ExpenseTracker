@@ -1,15 +1,24 @@
 package com.example.expensetracker.firebase.database
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.example.expensetracker.data.dao.ExpenseDao
+import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.collections.get
 
 class ExpenseSyncManager(
+    private val onItemUpdated: () -> Unit,
     private val uid: String,
     private val expenseDao: ExpenseDao
 ) {
@@ -23,55 +32,35 @@ class ExpenseSyncManager(
     fun startListening() {
         if (listener != null) return
 
-       /* listener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // parse remote data and upsert into Room
-                for (child in snapshot.children) {
-                    val id = child.child("id").getValue(String::class.java)
-                    val title = child.child("title").getValue(String::class.java)
-                    val amount = child.child("amount").getValue(Double::class.java)
-                    val updatedAt = child.child("updatedAt").getValue(Long::class.java)
-
-                    Log.d("FirebaseDataChanged", "id=$id title=$title amount=$amount updatedAt=$updatedAt")
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Sync", "Listener cancelled", error.toException())
-            }
-        }*/
-
-        //ref.addValueEventListener(listener!!)
-
         listener = object : ChildEventListener, ValueEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                //here is added
-                //Log.d("FirebaseChild", "added: ${snapshot.key}")
+                handleUpsert(snapshot)
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                //on update here
-                Log.d("FirebaseChild", "changed: ${snapshot.key}")
+                Log.d("FirebaseChild", "updated: ${snapshot.value}")
+                //Toast.makeText(this,)
+                handleUpsert(snapshot)
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
-                //removed works code needed
                 Log.d("FirebaseChild", "removed: ${snapshot.key}")
+                val id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: return
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    expenseDao.deleteById(id)
+                }
             }
 
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) = Unit
-
             override fun onDataChange(snapshot: DataSnapshot) {
-
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("FirebaseChild", "cancelled", error.toException())
             }
         }
-
         ref.addChildEventListener(listener!!)
-
     }
 
     fun stopListening() {
@@ -79,4 +68,31 @@ class ExpenseSyncManager(
         listener = null
     }
 
+    private fun handleUpsert(snapshot: DataSnapshot) {
+
+        val id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: return
+        val amount = snapshot.child("amount").getValue(Double::class.java) ?: 0.0
+        val updatedAt = snapshot.child("updatedAt").getValue(Long::class.java) ?: 0L
+        val categoryId = snapshot.child("categoryId").getValue(String::class.java) ?: return
+        val description = snapshot.child("description").getValue(String::class.java) ?: return
+        val createdAt = snapshot.child("createdAt").getValue(Long::class.java) ?: 0L
+
+        val expense = Expense(
+            id = id,
+            categoryId = categoryId,
+            amount = amount,
+            description = description,
+            createdAt = createdAt,
+            updatedAt = updatedAt
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+          val changed = expenseDao.insertOrUpdateIfNewer(expense)
+            if(changed) {
+                withContext(Dispatchers.Main) {
+                    onItemUpdated()
+                }
+            }
+        }
+    }
 }

@@ -25,9 +25,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.room.Database
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import com.example.expensetracker.data.viewModel.AnalyticsViewModel
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
@@ -36,6 +34,7 @@ import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.firebase.database.ExpenseSyncManager
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
+import com.example.expensetracker.ui.helper.SyncToastManager
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import kotlinx.coroutines.flow.first
@@ -56,6 +55,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val analyticsViewModel: AnalyticsViewModel by viewModels()
     private val categoriesViewModel: CategoriesViewModel by viewModels()
 
+    private lateinit var syncToastManager: SyncToastManager
+
     val googleAuthClient = GoogleAuthClient(this)
     private lateinit var expenseSyncManager: ExpenseSyncManager
 
@@ -64,7 +65,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-
+        syncToastManager = SyncToastManager(this)
 
         lifecycleScope.launch {
             summaryViewModel.createDefaultSummary()
@@ -73,8 +74,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val userUid = googleAuthClient.getUser()?.uid
         val expenseDao = ExpenseTrackerDatabase.getDatabase(this).expenseDao()
 
-        if(googleAuthClient.isSingedIn() && userUid != null){
-            expenseSyncManager = ExpenseSyncManager(userUid,expenseDao)}
+        if (googleAuthClient.isSingedIn() && userUid != null) {
+            expenseSyncManager = ExpenseSyncManager(
+                onItemUpdated = { syncToastManager.onItemUpdated()},
+                userUid,
+                expenseDao
+            )
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.fragment_container)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -131,7 +137,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         if (isSignedIn && autoSync) {
                             val user = googleAuthClient.getUser()
                             if (user != null) {
-                                FirebaseDb.syncRecentUpdates(user,expenseViewModel, summaryViewModel, categoriesViewModel)
+                                FirebaseDb.syncRecentUpdates(
+                                    user,
+                                    expenseViewModel,
+                                    summaryViewModel,
+                                    categoriesViewModel
+                                )
                             }
                         }
                     } /*else{
@@ -149,14 +160,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onStart() {
         super.onStart()
         val userUid = googleAuthClient.getUser()?.uid
-        if(googleAuthClient.isSingedIn() && userUid != null)
+        if (googleAuthClient.isSingedIn() && userUid != null)
             expenseSyncManager.startListening()
     }
 
     override fun onStop() {
         super.onStop()
         val userUid = googleAuthClient.getUser()?.uid
-        if(googleAuthClient.isSingedIn() && userUid != null)
+        if (googleAuthClient.isSingedIn() && userUid != null)
             expenseSyncManager.stopListening()
     }
 

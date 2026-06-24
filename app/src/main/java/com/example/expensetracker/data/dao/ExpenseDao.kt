@@ -30,6 +30,9 @@ interface ExpenseDao {
     @Insert
     suspend fun insert(expense: Expense): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIgnore(expense: Expense): Long
+
     @Upsert
     suspend fun upsert(expense: Expense)
 
@@ -47,10 +50,29 @@ interface ExpenseDao {
         id: String,
         categoryId: String,
         amount: Double,
-        description: String,
+        description: String?,
         createdAt: Long,
         updatedAt: Long
     ): Int
+
+    @Transaction
+    suspend fun insertOrUpdateIfNewer(expense: Expense): Boolean {
+        val inserted = insertIgnore(expense)
+        if (inserted != -1L) {
+            return true
+        }
+
+
+           val updated =  updateIfNewer(
+                id = expense.id,
+                categoryId = expense.categoryId,
+                amount = expense.amount,
+                description = expense.description,
+                createdAt = expense.createdAt,
+                updatedAt = expense.updatedAt
+            )
+        return updated > 0
+    }
 
     @Update
     suspend fun update(expense: Expense): Int
