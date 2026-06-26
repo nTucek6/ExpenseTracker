@@ -170,7 +170,7 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                 balance += m.money - m.spent
             }
 
-            if (summary.totalSpent != 0.0) {
+            if(monthlySummary.isNotEmpty()){
                 incTotalSpent.findViewById<TextView>(R.id.tvValue).text =
                     String.format(getString(R.string.price_format), summary.totalSpent)
                 incTotalIncome.findViewById<TextView>(R.id.tvValue).text =
@@ -179,7 +179,17 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
                     String.format(getString(R.string.price_format), balance)
                 incAvgDay.findViewById<TextView>(R.id.tvValue).text =
                     String.format(getString(R.string.price_format), summary.avgPerDay)
+            } else{
+                incTotalSpent.findViewById<TextView>(R.id.tvValue).text =
+                    String.format(getString(R.string.price_format), 0.0)
+                incTotalIncome.findViewById<TextView>(R.id.tvValue).text =
+                    String.format(getString(R.string.price_format), 0.0)
+                incBalance.findViewById<TextView>(R.id.tvValue).text =
+                    String.format(getString(R.string.price_format), 0.0)
+                incAvgDay.findViewById<TextView>(R.id.tvValue).text =
+                    String.format(getString(R.string.price_format), 0.0)
             }
+
         }
     }
 
@@ -330,6 +340,8 @@ class AnalyticsFragment : Fragment(R.layout.fragment_analytics) {
             )
             if (topCategorySpent.isNotEmpty()) {
                 topCategoryAdapter.submitList(topCategorySpent)
+            } else{
+                topCategoryAdapter.submitList(listOf())
             }
         }
     }

@@ -64,7 +64,44 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
 
         datePicker.maxDate = Calendar.getInstance().todayCalendarToMillis()
 
-        lifecycleScope.launch {
+        categoryViewModel.allCategories.observe(viewLifecycleOwner) { categories ->
+            if (categories.isEmpty()) return@observe
+
+            val displayCategories = categories.map {
+                DropdownItem(
+                    value = it.id,
+                    name = it.displayName
+                )
+            }
+            categoryAdapter =
+                ArrayAdapter(requireContext(), R.layout.dropdown_item, displayCategories)
+            spinnerCategory.setAdapter(categoryAdapter)
+
+            val data = expense;
+            if (data != null) {
+                tvTitle.text = getString(R.string.edit_expense)
+                tilAmount.editText?.setText(data.amount.toString())
+                val selectedItem = displayCategories.firstOrNull() { it -> it.value == data.categoryId }
+                selectedItem?.let {
+                    spinnerCategory.setText(it.name, false)
+                }
+                selectedCategory = selectedItem
+                tilDescription.editText?.setText(data.description.toString())
+                val date = Calendar.getInstance()
+                date.timeInMillis = data.createdAt
+
+                datePicker.updateDate(
+                    date.get(Calendar.YEAR),
+                    date.get(Calendar.MONTH),
+                    date.get(Calendar.DAY_OF_MONTH)
+                )
+                timePicker.hour = date.get(Calendar.HOUR_OF_DAY)
+                timePicker.minute = date.get(Calendar.MINUTE)
+            }
+
+        }
+
+      /*  lifecycleScope.launch {
             val categories = categoryViewModel.allCategories
                 .asFlow()
                 .filter { it.isNotEmpty() }
@@ -100,7 +137,7 @@ class AddExpenseFragment : Fragment(R.layout.fragment_add_expense) {
                 timePicker.hour = date.get(Calendar.HOUR_OF_DAY)
                 timePicker.minute = date.get(Calendar.MINUTE)
             }
-        }
+        } */
 
         spinnerCategory.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->

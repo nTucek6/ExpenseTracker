@@ -60,6 +60,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     val googleAuthClient = GoogleAuthClient(this)
     private lateinit var expenseSyncManager: ExpenseSyncManager
 
+
+
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +75,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         val userUid = googleAuthClient.getUser()?.uid
         val expenseDao = ExpenseTrackerDatabase.getDatabase(this).expenseDao()
+
 
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(this.applicationContext)
@@ -162,16 +165,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onStart() {
         super.onStart()
+
         val userUid = googleAuthClient.getUser()?.uid
-        if (googleAuthClient.isSingedIn() && userUid != null)
+        if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn())
             expenseSyncManager.startListening()
     }
 
     override fun onStop() {
         super.onStop()
         val userUid = googleAuthClient.getUser()?.uid
-        if (googleAuthClient.isSingedIn() && userUid != null)
+        if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn())
             expenseSyncManager.stopListening()
+    }
+
+    private fun isSyncOn(): Boolean{
+        return SharedPreferencesUtils.getAutoSync(this.applicationContext)
     }
 
     private fun setUpBackHandler() {
