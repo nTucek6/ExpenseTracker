@@ -1,11 +1,7 @@
-package com.example.expensetracker.firebase.database
+package com.example.expensetracker.firebase.syncManager
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import com.example.expensetracker.data.dao.ExpenseDao
-import com.example.expensetracker.data.entity.Expense
-import com.example.expensetracker.data.viewModel.ExpenseViewModel
+import com.example.expensetracker.data.dao.CategoriesDao
 import com.example.expensetracker.utils.FirebaseUtils
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -16,17 +12,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.collections.get
 
-class ExpenseSyncManager(
+class CategorySyncManager(
     private val onItemUpdated: () -> Unit,
     private val uid: String,
-    private val expenseDao: ExpenseDao
+    private val categoriesDao: CategoriesDao
 ) {
+
     private val ref = FirebaseDatabase.getInstance()
         .getReference("users")
         .child(uid)
-        .child("expenses")
+        .child("categories")
 
     private var listener: ChildEventListener? = null
 
@@ -40,17 +36,14 @@ class ExpenseSyncManager(
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 Log.d("FirebaseChild", "updated: ${snapshot.value}")
-                //Toast.makeText(this,)
                 handleUpsert(snapshot)
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
                 Log.d("FirebaseChild", "removed: ${snapshot.key}")
-                val id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: return
-
+                /*val id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: return
                 CoroutineScope(Dispatchers.IO).launch {
-                    expenseDao.deleteById(id)
-                }
+                }*/
             }
 
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) = Unit
@@ -69,13 +62,14 @@ class ExpenseSyncManager(
         listener = null
     }
 
+
     private fun handleUpsert(snapshot: DataSnapshot) {
 
-        val expense = FirebaseUtils.snapshotToExpense(snapshot)
+        val category = FirebaseUtils.snapshotToCategory(snapshot)
 
         CoroutineScope(Dispatchers.IO).launch {
-          val changed = expenseDao.insertOrUpdateIfNewer(expense)
-            if(changed) {
+            val changed = categoriesDao.insertOrUpdateIfNewer(category)
+            if (changed) {
                 withContext(Dispatchers.Main) {
                     onItemUpdated()
                 }

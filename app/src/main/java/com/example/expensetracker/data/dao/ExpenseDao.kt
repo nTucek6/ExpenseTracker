@@ -62,7 +62,6 @@ interface ExpenseDao {
             return true
         }
 
-
            val updated =  updateIfNewer(
                 id = expense.id,
                 categoryId = expense.categoryId,

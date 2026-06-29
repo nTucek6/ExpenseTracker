@@ -1,6 +1,7 @@
 package com.example.expensetracker.ui.adapters
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -63,6 +64,7 @@ class CategoryPagingAdapter(
                     viewHolder.binding.root.context.getString(R.string.custom)
                 viewHolder.binding.mcvCategory.setOnClickListener {
                     onCategoryClick(category)
+                    Log.d("CategoryMilis", category.updatedAt.toString())
                 }
             } else {
                 viewHolder.binding.tvIsDefault.text =

@@ -114,4 +114,6 @@
     <string name="no_delete_category_message">Tuto kategorii nelze smazat, protože již obsahuje výdaje.</string>
     <string name="preview_icon">Náhled ikony</string>
     <string name="choose_icon_msg">Vyberte ikonu</string>
+    <string name="updated_categories">Aktualizováno %s kategorií</string>
+    <string name="updated_expenses">%s výdajů bylo aktualizováno</string>
 </resources>

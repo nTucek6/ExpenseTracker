@@ -3,11 +3,8 @@ package com.example.expensetracker
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -15,14 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavOptions
-import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import androidx.navigation.fragment.NavHostFragment
@@ -31,13 +23,13 @@ import com.example.expensetracker.data.viewModel.AnalyticsViewModel
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
-import com.example.expensetracker.firebase.database.ExpenseSyncManager
+import com.example.expensetracker.firebase.syncManager.ExpenseSyncManager
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
+import com.example.expensetracker.firebase.syncManager.CategorySyncManager
 import com.example.expensetracker.ui.helper.SyncToastManager
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.SharedPreferencesUtils
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -59,7 +51,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     val googleAuthClient = GoogleAuthClient(this)
     private lateinit var expenseSyncManager: ExpenseSyncManager
-
+    private lateinit var categoriesSyncManager: CategorySyncManager
 
 
     @SuppressLint("RestrictedApi")
@@ -75,16 +67,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         val userUid = googleAuthClient.getUser()?.uid
         val expenseDao = ExpenseTrackerDatabase.getDatabase(this).expenseDao()
-
+        val categoryDao = ExpenseTrackerDatabase.getDatabase(this).categoriesDao()
 
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(this.applicationContext)
 
         if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn) {
             expenseSyncManager = ExpenseSyncManager(
-                onItemUpdated = { syncToastManager.onItemUpdated() },
+                onItemUpdated = { syncToastManager.onExpenseUpdated() },
                 userUid,
                 expenseDao
+            )
+            categoriesSyncManager = CategorySyncManager(
+                onItemUpdated = { syncToastManager.onCategoryUpdated() },
+                userUid,
+                categoryDao
             )
         }
 
@@ -167,18 +164,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onStart()
 
         val userUid = googleAuthClient.getUser()?.uid
-        if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn())
+        if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn()) {
             expenseSyncManager.startListening()
+            categoriesSyncManager.startListening()
+        }
     }
 
     override fun onStop() {
         super.onStop()
         val userUid = googleAuthClient.getUser()?.uid
-        if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn())
+        if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn()) {
             expenseSyncManager.stopListening()
+            categoriesSyncManager.stopListening()
+        }
     }
 
-    private fun isSyncOn(): Boolean{
+    private fun isSyncOn(): Boolean {
         return SharedPreferencesUtils.getAutoSync(this.applicationContext)
     }
 

@@ -10,6 +10,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.example.expensetracker.data.entity.Categories
+import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.enums.CategoryIconEnum
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
 import com.example.expensetracker.data.model.ManageCategories
 
@@ -18,8 +20,12 @@ interface CategoriesDao {
 
     @Insert
     suspend fun insert(categories: Categories)
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(categories: List<Categories>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIgnore(category: Categories): Long
 
     @Transaction
     suspend fun replaceAll(categories: List<Categories>) {
@@ -49,5 +55,39 @@ interface CategoriesDao {
     """
     )
     fun getCategoriesPaging(): PagingSource<Int, ManageCategories>
+
+    @Transaction
+    suspend fun insertOrUpdateIfNewer(category: Categories): Boolean {
+        val inserted = insertIgnore(category)
+        if (inserted != -1L) {
+            return true
+        }
+
+        val updated = updateIfNewer(
+            id = category.id,
+            displayName = category.displayName,
+            image = category.image,
+            updatedAt = category.updatedAt
+        )
+        return updated > 0
+    }
+
+    @Query(
+        """
+    UPDATE categories
+    SET displayName = :displayName,
+        updatedAt = :updatedAt,
+        image = :image
+    WHERE id = :id
+      AND updatedAt < :updatedAt
+"""
+    )
+    suspend fun updateIfNewer(
+        id: String,
+        displayName: String,
+        image: CategoryIconEnum,
+        updatedAt: Long
+    ): Int
+
 
 }

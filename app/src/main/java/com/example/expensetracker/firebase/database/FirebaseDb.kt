@@ -24,9 +24,7 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
-import java.util.UUID
 import kotlin.collections.get
-import kotlin.math.exp
 
 object FirebaseDb {
 
@@ -81,7 +79,12 @@ object FirebaseDb {
         for (c in categoryCache) {
             if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
                 val category = categoriesViewModel.getCategoryById(c.categoryId)
-                updateOrCreateCategory(user.uid, category)
+
+                val updatedFlag =
+                    checkCategoryConflictData(user.uid, category.id, category.updatedAt)
+                if (updatedFlag) {
+                    updateOrCreateCategory(user.uid, category)
+                }
             } else if (c.action == CrudActionEnum.DELETE) {
                 deleteCategory(user.uid, c.categoryId)
             }
@@ -91,7 +94,7 @@ object FirebaseDb {
             if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
                 val expense = expenseViewModel.getExpenseById(c.expenseId)
 
-                val updateFlag = checkConflictData(user.uid, expense.id, expense.updatedAt)
+                val updateFlag = checkExpenseConflictData(user.uid, expense.id, expense.updatedAt)
 
                 if (updateFlag) {
                     updateOrCreateExpense(user.uid, expense)
@@ -170,23 +173,20 @@ object FirebaseDb {
     }
 
 
-    suspend fun checkConflictData(userUid: String, key: String, updatedAt: Long): Boolean {
-       // var isNewer = false
-        /*usersRef.child("$userUid/expenses/$key").get()
-            .addOnSuccessListener { snapshot ->
-                val expense = FirebaseUtils.snapshotToExpense(snapshot)
-                Log.d("Compare data", "(${expense.updatedAt} - $updatedAt")
-                if (expense.updatedAt < updatedAt) {
-                    isNewer = true
-                }
-
-            }*/
+    suspend fun checkExpenseConflictData(userUid: String, key: String, updatedAt: Long): Boolean {
         val snapshot = usersRef.child("$userUid/expenses/$key").get().await()
         val expense = FirebaseUtils.snapshotToExpense(snapshot)
 
         Log.d("Compare data", (expense.updatedAt < updatedAt).toString())
         return expense.updatedAt < updatedAt
-       // return isNewer
+    }
+
+    suspend fun checkCategoryConflictData(userUid: String, key: String, updatedAt: Long): Boolean {
+        val snapshot = usersRef.child("$userUid/categories/$key").get().await()
+        val category = FirebaseUtils.snapshotToCategory(snapshot)
+
+        Log.d("Compare data", (category.updatedAt < updatedAt).toString())
+        return category.updatedAt < updatedAt
     }
 
     fun deleteExpense(userUid: String, expenseId: String) {

@@ -2,6 +2,7 @@ package com.example.expensetracker.data.viewModel
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -18,6 +19,7 @@ import com.example.expensetracker.data.enums.CategoryIconEnum
 import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.ManageCategories
 import com.example.expensetracker.firebase.database.FirebaseDb
+import com.example.expensetracker.firebase.database.FirebaseDb.checkCategoryConflictData
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.SharedPreferencesUtils
@@ -91,7 +93,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
             displayName = category.displayName,
             image = category.image,
             isDefault = category.isDefault,
-            //remoteId = category.remoteId
+            updatedAt = category.updatedAt
         )
 
         viewModelScope.launch {
@@ -160,13 +162,18 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    private fun firebaseSync(updatedCategory: Categories) {
+    private suspend fun firebaseSync(updatedCategory: Categories) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            FirebaseDb.updateOrCreateCategory(userUid, updatedCategory)
+            val updatedFlag = checkCategoryConflictData(userUid, updatedCategory.id, updatedCategory.updatedAt)
+            if (updatedFlag) {
+                FirebaseDb.updateOrCreateCategory(userUid, updatedCategory)
+            } else {
+                Toast.makeText(context,"There is newer data on remote server...", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

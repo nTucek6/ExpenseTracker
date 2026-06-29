@@ -1,6 +1,8 @@
 package com.example.expensetracker.utils
 
+import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.enums.CategoryIconEnum
 import com.google.firebase.database.DataSnapshot
 
 object FirebaseUtils {
@@ -20,6 +22,25 @@ object FirebaseUtils {
             amount = amount,
             description = description,
             createdAt = createdAt,
+            updatedAt = updatedAt
+        )
+    }
+
+    fun snapshotToCategory(snapshot: DataSnapshot): Categories{
+        val id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: ""
+        val displayName = snapshot.child("displayName").getValue(String::class.java) ?: ""
+        val imageKey = snapshot.child("image").getValue(String::class.java) ?: ""
+        val isDefault = snapshot.child("isDefault").getValue(Boolean::class.java) ?: false
+        val updatedAt = snapshot.child("updatedAt").getValue(Long::class.java) ?: 0L
+
+        val image = CategoryIconEnum.entries.firstOrNull { it.key == imageKey.lowercase() }
+            ?: CategoryIconEnum.OTHER
+
+        return Categories(
+            id = id,
+            displayName = displayName,
+            image = image,
+            isDefault= isDefault,
             updatedAt = updatedAt
         )
     }

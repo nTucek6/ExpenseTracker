@@ -147,6 +147,8 @@
     <string name="no_delete_category_message">This category can\'t be deleted because it already has expenses.</string>
     <string name="preview_icon">Icon preview</string>
     <string name="choose_icon_msg">Choose an icon</string>
+    <string name="updated_categories">%s categories updated</string>
+    <string name="updated_expenses">%s expenses updated</string>
 
 
 </resources>

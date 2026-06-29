@@ -1,7 +1,6 @@
 package com.example.expensetracker.data.viewModel
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
@@ -111,9 +110,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(NonCancellable) {
                 expenseDao.insert(expense)
-
                 val online = networkViewModel.isOnline.first()
-
                 if (online) {
                     firebaseSync(expense)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
@@ -205,7 +202,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
             val updateFlag =
-                FirebaseDb.checkConflictData(userUid, updatedExpense.id, updatedExpense.updatedAt)
+                FirebaseDb.checkExpenseConflictData(userUid, updatedExpense.id, updatedExpense.updatedAt)
             Log.d("Compare data", updateFlag.toString())
             if (updateFlag) {
                 FirebaseDb.updateOrCreateExpense(userUid, updatedExpense)

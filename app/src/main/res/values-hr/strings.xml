@@ -114,4 +114,6 @@
     <string name="no_delete_category_message">Ova kategorija se ne može izbrisati jer već sadrži troškove.</string>
     <string name="preview_icon">Pregled ikone</string>
     <string name="choose_icon_msg">Odaberite ikonu</string>
+    <string name="updated_categories">%s ažuriranih kategorija</string>
+    <string name="updated_expenses">%s ažuriranih troškova</string>
 </resources>
