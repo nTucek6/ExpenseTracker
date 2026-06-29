@@ -107,7 +107,15 @@ object FirebaseDb {
         for (c in summaryCache) {
             if (c.action == CrudActionEnum.UPDATE) {
                 val monthlySummary = summaryViewModel.getSummaryById(c.year, c.month)
-                updateMonthlyLimit(user.uid, monthlySummary.money, "${c.year}-${c.month}")
+                updateMonthlyLimit(user.uid, monthlySummary)
+                /*val updateFlag = checkMonthlySummaryConflictData(
+                    user.uid,
+                    "${monthlySummary.year}-${monthlySummary.month}",
+                    monthlySummary.updatedAt
+                )
+                if (updateFlag) {
+                    updateMonthlyLimit(user.uid, monthlySummary)
+                }*/
             }
         }
 
@@ -177,7 +185,6 @@ object FirebaseDb {
         val snapshot = usersRef.child("$userUid/expenses/$key").get().await()
         val expense = FirebaseUtils.snapshotToExpense(snapshot)
 
-        Log.d("Compare data", (expense.updatedAt < updatedAt).toString())
         return expense.updatedAt < updatedAt
     }
 
@@ -185,9 +192,20 @@ object FirebaseDb {
         val snapshot = usersRef.child("$userUid/categories/$key").get().await()
         val category = FirebaseUtils.snapshotToCategory(snapshot)
 
-        Log.d("Compare data", (category.updatedAt < updatedAt).toString())
         return category.updatedAt < updatedAt
     }
+
+   /* suspend fun checkMonthlySummaryConflictData(
+        userUid: String,
+        key: String,
+        updatedAt: Long
+    ): Boolean {
+        val snapshot = usersRef.child("$userUid/summary/$key").get().await()
+
+        val summary = FirebaseUtils.snapshotToSummary(snapshot)
+        Log.d("summaryData", summary.toString())
+        return summary.updatedAt < updatedAt
+    } */
 
     fun deleteExpense(userUid: String, expenseId: String) {
 
@@ -200,10 +218,11 @@ object FirebaseDb {
             }
     }
 
-    fun updateMonthlyLimit(userUid: String?, limit: Double, key: String) {
-        usersRef.child("$userUid/summary/$key/money").setValue(limit)
+    fun updateMonthlyLimit(userUid: String?, summary: MonthlySummary) {
+        val key = "${summary.year}-${summary.month}"
+        usersRef.child("$userUid/summary/$key").setValue(summary)
             .addOnSuccessListener {
-                Log.d("FirebaseData", "created /expenses/$key")
+                Log.d("FirebaseData", "created /summary/$key")
             }
             .addOnFailureListener { e ->
                 Log.e("FirebaseData", "Create/Update failed", e)

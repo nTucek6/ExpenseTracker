@@ -67,9 +67,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             if (sum.money > 0 && remaining > 0) {
                 val progress = ((remaining / sum.money) * 100).toInt().coerceIn(0, 100);
                 progressBar.progress = 100 - progress
-            } else if(sum.money == 0.0) {
+            } else if (sum.money == 0.0) {
                 progressBar.progress = 0
-            } else{
+            } else {
                 progressBar.progress = 100
             }
             if (sum.money >= 0) {
@@ -77,7 +77,8 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             }
         }
 
-        val expenseAdapter = ExpenseAdapter { expense, category -> showExpenseDialog(expense, category) }
+        val expenseAdapter =
+            ExpenseAdapter { expense, category -> showExpenseDialog(expense, category) }
         val recyclerView: RecyclerView = view.findViewById(R.id.rv_recent_expenses)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = expenseAdapter
@@ -103,7 +104,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         DialogUtils.showExpenseDialog(
             context = requireContext(),
             expense = expense,
-            category= category,
+            category = category,
             onDelete = {
                 DialogUtils.showDeleteConfirmation(
                     context = requireContext(),

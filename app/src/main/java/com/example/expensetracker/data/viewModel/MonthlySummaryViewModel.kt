@@ -92,35 +92,52 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
                 val defaultBudget = MonthlySummary(
                     year = year,
                     month = month,
-                    money = 0.0
+                    money = 0.0,
+                    updatedAt = System.currentTimeMillis()
                 )
                 monthlySummaryDao.insert(defaultBudget)
             }
         }
     }
 
-    private fun firebaseSync(limit: Double, key: String) {
+    private suspend fun firebaseSync(summary: MonthlySummary) {  //limit: Double, key: String, updatedAt: Long
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            FirebaseDb.updateMonthlyLimit(userUid, limit, key)
+            FirebaseDb.updateMonthlyLimit(userUid, summary)
+           /* val updateFlag =
+                FirebaseDb.checkMonthlySummaryConflictData(userUid, "${summary.year}-${summary.month}", summary.updatedAt)
+            if (updateFlag) {
+                FirebaseDb.updateMonthlyLimit(userUid, summary)
+            } else {
+                Toast.makeText(context,"There is newer data on remote server...", Toast.LENGTH_SHORT).show()
+            }*/
         }
     }
 
     fun updateLatestMonth(limit: Double) {
+        val now = Calendar.getInstance()
+        val year = now.get(Calendar.YEAR)
+        val month = now.get(Calendar.MONTH) + 1
+
+        val updatedSummary = MonthlySummary(
+            year = year,
+            month = month,
+            money = limit,
+            updatedAt = System.currentTimeMillis()
+        )
+
+        Log.d("UpdatedSummary", updatedSummary.updatedAt.toString())
+
         viewModelScope.launch {
             withContext(NonCancellable) {
-                val now = Calendar.getInstance()
-                val year = now.get(Calendar.YEAR)
-                val month = now.get(Calendar.MONTH) + 1
 
-                monthlySummaryDao.update(MonthlySummary(year = year, month = month, money = limit))
-
+                monthlySummaryDao.update(updatedSummary)
                 val online = networkViewModel.isOnline.first()
                 if (online) {
-                    firebaseSync(limit, "${year}-${month}")
+                    firebaseSync(updatedSummary)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         SummaryCacheCrud(

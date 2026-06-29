@@ -1,7 +1,9 @@
 package com.example.expensetracker.utils
 
+import android.util.Log
 import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.entity.Expense
+import com.example.expensetracker.data.entity.MonthlySummary
 import com.example.expensetracker.data.enums.CategoryIconEnum
 import com.google.firebase.database.DataSnapshot
 
@@ -41,6 +43,20 @@ object FirebaseUtils {
             displayName = displayName,
             image = image,
             isDefault= isDefault,
+            updatedAt = updatedAt
+        )
+    }
+
+    fun snapshotToSummary(snapshot: DataSnapshot): MonthlySummary{
+        val year = snapshot.child("year").getValue(Int::class.java) ?: 0
+        val month = snapshot.child("month").getValue(Int::class.java) ?: 0
+        val money = snapshot.child("money").getValue(Double::class.java) ?: 0.0
+        val updatedAt = snapshot.child("updatedAt").getValue(Long::class.java) ?: 0L
+
+        return MonthlySummary(
+            year = year,
+            month = month,
+            money = money,
             updatedAt = updatedAt
         )
     }
