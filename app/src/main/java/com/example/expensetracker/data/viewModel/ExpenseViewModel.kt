@@ -201,14 +201,14 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            val updateFlag =
-                FirebaseDb.checkExpenseConflictData(userUid, updatedExpense.id, updatedExpense.updatedAt)
+            /*val updateFlag = FirebaseDb.checkExpenseConflictData(userUid, updatedExpense.id, updatedExpense.updatedAt)
             Log.d("Compare data", updateFlag.toString())
             if (updateFlag) {
                 FirebaseDb.updateOrCreateExpense(userUid, updatedExpense)
             } else {
                 Toast.makeText(context,"There is newer data on remote server...", Toast.LENGTH_SHORT).show()
-            }
+            }*/
+            FirebaseDb.updateOrCreateExpense(userUid, updatedExpense)
         }
     }
 

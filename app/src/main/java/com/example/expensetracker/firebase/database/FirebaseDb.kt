@@ -11,18 +11,26 @@ import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.firebase.database.mappers.toFirebaseCategories
+import com.example.expensetracker.firebase.database.mappers.toFirebaseCategory
+import com.example.expensetracker.firebase.database.mappers.toFirebaseExpense
 import com.example.expensetracker.firebase.database.mappers.toFirebaseExpenses
 import com.example.expensetracker.firebase.database.mappers.toFirebaseMonthlySummary
+import com.example.expensetracker.firebase.database.mappers.toFirebaseSummary
 import com.example.expensetracker.firebase.database.model.FirebaseCategory
 import com.example.expensetracker.firebase.database.model.FirebaseExpense
 import com.example.expensetracker.firebase.database.model.FirebaseMonthlySummary
 import com.example.expensetracker.firebase.database.model.FirebaseUsers
 import com.example.expensetracker.utils.FirebaseUtils
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlin.collections.get
 
@@ -79,12 +87,7 @@ object FirebaseDb {
         for (c in categoryCache) {
             if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
                 val category = categoriesViewModel.getCategoryById(c.categoryId)
-
-                val updatedFlag =
-                    checkCategoryConflictData(user.uid, category.id, category.updatedAt)
-                if (updatedFlag) {
-                    updateOrCreateCategory(user.uid, category)
-                }
+                updateOrCreateCategoryTransaction(user.uid, category)
             } else if (c.action == CrudActionEnum.DELETE) {
                 deleteCategory(user.uid, c.categoryId)
             }
@@ -93,13 +96,7 @@ object FirebaseDb {
         for (c in cache) {
             if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
                 val expense = expenseViewModel.getExpenseById(c.expenseId)
-
-                val updateFlag = checkExpenseConflictData(user.uid, expense.id, expense.updatedAt)
-
-                if (updateFlag) {
-                    updateOrCreateExpense(user.uid, expense)
-                }
-
+                updateOrCreateExpenseTransaction(user.uid, expense)
             } else if (c.action == CrudActionEnum.DELETE) {
                 deleteExpense(user.uid, c.expenseId)
             }
@@ -107,7 +104,8 @@ object FirebaseDb {
         for (c in summaryCache) {
             if (c.action == CrudActionEnum.UPDATE) {
                 val monthlySummary = summaryViewModel.getSummaryById(c.year, c.month)
-                updateMonthlyLimit(user.uid, monthlySummary.money, "${c.year}-${c.month}")
+                //updateMonthlyLimit(user.uid, monthlySummary.money, "${c.year}-${c.month}")
+                updateSummaryTransaction(user.uid, monthlySummary)
             }
         }
 
@@ -178,6 +176,7 @@ object FirebaseDb {
         val expense = FirebaseUtils.snapshotToExpense(snapshot)
 
         Log.d("Compare data", (expense.updatedAt < updatedAt).toString())
+        Log.d("Compare data", ("${expense.updatedAt} $updatedAt"))
         return expense.updatedAt < updatedAt
     }
 
@@ -200,10 +199,10 @@ object FirebaseDb {
             }
     }
 
-    fun updateMonthlyLimit(userUid: String?, limit: Double, key: String) {
-        usersRef.child("$userUid/summary/$key/money").setValue(limit)
+    fun updateMonthlyLimit(userUid: String?, summary: MonthlySummary, key: String) {
+        usersRef.child("$userUid/summary/$key").setValue(summary)
             .addOnSuccessListener {
-                Log.d("FirebaseData", "created /expenses/$key")
+                Log.d("FirebaseData", "created /summary/$key")
             }
             .addOnFailureListener { e ->
                 Log.e("FirebaseData", "Create/Update failed", e)
@@ -229,6 +228,164 @@ object FirebaseDb {
             .addOnFailureListener { e ->
                 Log.e("Firebase", "Delete failed", e)
             }
+    }
+
+
+    suspend fun updateOrCreateExpenseTransaction(
+        uid: String,
+        expense: Expense
+    ): Boolean = suspendCancellableCoroutine { cont ->
+
+        usersRef.child(uid).child("expenses").child(expense.id)
+            .runTransaction(object : Transaction.Handler {
+
+                override fun doTransaction(currentData: MutableData): Transaction.Result {
+
+                    val id = currentData.child("id").value as? String
+                    val description = currentData.child("description").value as? String
+                    val amount = (currentData.child("amount").value as? Number)?.toDouble()
+                    val updatedAt = (currentData.child("updatedAt").value as? Number)?.toLong()
+                    val categoryId = currentData.child("categoryId").value as? String
+                    val createdAt = (currentData.child("createdAt").value as? Number)?.toLong()
+
+                    val current =
+                        if (id != null && description != null && amount != null && updatedAt != null && createdAt != null) {
+                            FirebaseExpense(
+                                id = id,
+                                description = description,
+                                amount = amount,
+                                updatedAt = updatedAt,
+                                categoryId = categoryId ?: "",
+                                createdAt = createdAt
+                            )
+                        } else {
+                            null
+                        }
+
+                    if (current == null || current.updatedAt < expense.updatedAt) {
+                        currentData.value = expense.toFirebaseExpense()
+                        return Transaction.success(currentData)
+                    }
+
+                    return Transaction.abort()
+                }
+
+                override fun onComplete(
+                    error: DatabaseError?,
+                    committed: Boolean,
+                    currentData: DataSnapshot?
+                ) {
+                    if (error != null) {
+                        if (cont.isActive) cont.resumeWith(Result.failure(error.toException()))
+                    } else {
+                        if (cont.isActive) cont.resume(committed, null)
+                    }
+                }
+            })
+    }
+
+    suspend fun updateOrCreateCategoryTransaction(
+        uid: String,
+        category: Categories
+    ): Boolean = suspendCancellableCoroutine { cont ->
+
+        usersRef.child(uid).child("categories").child(category.id)
+            .runTransaction(object : Transaction.Handler {
+
+                override fun doTransaction(currentData: MutableData): Transaction.Result {
+
+                    val id = currentData.child("id").value as? String
+                    val displayName = currentData.child("displayName").value as? String
+                    val default = (currentData.child("default").value as? Boolean)
+                    val imageKey = (currentData.child("image").value as? String)
+                    val updatedAt = (currentData.child("updatedAt").value as? Number)?.toLong()
+
+                    val image =
+                        CategoryIconEnum.entries.firstOrNull { it.key == imageKey?.lowercase() }
+
+                    val current =
+                        if (id != null && displayName != null && image != null && updatedAt != null && default != null) {
+                            FirebaseCategory(
+                                id = id,
+                                displayName = displayName,
+                                image = image,
+                                updatedAt = updatedAt,
+                                isDefault = default
+                            )
+                        } else {
+                            null
+                        }
+
+                    if (current == null || current.updatedAt < category.updatedAt) {
+                        currentData.value = category.toFirebaseCategory()
+                        return Transaction.success(currentData)
+                    }
+
+                    return Transaction.abort()
+                }
+
+                override fun onComplete(
+                    error: DatabaseError?,
+                    committed: Boolean,
+                    currentData: DataSnapshot?
+                ) {
+                    if (error != null) {
+                        if (cont.isActive) cont.resumeWith(Result.failure(error.toException()))
+                    } else {
+                        if (cont.isActive) cont.resume(committed, null)
+                    }
+                }
+            })
+    }
+
+    suspend fun updateSummaryTransaction(
+        uid: String,
+        summary: MonthlySummary
+    ): Boolean = suspendCancellableCoroutine { cont ->
+
+        usersRef.child(uid).child("summary").child("${summary.year}-${summary.month}")
+            .runTransaction(object : Transaction.Handler {
+
+                override fun doTransaction(currentData: MutableData): Transaction.Result {
+
+                    val year = (currentData.child("year").value as? Number)?.toInt()
+                    val month = (currentData.child("month").value as? Number)?.toInt()
+                    val money = (currentData.child("money").value as? Number)?.toDouble()
+                    val updatedAt = (currentData.child("updatedAt").value as? Number)?.toLong()
+
+                    val current =
+                        if (year != null && month != null && money != null && updatedAt != null ) {
+                            FirebaseMonthlySummary(
+                                year = year,
+                                month = month,
+                                money = money,
+                                updatedAt = updatedAt,
+
+                            )
+                        } else {
+                            null
+                        }
+
+                    if (current == null || current.updatedAt < summary.updatedAt) {
+                        currentData.value = summary.toFirebaseSummary()
+                        return Transaction.success(currentData)
+                    }
+
+                    return Transaction.abort()
+                }
+
+                override fun onComplete(
+                    error: DatabaseError?,
+                    committed: Boolean,
+                    currentData: DataSnapshot?
+                ) {
+                    if (error != null) {
+                        if (cont.isActive) cont.resumeWith(Result.failure(error.toException()))
+                    } else {
+                        if (cont.isActive) cont.resume(committed, null)
+                    }
+                }
+            })
     }
 
 

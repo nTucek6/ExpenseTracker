@@ -20,7 +20,8 @@ fun List<Expense>.toFirebaseExpenses(): List<FirebaseExpense> = map { it.toFireb
 fun MonthlySummary.toFirebaseSummary() = FirebaseMonthlySummary(
     year = this.year,
     month = this.month,
-    money = this.money
+    money = this.money,
+    updatedAt = this.updatedAt
 )
 
 fun List<MonthlySummary>.toFirebaseMonthlySummary(): List<FirebaseMonthlySummary> =

@@ -99,28 +99,39 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    private fun firebaseSync(limit: Double, key: String) {
+    private fun firebaseSync(summary: MonthlySummary, key: String) {
         val isSignedIn = googleAuthClient.isSignedIn.value
         val userUid = googleAuthClient.getUser()?.uid
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            FirebaseDb.updateMonthlyLimit(userUid, limit, key)
+            FirebaseDb.updateMonthlyLimit(userUid, summary, key)
         }
     }
 
     fun updateLatestMonth(limit: Double) {
+        val now = Calendar.getInstance()
+        val year = now.get(Calendar.YEAR)
+        val month = now.get(Calendar.MONTH) + 1
+
+        val updateSummary = MonthlySummary(
+            year = year,
+            month = month,
+            money = limit,
+            updatedAt = System.currentTimeMillis()
+        )
+
         viewModelScope.launch {
             withContext(NonCancellable) {
-                val now = Calendar.getInstance()
-                val year = now.get(Calendar.YEAR)
-                val month = now.get(Calendar.MONTH) + 1
 
-                monthlySummaryDao.update(MonthlySummary(year = year, month = month, money = limit))
+
+                monthlySummaryDao.update(updateSummary)
+
+                Log.d("LimitLog", updateSummary.updatedAt.toString())
 
                 val online = networkViewModel.isOnline.first()
                 if (online) {
-                    firebaseSync(limit, "${year}-${month}")
+                    firebaseSync(updateSummary, "${year}-${month}")
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
                     cacheDao.insert(
                         SummaryCacheCrud(

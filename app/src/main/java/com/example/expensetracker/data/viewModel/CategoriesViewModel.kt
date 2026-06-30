@@ -168,12 +168,13 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            val updatedFlag = checkCategoryConflictData(userUid, updatedCategory.id, updatedCategory.updatedAt)
+            /*val updatedFlag = checkCategoryConflictData(userUid, updatedCategory.id, updatedCategory.updatedAt)
             if (updatedFlag) {
                 FirebaseDb.updateOrCreateCategory(userUid, updatedCategory)
             } else {
                 Toast.makeText(context,"There is newer data on remote server...", Toast.LENGTH_SHORT).show()
-            }
+            }*/
+            FirebaseDb.updateOrCreateCategory(userUid, updatedCategory)
         }
     }
 

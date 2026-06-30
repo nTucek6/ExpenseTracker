@@ -8,12 +8,14 @@ class FirebaseMonthlySummary(
     val year: Int = 0,
     val month: Int = 0,
     val money: Double = 0.0,
+    val updatedAt: Long
 ) {
-    constructor() : this(0, 0, 0.0)
+    //constructor() : this(0, 0, 0.0)
 
     fun toMonthlySummary(): MonthlySummary = MonthlySummary(
         year = year,
         month = month,
-        money = money
+        money = money,
+        updatedAt = updatedAt
     )
 }

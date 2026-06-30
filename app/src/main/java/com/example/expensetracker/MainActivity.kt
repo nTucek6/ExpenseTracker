@@ -27,6 +27,7 @@ import com.example.expensetracker.firebase.syncManager.ExpenseSyncManager
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.firebase.syncManager.CategorySyncManager
+import com.example.expensetracker.firebase.syncManager.SummarySyncManager
 import com.example.expensetracker.ui.helper.SyncToastManager
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.SharedPreferencesUtils
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     val googleAuthClient = GoogleAuthClient(this)
     private lateinit var expenseSyncManager: ExpenseSyncManager
     private lateinit var categoriesSyncManager: CategorySyncManager
+    private lateinit var summarySyncManager: SummarySyncManager
 
 
     @SuppressLint("RestrictedApi")
@@ -68,6 +70,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val userUid = googleAuthClient.getUser()?.uid
         val expenseDao = ExpenseTrackerDatabase.getDatabase(this).expenseDao()
         val categoryDao = ExpenseTrackerDatabase.getDatabase(this).categoriesDao()
+        val summaryDao = ExpenseTrackerDatabase.getDatabase(this).monthlySummaryDao()
 
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(this.applicationContext)
@@ -82,6 +85,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 onItemUpdated = { syncToastManager.onCategoryUpdated() },
                 userUid,
                 categoryDao
+            )
+            summarySyncManager = SummarySyncManager(
+                onItemUpdated = {  },
+                userUid,
+                summaryDao
             )
         }
 
@@ -167,6 +175,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn()) {
             expenseSyncManager.startListening()
             categoriesSyncManager.startListening()
+            summarySyncManager.startListening()
         }
     }
 
@@ -176,6 +185,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn()) {
             expenseSyncManager.stopListening()
             categoriesSyncManager.stopListening()
+            summarySyncManager.stopListening()
         }
     }
 
