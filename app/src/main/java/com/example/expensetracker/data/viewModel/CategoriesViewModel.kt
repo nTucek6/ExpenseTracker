@@ -2,24 +2,19 @@ package com.example.expensetracker.data.viewModel
 
 import android.app.Application
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.expensetracker.data.dao.CategoryCacheCrudDao
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
-import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Categories
 import com.example.expensetracker.data.entity.CategoryCacheCrud
-import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.CategoryIconEnum
 import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.ManageCategories
 import com.example.expensetracker.firebase.database.FirebaseDb
-import com.example.expensetracker.firebase.database.FirebaseDb.checkCategoryConflictData
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.ui.viewModel.NetworkViewModel
 import com.example.expensetracker.utils.SharedPreferencesUtils
@@ -134,7 +129,6 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             withContext(NonCancellable) {
                 categoriesDao.delete(category)
-
                 val online = networkViewModel.isOnline.first()
                 if (online) {
                     deleteCategory(category.id)

@@ -135,8 +135,16 @@ object FirebaseDb {
     suspend fun getUserSummaryOnce(uid: String): List<MonthlySummary> {
         val summaryRef = database.getReference("users").child(uid).child("summary")
         val snapshot = summaryRef.get().await()
-        return snapshot.children.mapNotNull {
-            it.getValue(FirebaseMonthlySummary::class.java)?.toMonthlySummary()
+        return snapshot.children.mapNotNull { snap ->
+            //it.getValue(FirebaseMonthlySummary::class.java)?.toMonthlySummary()
+            val map = snap.value as? Map<*, *> ?: return@mapNotNull null
+
+            val year = (map["year"] as? Number)?.toInt() ?: 0
+            val month = (map["month"] as? Number)?.toInt() ?: 0
+            val money = (map["money"] as? Number)?.toDouble() ?: 0.0
+            val updatedAt = (map["updatedAt"] as? Number)?.toLong() ?: 0L
+
+            FirebaseMonthlySummary(year, month, money, updatedAt).toMonthlySummary()
         }
     }
 
@@ -168,24 +176,6 @@ object FirebaseDb {
             .addOnFailureListener { e ->
                 Log.e("FirebaseData", "Create/Update failed", e)
             }
-    }
-
-
-    suspend fun checkExpenseConflictData(userUid: String, key: String, updatedAt: Long): Boolean {
-        val snapshot = usersRef.child("$userUid/expenses/$key").get().await()
-        val expense = FirebaseUtils.snapshotToExpense(snapshot)
-
-        Log.d("Compare data", (expense.updatedAt < updatedAt).toString())
-        Log.d("Compare data", ("${expense.updatedAt} $updatedAt"))
-        return expense.updatedAt < updatedAt
-    }
-
-    suspend fun checkCategoryConflictData(userUid: String, key: String, updatedAt: Long): Boolean {
-        val snapshot = usersRef.child("$userUid/categories/$key").get().await()
-        val category = FirebaseUtils.snapshotToCategory(snapshot)
-
-        Log.d("Compare data", (category.updatedAt < updatedAt).toString())
-        return category.updatedAt < updatedAt
     }
 
     fun deleteExpense(userUid: String, expenseId: String) {
@@ -354,14 +344,14 @@ object FirebaseDb {
                     val updatedAt = (currentData.child("updatedAt").value as? Number)?.toLong()
 
                     val current =
-                        if (year != null && month != null && money != null && updatedAt != null ) {
+                        if (year != null && month != null && money != null && updatedAt != null) {
                             FirebaseMonthlySummary(
                                 year = year,
                                 month = month,
                                 money = money,
                                 updatedAt = updatedAt,
 
-                            )
+                                )
                         } else {
                             null
                         }
@@ -387,6 +377,4 @@ object FirebaseDb {
                 }
             })
     }
-
-
 }
