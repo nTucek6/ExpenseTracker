@@ -31,10 +31,13 @@ import com.example.expensetracker.firebase.syncManager.SummarySyncManager
 import com.example.expensetracker.ui.helper.SyncToastManager
 import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
+import dagger.hilt.android.AndroidEntryPoint
+import jakarta.inject.Inject
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private var backPressTime: Long = 0
@@ -43,7 +46,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var navHostFragment: NavHostFragment
     private val expenseViewModel: ExpenseViewModel by viewModels()
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
-    private val connectivityObserver: ConnectivityObserver by viewModels()
+    @Inject
+    lateinit var connectivityObserver: ConnectivityObserver
 
     private val analyticsViewModel: AnalyticsViewModel by viewModels()
     private val categoriesViewModel: CategoriesViewModel by viewModels()

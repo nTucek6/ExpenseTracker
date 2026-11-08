@@ -8,8 +8,8 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.expensetracker" />
-                  <option name="mobileSdkAppId" value="1:1044783081419:android:b2ab00c000f8d18082784e" />
+                  <option name="appId" value="com.example.expensetracker.debug" />
+                  <option name="mobileSdkAppId" value="1:1044783081419:android:db4c192dc778d25182784e" />
                   <option name="projectId" value="expensetracker-52826" />
                   <option name="projectNumber" value="1044783081419" />
                 </ConnectionSetting>

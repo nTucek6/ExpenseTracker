@@ -20,6 +20,8 @@ import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -34,8 +36,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
-class ExpenseViewModel(application: Application,
-                       private val expenseRepository: ExpenseRepository) : AndroidViewModel(application) {
+@HiltViewModel
+class ExpenseViewModel @Inject constructor(application: Application,
+                                           private val expenseRepository: ExpenseRepository,
+                                           private val connectivityObserver: ConnectivityObserver
+) : AndroidViewModel(application) {
     //private val expenseDao = ExpenseTrackerDatabase.getDatabase(application).expenseDao()
 
     private val cacheDao = ExpenseTrackerDatabase.getDatabase(application).cacheCrudDao()
@@ -43,7 +48,7 @@ class ExpenseViewModel(application: Application,
     val context = getApplication<Application>()
     val googleAuthClient = GoogleAuthClient(context.applicationContext)
 
-    val connectivityObserver = ConnectivityObserver(context)
+
 
     val isOnline: StateFlow<Boolean> =
         connectivityObserver.isOnline

@@ -20,6 +20,7 @@ import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
+import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +35,8 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
     val googleAuthClient = GoogleAuthClient(context.applicationContext)
 
-    val connectivityObserver = ConnectivityObserver(context)
+    @Inject
+    lateinit var connectivityObserver: ConnectivityObserver
 
     private val categoryCacheDao =
         ExpenseTrackerDatabase.getDatabase(application).categoryCacheCrudDao()

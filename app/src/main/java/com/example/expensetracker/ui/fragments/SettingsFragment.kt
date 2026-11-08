@@ -28,24 +28,31 @@ import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseUser
+import dagger.hilt.android.AndroidEntryPoint
+import jakarta.inject.Inject
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
+@AndroidEntryPoint
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     lateinit var singInOutBtn: MaterialButton
     lateinit var syncDataBtn: LinearLayout
     lateinit var downloadDataBtn: LinearLayout
 
-    private val expenseViewModel: ExpenseViewModel by viewModels()
+    private val expenseViewModel: ExpenseViewModel by activityViewModels()
 
-    private val summaryViewModel: MonthlySummaryViewModel by viewModels()
+    private val summaryViewModel: MonthlySummaryViewModel by activityViewModels()
 
     private val categoryViewModel: CategoriesViewModel by activityViewModels()
-    private val connectivityObserver: ConnectivityObserver by activityViewModels()
+    @Inject
+    lateinit var connectivityObserver: ConnectivityObserver
 
     @SuppressLint("UnsafeRepeatOnLifecycleDetector", "ResourceType")
+    @OptIn(FlowPreview::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val googleAuthClient = GoogleAuthClient(requireContext())
@@ -162,7 +169,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                connectivityObserver.isOnline.collect { online ->
+                connectivityObserver.isOnline.debounce(1_000L).collect { online ->
                     if (!online) {
                         Toast.makeText(
                             requireContext(),
@@ -200,13 +207,6 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         btnLanguage.setOnClickListener {
             DialogUtils.showLanguageDialog(requireContext())
-            /*val currentLocale = AppCompatDelegate.getApplicationLocales().get(0)
-
-            if (currentLocale?.language == LanguageISOEnum.EN.code) {
-                changeLanguage(LanguageISOEnum.CRO.code)
-            } else {
-                changeLanguage(LanguageISOEnum.EN.code)
-            }*/
         }
 
         btnManageCategories.setOnClickListener {

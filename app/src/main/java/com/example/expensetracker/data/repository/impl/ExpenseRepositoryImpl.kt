@@ -12,8 +12,11 @@ import com.example.expensetracker.data.model.MonthlyBudgetSpent
 import com.example.expensetracker.data.model.SpentPerCategory
 import com.example.expensetracker.data.model.WeeklyBudgetSpent
 import com.example.expensetracker.data.repository.ExpenseRepository
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
-class ExpenseRepositoryImpl(
+@Singleton
+class ExpenseRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
     private val cacheDao : CacheCrudDao) : ExpenseRepository {
 

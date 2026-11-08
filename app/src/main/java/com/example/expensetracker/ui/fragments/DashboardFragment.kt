@@ -20,7 +20,9 @@ import com.example.expensetracker.ui.adapters.ExpenseAdapter
 import com.example.expensetracker.utils.DialogUtils
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private val expenseViewModel: ExpenseViewModel by activityViewModels()
 
