@@ -104,7 +104,6 @@ object FirebaseDb {
         for (c in summaryCache) {
             if (c.action == CrudActionEnum.UPDATE) {
                 val monthlySummary = summaryViewModel.getSummaryById(c.year, c.month)
-                //updateMonthlyLimit(user.uid, monthlySummary.money, "${c.year}-${c.month}")
                 updateSummaryTransaction(user.uid, monthlySummary)
             }
         }

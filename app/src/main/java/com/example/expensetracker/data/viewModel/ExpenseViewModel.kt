@@ -2,7 +2,6 @@ package com.example.expensetracker.data.viewModel
 
 import android.app.Application
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -14,9 +13,10 @@ import com.example.expensetracker.data.entity.CacheCrud
 import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.ExpenseWithGroupSum
+import com.example.expensetracker.data.repository.ExpenseRepository
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
-import com.example.expensetracker.ui.viewModel.NetworkViewModel
+import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
@@ -24,45 +24,61 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
-class ExpenseViewModel(application: Application) : AndroidViewModel(application) {
-    private val expenseDao = ExpenseTrackerDatabase.getDatabase(application).expenseDao()
+class ExpenseViewModel(application: Application,
+                       private val expenseRepository: ExpenseRepository) : AndroidViewModel(application) {
+    //private val expenseDao = ExpenseTrackerDatabase.getDatabase(application).expenseDao()
 
     private val cacheDao = ExpenseTrackerDatabase.getDatabase(application).cacheCrudDao()
 
     val context = getApplication<Application>()
     val googleAuthClient = GoogleAuthClient(context.applicationContext)
 
-    val networkViewModel = NetworkViewModel(context)
+    val connectivityObserver = ConnectivityObserver(context)
 
-    val allExpenses = expenseDao.getAllExpenses()
-    val totalSpent = expenseDao.getTotalSpent()
+    val isOnline: StateFlow<Boolean> =
+        connectivityObserver.isOnline
+            .debounce(500L)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = false
+            )
+
+    //val allExpenses = expenseDao.getAllExpenses()
+    val allExpenses = expenseRepository.getAllExpenses()
+    //val totalSpent = expenseDao.getTotalSpent()
+    val totalSpent = expenseRepository.getTotalSpent()
 
     //val recentExpenses = expenseDao.getRecentExpenses()
 
-    val recentExpensesWithCategory = expenseDao.getRecentExpensesWithCategory()
-
+    //val recentExpensesWithCategory = expenseDao.getRecentExpensesWithCategory()
+    val recentExpensesWithCategory = expenseRepository.getRecentExpensesWithCategory()
     val allCachesCrud = cacheDao.getAllCrud()
 
     suspend fun getDailyBudgetSpent(dateFrom: Long?, dateTo: Long?) =
-        expenseDao.getDailyBudgetSpent(dateFrom, dateTo)
+        expenseRepository.getDailyBudgetSpent(dateFrom, dateTo)
 
     suspend fun getWeeklyBudgetSpent(dateFrom: Long?, dateTo: Long?) =
-        expenseDao.getWeeklyBudgetSpent(dateFrom, dateTo)
+        expenseRepository.getWeeklyBudgetSpent(dateFrom, dateTo)
 
     suspend fun getMonthlyBudgetSpent(dateFrom: Long?, dateTo: Long?) =
-        expenseDao.getMonthlyBudgetSpent(dateFrom, dateTo)
+        expenseRepository.getMonthlyBudgetSpent(dateFrom, dateTo)
 
     suspend fun getSpentPerCategory(dateFrom: Long?, dateTo: Long?) =
-        expenseDao.getSpentPerCategory(dateFrom, dateTo)
+        expenseRepository.getSpentPerCategory(dateFrom, dateTo)
 
 
-    suspend fun getExpenseById(id: String): Expense = expenseDao.findById(id)
+    suspend fun getExpenseById(id: String): Expense = expenseRepository.findById(id)
 
     //private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
@@ -71,7 +87,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         try {
             val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
             val firebaseExpenses = FirebaseDb.getUserExpensesOnce(userId)
-            expenseDao.replaceAll(firebaseExpenses)
+            expenseRepository.replaceAll(firebaseExpenses)
             // expenseDao.insertAll(firebaseExpenses)
             Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} expenses")
         } catch (e: Exception) {
@@ -91,7 +107,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                     prefetchDistance = 5,
                     enablePlaceholders = false
                 ),
-                pagingSourceFactory = { expenseDao.getExpensesPaging(query) }
+                pagingSourceFactory = { expenseRepository.getExpensesPaging(query) }
             ).flow.cachedIn(viewModelScope)
         }
 
@@ -109,8 +125,8 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         )
         viewModelScope.launch {
             withContext(NonCancellable) {
-                expenseDao.insert(expense)
-                val online = networkViewModel.isOnline.first()
+                expenseRepository.insert(expense)
+                val online = connectivityObserver.isOnline.first()
                 if (online) {
                     firebaseSync(expense)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
@@ -143,8 +159,8 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(NonCancellable) {
                 try {
-                    expenseDao.update(updatedExpense)
-                    val online = networkViewModel.isOnline.first()
+                    expenseRepository.update(updatedExpense)
+                    val online = connectivityObserver.isOnline.first()
                     if (online) {
                         firebaseSync(updatedExpense)
                     } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
@@ -165,9 +181,9 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
     fun delete(expense: Expense) {
         viewModelScope.launch {
             withContext(NonCancellable) {
-                expenseDao.delete(expense)
+                expenseRepository.delete(expense)
 
-                val online = networkViewModel.isOnline.first()
+                val online = connectivityObserver.isOnline.first()
                 if (online) {
                     deleteExpense(expense.id)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
@@ -184,7 +200,7 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     fun deleteAll() {
         viewModelScope.launch {
-            expenseDao.deleteAll()
+            expenseRepository.deleteAll()
         }
     }
 

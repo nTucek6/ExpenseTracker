@@ -16,7 +16,7 @@ import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.ManageCategories
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
-import com.example.expensetracker.ui.viewModel.NetworkViewModel
+import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
@@ -34,7 +34,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
     val googleAuthClient = GoogleAuthClient(context.applicationContext)
 
-    val networkViewModel = NetworkViewModel(context)
+    val connectivityObserver = ConnectivityObserver(context)
 
     private val categoryCacheDao =
         ExpenseTrackerDatabase.getDatabase(application).categoryCacheCrudDao()
@@ -65,7 +65,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
 
                 val newCategory = category.copy(id = category.id)
 
-                val online = networkViewModel.isOnline.first()
+                val online = connectivityObserver.isOnline.first()
 
                 if (online) {
                     firebaseSync(category.copy(id = category.id))
@@ -95,7 +95,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
             withContext(NonCancellable) {
                 try {
                     categoriesDao.update(updatedCategory)
-                    val online = networkViewModel.isOnline.first()
+                    val online = connectivityObserver.isOnline.first()
                     if (online) {
                         firebaseSync(updatedCategory)
                     } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
@@ -129,7 +129,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             withContext(NonCancellable) {
                 categoriesDao.delete(category)
-                val online = networkViewModel.isOnline.first()
+                val online = connectivityObserver.isOnline.first()
                 if (online) {
                     deleteCategory(category.id)
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {

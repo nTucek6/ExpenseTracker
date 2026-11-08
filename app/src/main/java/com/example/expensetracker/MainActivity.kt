@@ -29,7 +29,7 @@ import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
 import com.example.expensetracker.firebase.syncManager.CategorySyncManager
 import com.example.expensetracker.firebase.syncManager.SummarySyncManager
 import com.example.expensetracker.ui.helper.SyncToastManager
-import com.example.expensetracker.ui.viewModel.NetworkViewModel
+import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var navHostFragment: NavHostFragment
     private val expenseViewModel: ExpenseViewModel by viewModels()
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
-    private val networkViewModel: NetworkViewModel by viewModels()
+    private val connectivityObserver: ConnectivityObserver by viewModels()
 
     private val analyticsViewModel: AnalyticsViewModel by viewModels()
     private val categoriesViewModel: CategoriesViewModel by viewModels()
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                networkViewModel.isOnlineDebounced.collect { online ->
+                connectivityObserver.isOnline.collect { online ->
                     if (online) {
                         val autoSync = SharedPreferencesUtils.getAutoSync(this@MainActivity)
                         val isSignedIn = googleAuthClient.isSignedIn.value
@@ -156,11 +156,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                                 )
                             }
                         }
-                    } /*else{
-                        val cache = expenseViewModel.allCachesCrud.first()
-                        Log.d("CacheData", cache.toString())
-                        //expenseViewModel.deleteFromCacheCrud()
-                    } */
+                    }
                 }
             }
         }

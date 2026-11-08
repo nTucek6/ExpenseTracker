@@ -4,12 +4,9 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,23 +16,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.expensetracker.R
-import com.example.expensetracker.data.enums.LanguageISOEnum
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
-import com.example.expensetracker.ui.viewModel.NetworkViewModel
+import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.DialogUtils
 import com.example.expensetracker.utils.LanguageUtils
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.Locale
 import kotlin.getValue
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
@@ -49,7 +43,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private val summaryViewModel: MonthlySummaryViewModel by viewModels()
 
     private val categoryViewModel: CategoriesViewModel by activityViewModels()
-    private val networkViewModel: NetworkViewModel by activityViewModels()
+    private val connectivityObserver: ConnectivityObserver by activityViewModels()
 
     @SuppressLint("UnsafeRepeatOnLifecycleDetector", "ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -157,7 +151,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                networkViewModel.isOnline.collect { online ->
+                connectivityObserver.isOnline.collect { online ->
                     singInOutBtn.isEnabled = online
                     syncDataBtn.isEnabled = online
                     downloadDataBtn.isEnabled = online
@@ -168,7 +162,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                networkViewModel.isOnlineDebounced.collect { online ->
+                connectivityObserver.isOnline.collect { online ->
                     if (!online) {
                         Toast.makeText(
                             requireContext(),

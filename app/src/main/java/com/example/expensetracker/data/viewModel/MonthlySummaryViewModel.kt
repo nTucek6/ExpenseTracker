@@ -2,25 +2,21 @@ package com.example.expensetracker.data.viewModel
 
 import android.app.Application
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import androidx.paging.LOG_TAG
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
-import com.example.expensetracker.data.entity.CacheCrud
-import com.example.expensetracker.data.entity.Expense
 import com.example.expensetracker.data.entity.MonthlySummary
 import com.example.expensetracker.data.entity.SummaryCacheCrud
 import com.example.expensetracker.data.enums.CrudActionEnum
 import com.example.expensetracker.data.model.BudgetWithSpent
 import com.example.expensetracker.firebase.database.FirebaseDb
 import com.example.expensetracker.firebase.google_auth.GoogleAuthClient
-import com.example.expensetracker.ui.viewModel.NetworkViewModel
+import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
@@ -29,7 +25,6 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -44,7 +39,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
     val context = getApplication<Application>()
     val googleAuthClient = GoogleAuthClient(context.applicationContext)
-    val networkViewModel = NetworkViewModel(context)
+    val connectivityObserver = ConnectivityObserver(context)
 
     val getCurrentMonthBudget = monthlySummaryDao.getCurrentMonthBudget()
 
@@ -129,7 +124,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
                 Log.d("LimitLog", updateSummary.updatedAt.toString())
 
-                val online = networkViewModel.isOnline.first()
+                val online = connectivityObserver.isOnline.first()
                 if (online) {
                     firebaseSync(updateSummary, "${year}-${month}")
                 } else if (ViewModelUtils.checkOfflineSync(googleAuthClient, context)) {
