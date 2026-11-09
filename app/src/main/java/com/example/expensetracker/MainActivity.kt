@@ -19,6 +19,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import androidx.navigation.fragment.NavHostFragment
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
+import com.example.expensetracker.data.repository.SyncRepository
 import com.example.expensetracker.data.viewModel.AnalyticsViewModel
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
@@ -40,6 +41,8 @@ import kotlin.getValue
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
+    @Inject
+    lateinit var syncRepository: SyncRepository
     private var backPressTime: Long = 0
     private val DOUBLE_PRESS_INTERVAL = 2000L
 
@@ -152,12 +155,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         if (isSignedIn && autoSync) {
                             val user = googleAuthClient.getUser()
                             if (user != null) {
-                                FirebaseDb.syncRecentUpdates(
+                                syncRepository.syncRecentUpdates(user)
+                               /* firebaseDb.syncRecentUpdates(
                                     user,
                                     expenseViewModel,
                                     summaryViewModel,
                                     categoriesViewModel
-                                )
+                                )*/
                             }
                         }
                     }

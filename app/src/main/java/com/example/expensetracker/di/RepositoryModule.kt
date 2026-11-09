@@ -1,7 +1,9 @@
 package com.example.expensetracker.di
 
 import com.example.expensetracker.data.repository.ExpenseRepository
+import com.example.expensetracker.data.repository.SyncRepository
 import com.example.expensetracker.data.repository.impl.ExpenseRepositoryImpl
+import com.example.expensetracker.data.repository.impl.SyncRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,4 +17,10 @@ abstract class RepositoryModule {
     abstract fun bindExpenseRepository(
         implementation: ExpenseRepositoryImpl
     ): ExpenseRepository
+
+    @Binds
+    abstract fun bindSyncRepository(
+        implementation: SyncRepositoryImpl
+    ): SyncRepository
+
 }

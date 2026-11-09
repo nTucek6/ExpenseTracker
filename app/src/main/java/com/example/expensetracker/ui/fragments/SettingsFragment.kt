@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.expensetracker.R
+import com.example.expensetracker.data.repository.SyncRepository
 import com.example.expensetracker.data.viewModel.CategoriesViewModel
 import com.example.expensetracker.data.viewModel.ExpenseViewModel
 import com.example.expensetracker.data.viewModel.MonthlySummaryViewModel
@@ -50,6 +51,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private val categoryViewModel: CategoriesViewModel by activityViewModels()
     @Inject
     lateinit var connectivityObserver: ConnectivityObserver
+   /* @Inject
+    lateinit var firebaseDb: FirebaseDb*/
+
+    @Inject
+    lateinit var syncRepository: SyncRepository
 
     @SuppressLint("UnsafeRepeatOnLifecycleDetector", "ResourceType")
     @OptIn(FlowPreview::class)
@@ -117,12 +123,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                         val autoSync = SharedPreferencesUtils.getAutoSync(requireContext())
                         val user = googleAuthClient.getUser()
                         if (autoSync && user != null) {
-                            FirebaseDb.syncData(
-                                user,
-                                expenseViewModel,
-                                summaryViewModel,
-                                categoryViewModel
-                            )
+
+                            syncRepository.syncData(user)
                         }
 
                     }
@@ -193,12 +195,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     googleAuthClient.getUser()?.let { user ->
                         Log.d("CheckAutoSync", user.email.toString())
                         //lifecycleScope.launch {
-                        FirebaseDb.syncData(
-                            user,
-                            expenseViewModel,
-                            summaryViewModel,
-                            categoryViewModel
-                        )
+                        syncRepository.syncData(user)
                         // }
                     }
                 }
@@ -220,7 +217,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             context = requireContext(),
             onConfirm = {
                 lifecycleScope.launch {
-                    FirebaseDb.syncData(user, expenseViewModel, summaryViewModel, categoryViewModel)
+                    syncRepository.syncData(user)
                 }
             },
             title = requireContext().getString(R.string.sync_data_title),

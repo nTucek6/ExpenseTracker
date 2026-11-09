@@ -3,8 +3,11 @@ package com.example.expensetracker.data.viewModel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 
-class AnalyticsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class AnalyticsViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 
     private val analyticsDao = ExpenseTrackerDatabase.getDatabase(application).analyticsDao()
 

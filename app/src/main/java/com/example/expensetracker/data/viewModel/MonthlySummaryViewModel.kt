@@ -20,6 +20,7 @@ import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
@@ -32,7 +33,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 
-class MonthlySummaryViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class MonthlySummaryViewModel @Inject constructor(application: Application, private val firebaseDb: FirebaseDb) : AndroidViewModel(application) {
 
     private val monthlySummaryDao =
         ExpenseTrackerDatabase.getDatabase(application).monthlySummaryDao()
@@ -102,7 +104,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            FirebaseDb.updateMonthlyLimit(userUid, summary, key)
+            firebaseDb.updateMonthlyLimit(userUid, summary, key)
         }
     }
 
@@ -173,7 +175,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         viewModelScope.launch {
             try {
                 val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
-                val firebaseExpenses = FirebaseDb.getUserSummaryOnce(userId)
+                val firebaseExpenses = firebaseDb.getUserSummaryOnce(userId)
                 monthlySummaryDao.insertAll(firebaseExpenses)
                 Log.d("Sync", "Firebase → Room: ${firebaseExpenses.size} monthly expenses")
             } catch (e: Exception) {

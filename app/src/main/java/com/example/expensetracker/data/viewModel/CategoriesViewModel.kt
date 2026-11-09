@@ -20,6 +20,7 @@ import com.example.expensetracker.ui.viewModel.ConnectivityObserver
 import com.example.expensetracker.utils.SharedPreferencesUtils
 import com.example.expensetracker.utils.ViewModelUtils
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
@@ -29,7 +30,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
-class CategoriesViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class CategoriesViewModel @Inject constructor(application: Application,  private val firebaseDb: FirebaseDb) : AndroidViewModel(application) {
 
     val context = getApplication<Application>()
 
@@ -166,11 +168,11 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         if (isSyncOn && isSignedIn && userUid != null) {
             /*val updatedFlag = checkCategoryConflictData(userUid, updatedCategory.id, updatedCategory.updatedAt)
             if (updatedFlag) {
-                FirebaseDb.updateOrCreateCategory(userUid, updatedCategory)
+                firebaseDb.updateOrCreateCategory(userUid, updatedCategory)
             } else {
                 Toast.makeText(context,"There is newer data on remote server...", Toast.LENGTH_SHORT).show()
             }*/
-            FirebaseDb.updateOrCreateCategory(userUid, updatedCategory)
+            firebaseDb.updateOrCreateCategory(userUid, updatedCategory)
         }
     }
 
@@ -180,7 +182,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         val isSyncOn: Boolean =
             SharedPreferencesUtils.getAutoSync(context.applicationContext)
         if (isSyncOn && isSignedIn && userUid != null) {
-            FirebaseDb.deleteCategory(userUid, categoryId)
+            firebaseDb.deleteCategory(userUid, categoryId)
         }
     }
 
@@ -188,7 +190,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         //viewModelScope.launch {
             try {
                 val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
-                val firebaseCategories = FirebaseDb.getUserCategoriesOnce(userId)
+                val firebaseCategories = firebaseDb.getUserCategoriesOnce(userId)
                 categoriesDao.replaceAll(firebaseCategories)
                 //categoriesDao.insertAll(firebaseCategories)
                 Log.d("Sync", "Firebase → Room: ${firebaseCategories.size} categories")

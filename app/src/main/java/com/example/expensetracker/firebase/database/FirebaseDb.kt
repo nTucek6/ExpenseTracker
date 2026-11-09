@@ -28,94 +28,27 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.MutableData
 import com.google.firebase.database.Transaction
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlin.collections.get
 
-object FirebaseDb {
+@Singleton
+class FirebaseDb @Inject constructor(
+    private val databaseRoot: DatabaseReference
+) {
 
-    private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
-    private val usersRef: DatabaseReference = database.getReference("users")
+    private val usersRef: DatabaseReference = databaseRoot.child("users")
 
-    suspend fun syncData(
-        user: FirebaseUser,
-        expenseViewModel: ExpenseViewModel,
-        summaryViewModel: MonthlySummaryViewModel,
-        categoriesViewModel: CategoriesViewModel
-    ) {
-        val expenseList = expenseViewModel.allExpenses
-            .asFlow()
-            .filter { it.isNotEmpty() }
-            .first()
-        val summaryList = summaryViewModel.getAllMonthBudget
-            .asFlow()
-            .filter { it.isNotEmpty() }
-            .first()
-
-        val categoriesList =
-            categoriesViewModel.allCategories.asFlow().filter { it.isNotEmpty() }.first()
-
-        val expense = expenseList.toFirebaseExpenses()
-        val summary = summaryList.toFirebaseMonthlySummary()
-        val categories = categoriesList.toFirebaseCategories()
-
-        Log.d("FirebaseCheckData", expenseList.toString())
-
-        val expenseMap = expense.associate { it.id to it }
-        val summaryMap = summary.associate { "${it.year}-${it.month}" to it }
-        val categoryMap = categories.associate { it.id to it }
-        val userData = FirebaseUsers(user.uid, user.email, expenseMap, summaryMap, categoryMap)
-
-        usersRef.child(user.uid).setValue(userData)
-            .addOnSuccessListener { Log.d("FirebaseCheck", "User data saved") }
-            .addOnFailureListener { e -> Log.e("FirebaseCheck", "Save failed", e) }
-
+    fun getUserRef(): DatabaseReference {
+        return usersRef
     }
-
-    suspend fun syncRecentUpdates(
-        user: FirebaseUser,
-        expenseViewModel: ExpenseViewModel,
-        summaryViewModel: MonthlySummaryViewModel,
-        categoriesViewModel: CategoriesViewModel
-    ) {
-        val cache = expenseViewModel.allCachesCrud.first()
-        val summaryCache = summaryViewModel.allCachesCrud.first()
-        val categoryCache = categoriesViewModel.allCategoryCachesCrud.first()
-
-        for (c in categoryCache) {
-            if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
-                val category = categoriesViewModel.getCategoryById(c.categoryId)
-                updateOrCreateCategoryTransaction(user.uid, category)
-            } else if (c.action == CrudActionEnum.DELETE) {
-                deleteCategory(user.uid, c.categoryId)
-            }
-        }
-
-        for (c in cache) {
-            if (c.action == CrudActionEnum.INSERT || c.action == CrudActionEnum.UPDATE) {
-                val expense = expenseViewModel.getExpenseById(c.expenseId)
-                updateOrCreateExpenseTransaction(user.uid, expense)
-            } else if (c.action == CrudActionEnum.DELETE) {
-                deleteExpense(user.uid, c.expenseId)
-            }
-        }
-        for (c in summaryCache) {
-            if (c.action == CrudActionEnum.UPDATE) {
-                val monthlySummary = summaryViewModel.getSummaryById(c.year, c.month)
-                updateSummaryTransaction(user.uid, monthlySummary)
-            }
-        }
-
-        summaryViewModel.deleteFromCacheCrud()
-        expenseViewModel.deleteFromCacheCrud()
-        categoriesViewModel.deleteFromCategoryCacheCrud()
-    }
-
 
     suspend fun getUserExpensesOnce(uid: String): List<Expense> {
-        val expensesRef = database.getReference("users").child(uid).child("expenses")
+        val expensesRef = databaseRoot.child("users").child(uid).child("expenses")
         val snapshot = expensesRef.get().await()
         return snapshot.children.mapNotNull { snap ->
             val map = snap.value as? Map<*, *> ?: return@mapNotNull null
@@ -132,7 +65,7 @@ object FirebaseDb {
     }
 
     suspend fun getUserSummaryOnce(uid: String): List<MonthlySummary> {
-        val summaryRef = database.getReference("users").child(uid).child("summary")
+        val summaryRef = databaseRoot.child("users").child(uid).child("summary")
         val snapshot = summaryRef.get().await()
         return snapshot.children.mapNotNull { snap ->
             //it.getValue(FirebaseMonthlySummary::class.java)?.toMonthlySummary()
@@ -148,7 +81,7 @@ object FirebaseDb {
     }
 
     suspend fun getUserCategoriesOnce(uid: String): List<Categories> {
-        val summaryRef = database.getReference("users").child(uid).child("categories")
+        val summaryRef = databaseRoot.child("users").child(uid).child("categories")
         val snapshot = summaryRef.get().await()
         return snapshot.children.mapNotNull { snap ->
             val map = snap.value as? Map<*, *> ?: return@mapNotNull null

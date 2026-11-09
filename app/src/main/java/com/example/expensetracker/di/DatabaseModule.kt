@@ -2,7 +2,11 @@ package com.example.expensetracker.di
 
 import android.app.Application
 import com.example.expensetracker.data.dao.CacheCrudDao
+import com.example.expensetracker.data.dao.CategoriesDao
+import com.example.expensetracker.data.dao.CategoryCacheCrudDao
 import com.example.expensetracker.data.dao.ExpenseDao
+import com.example.expensetracker.data.dao.MonthlySummaryDao
+import com.example.expensetracker.data.dao.SummaryCacheCrudDao
 import com.example.expensetracker.data.database.ExpenseTrackerDatabase
 import dagger.Module
 import dagger.Provides
@@ -33,7 +37,32 @@ object DatabaseModule {
     }
 
     @Provides
+    fun provideCategoryDao(
+        database: ExpenseTrackerDatabase
+    ): CategoriesDao {
+        return database.categoriesDao()
+    }
+
+    @Provides
+    fun provideMonthlySummaryDao(
+        database: ExpenseTrackerDatabase
+    ): MonthlySummaryDao {
+        return database.monthlySummaryDao()
+    }
+
+    @Provides
     fun provideCacheCrudDao(database: ExpenseTrackerDatabase): CacheCrudDao {
     return database.cacheCrudDao()
     }
+
+    @Provides
+    fun provideCategoryCacheDao(database: ExpenseTrackerDatabase): CategoryCacheCrudDao {
+        return database.categoryCacheCrudDao()
+    }
+
+    @Provides
+    fun provideSummaryCacheDao(database: ExpenseTrackerDatabase): SummaryCacheCrudDao {
+        return database.summaryCacheCrudDao()
+    }
+
 }
