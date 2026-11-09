@@ -6,20 +6,38 @@ import com.example.expensetracker.utils.FirebaseUtils
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ExpenseSyncManager(
-    private val onItemUpdated: () -> Unit,
-    private val uid: String,
-    private val expenseDao: ExpenseDao
+
+class ExpenseSyncManager @AssistedInject constructor(
+    @Assisted private val onItemUpdated: () -> Unit,
+    @Assisted private val uid: String,
+
+    private val expenseDao: ExpenseDao,
+    private val databaseRoot: DatabaseReference
+
 ) {
-    private val ref = FirebaseDatabase.getInstance()
-        .getReference("users")
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            onItemUpdated: () -> Unit,
+            uid: String
+        ): ExpenseSyncManager
+    }
+
+    private val ref = databaseRoot.child("users")
         .child(uid)
         .child("expenses")
 

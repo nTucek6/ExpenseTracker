@@ -43,6 +43,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Inject
     lateinit var syncRepository: SyncRepository
+    @Inject
+    lateinit var expenseSyncManagerFactory: ExpenseSyncManager.Factory
+    @Inject
+    lateinit var summarySyncManagerFactory: SummarySyncManager.Factory
+    @Inject
+    lateinit var categoriesSyncManagerFactory: CategorySyncManager.Factory
+
     private var backPressTime: Long = 0
     private val DOUBLE_PRESS_INTERVAL = 2000L
 
@@ -83,20 +90,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             SharedPreferencesUtils.getAutoSync(this.applicationContext)
 
         if (googleAuthClient.isSingedIn() && userUid != null && isSyncOn) {
-            expenseSyncManager = ExpenseSyncManager(
+            expenseSyncManager = expenseSyncManagerFactory.create(
                 onItemUpdated = { syncToastManager.onExpenseUpdated() },
-                userUid,
-                expenseDao
+                userUid
             )
-            categoriesSyncManager = CategorySyncManager(
+            categoriesSyncManager = categoriesSyncManagerFactory.create(
                 onItemUpdated = { syncToastManager.onCategoryUpdated() },
-                userUid,
-                categoryDao
+                userUid
             )
-            summarySyncManager = SummarySyncManager(
+            summarySyncManager = summarySyncManagerFactory.create(
                 onItemUpdated = {  },
-                userUid,
-                summaryDao
+                userUid
             )
         }
 

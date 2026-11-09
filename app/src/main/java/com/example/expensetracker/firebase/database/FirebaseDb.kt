@@ -40,13 +40,11 @@ import kotlin.collections.get
 class FirebaseDb @Inject constructor(
     private val databaseRoot: DatabaseReference
 ) {
-
     private val usersRef: DatabaseReference = databaseRoot.child("users")
 
     fun getUserRef(): DatabaseReference {
         return usersRef
     }
-
     suspend fun getUserExpensesOnce(uid: String): List<Expense> {
         val expensesRef = databaseRoot.child("users").child(uid).child("expenses")
         val snapshot = expensesRef.get().await()
