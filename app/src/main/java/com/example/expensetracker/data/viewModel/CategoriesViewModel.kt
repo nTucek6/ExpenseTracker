@@ -45,7 +45,7 @@ class CategoriesViewModel @Inject constructor(application: Application,  private
 
     private val categoriesDao = ExpenseTrackerDatabase.getDatabase(application).categoriesDao()
 
-    val allCategoryCachesCrud = categoryCacheDao.getAllCrud()
+    //val allCategoryCachesCrud = categoryCacheDao.getAllCrud()
 
     suspend fun findById(id: String): Categories = categoriesDao.findById(id)
 
@@ -53,7 +53,7 @@ class CategoriesViewModel @Inject constructor(application: Application,  private
 
     //private val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
-    suspend fun getCategoryById(id: String): Categories = categoriesDao.findById(id)
+    //suspend fun getCategoryById(id: String): Categories = categoriesDao.findById(id)
 
     fun insert(displayName: String, imageSvg: CategoryIconEnum) {
         val category = Categories(
